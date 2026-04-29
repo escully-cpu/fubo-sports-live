@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 sync_to_sheets.py
 update_page.py
+.github/
