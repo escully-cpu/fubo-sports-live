@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FuboTV Sports Events 2026</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FuboTV Sports &amp; Entertainment 2026</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -11,9 +12,8 @@
     background: #0f0f14;
     color: #f0f0f0;
     padding: 32px 24px;
-    max-width: 680px;
-    margin: 0 auto;
   }
+  .page-wrap { max-width: 1380px; margin: 0 auto; }
 
   .hero {
     background: linear-gradient(135deg, #0e1f3b 0%, #0f0f14 100%);
@@ -35,43 +35,43 @@
   .hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
   .hero p { font-size: 12px; color: #555; letter-spacing: 0.03em; line-height: 1.6; }
 
-  /* Legend */
+  .columns-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 960px) { .columns-wrapper { grid-template-columns: 1fr; } }
+
+  .col-header {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #666; margin-bottom: 18px; padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
   .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #555; letter-spacing: 0.06em; text-transform: uppercase; }
   .dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 
-  /* Month block */
   .month-block { margin-bottom: 32px; }
   .month-label {
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #fff;
-    padding: 8px 14px;
-    background: #1a1929;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #fff; padding: 8px 14px; background: #1a1929; border-radius: 8px;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
   }
   .month-label span { color: #555; font-weight: 400; font-size: 11px; letter-spacing: 0.06em; }
 
-  /* Items */
   .list { display: flex; flex-direction: column; gap: 7px; }
   .item {
     display: grid;
     grid-template-columns: 90px 1fr auto;
     align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
-    border-radius: 9px;
-    background: #16151d;
-    border-left: 3px solid #333;
+    gap: 12px; padding: 11px 14px; border-radius: 9px;
+    background: #16151d; border-left: 3px solid #333;
   }
   .item:hover { background: #1c1b26; }
 
+  /* Sports */
   .soccer  { border-left-color: #43a047; }
   .nba     { border-left-color: #e65100; }
   .nhl     { border-left-color: #1565c0; }
@@ -81,36 +81,26 @@
   .wwe     { border-left-color: #d32f2f; }
   .nfl     { border-left-color: #3949ab; }
   .college { border-left-color: #7b1fa2; }
+  .wnba    { border-left-color: #ff7043; }
+  .racing  { border-left-color: #ffb300; }
 
-  .date {
-    font-size: 11px;
-    font-weight: 700;
-    color: #666;
-    letter-spacing: 0.04em;
-    line-height: 1.4;
-  }
-  .title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #eee;
-    line-height: 1.35;
-  }
-  .title .sub {
-    display: block;
-    font-size: 11px;
-    font-weight: 400;
-    color: #555;
-    margin-top: 2px;
-  }
-  .network {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    text-align: right;
-    line-height: 1.5;
-    white-space: nowrap;
-  }
+  /* Entertainment */
+  .cbs-e      { border-left-color: #0288d1; }
+  .abc-e      { border-left-color: #5c6bc0; }
+  .fox-e      { border-left-color: #ff8f00; }
+  .fx-e       { border-left-color: #bf360c; }
+  .hallmark-e { border-left-color: #d81b60; }
+  .bet-e      { border-left-color: #c6a700; }
+  .mtv-e      { border-left-color: #e91e63; }
+  .starz-e    { border-left-color: #7e57c2; }
+  .freeform-e   { border-left-color: #00acc1; }
+  .paramount-e  { border-left-color: #546e7a; }
+
+  .date { font-size: 11px; font-weight: 700; color: #666; letter-spacing: 0.04em; line-height: 1.4; }
+  .title { font-size: 13px; font-weight: 600; color: #eee; line-height: 1.35; }
+  .title .sub { display: block; font-size: 11px; font-weight: 400; color: #555; margin-top: 2px; }
+  .network { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; text-align: right; line-height: 1.5; white-space: nowrap; }
+
   .soccer  .network { color: #66bb6a; }
   .nba     .network { color: #ff8a65; }
   .nhl     .network { color: #64b5f6; }
@@ -120,355 +110,737 @@
   .wwe     .network { color: #ef9a9a; }
   .nfl     .network { color: #9fa8da; }
   .college .network { color: #ce93d8; }
+  .wnba    .network { color: #ff9e80; }
+  .racing  .network { color: #ffe082; }
 
-  /* Big event highlight */
-  .item.big {
-    background: #1a1929;
-    border-left-width: 4px;
-  }
-  .title .trophy { margin-right: 4px; }
+  .cbs-e      .network { color: #4fc3f7; }
+  .abc-e      .network { color: #9fa8da; }
+  .fox-e      .network { color: #ffcc80; }
+  .fx-e       .network { color: #ffab91; }
+  .hallmark-e .network { color: #f48fb1; }
+  .bet-e      .network { color: #ffe57f; }
+  .mtv-e      .network { color: #f06292; }
+  .starz-e    .network { color: #ce93d8; }
+  .freeform-e   .network { color: #80deea; }
+  .paramount-e  .network { color: #90a4ae; }
 
-  /* ESPN pill on WWE items */
+  .item.big { background: #1a1929; border-left-width: 4px; }
+
   .espn-pill {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 1px 6px;
-    border-radius: 3px;
-    background: rgba(255,82,82,0.12);
-    color: #ff8a80;
-    border: 1px solid rgba(255,82,82,0.2);
-    margin-top: 3px;
+    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 1px 6px; border-radius: 3px;
+    background: rgba(255,82,82,0.12); color: #ff8a80;
+    border: 1px solid rgba(255,82,82,0.2); margin-top: 3px;
+  }
+  .new-pill {
+    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 1px 6px; border-radius: 3px;
+    background: rgba(250,75,19,0.14); color: #fa7013;
+    border: 1px solid rgba(250,75,19,0.25); margin-top: 3px;
   }
 
-  .note {
-    font-size: 11px;
-    color: #444;
-    padding: 16px;
-    background: #13121a;
-    border-radius: 8px;
-    line-height: 1.7;
-    margin-top: 4px;
-  }
-  .note strong { color: #666; }
-
-  /* Live date state */
   .item.past { opacity: 0.3; }
-  .item.this-week {
-    background: #1c1b2e;
-    box-shadow: 0 0 0 1px rgba(250,75,19,0.25);
-  }
+  .item.this-week { background: #1c1b2e; box-shadow: 0 0 0 1px rgba(250,75,19,0.25); }
   .item.this-week .title { color: #fff; }
   .this-week-badge {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    padding: 1px 6px;
-    border-radius: 3px;
-    background: rgba(250,75,19,0.18);
-    color: #fa4b13;
-    border: 1px solid rgba(250,75,19,0.3);
-    margin-left: 6px;
-    vertical-align: middle;
+    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; padding: 1px 6px; border-radius: 3px;
+    background: rgba(250,75,19,0.18); color: #fa4b13;
+    border: 1px solid rgba(250,75,19,0.3); margin-left: 6px; vertical-align: middle;
   }
-  .last-updated {
-    font-size: 10px;
-    color: #333;
-    text-align: center;
-    margin-top: 24px;
-    letter-spacing: 0.06em;
-  }
+
+  .note { font-size: 11px; color: #444; padding: 16px; background: #13121a; border-radius: 8px; line-height: 1.7; margin-top: 32px; }
+  .note strong { color: #666; }
+  .last-updated { font-size: 10px; color: #333; text-align: center; margin-top: 24px; letter-spacing: 0.06em; }
 </style>
 </head>
 <body>
-
+<div class="page-wrap">
 <div class="hero">
-  <div class="fubo-logo">fuboTV · All Plans</div>
-  <h1>Top Sports Events — Now thru Oct 2026</h1>
-  <p>FOX · FS1 · ABC · ESPN · CBS · ESPN Unlimited (WWE add-on) · All available on FuboTV</p>
+<div class="fubo-logo">fubo · All Plans</div>
+<h1>Sports &amp; Entertainment — Now thru Dec 2026</h1>
+<p>FOX · FS1 · ABC · ESPN · CBS · FX · BET · MTV · Freeform · Hallmark · NFL Network · NBA TV · NHL Network · MLB Network · Starz (add-on) · DAZN (add-on) · ESPN Unlimited (WWE add-on)</p>
 </div>
-
+<div class="columns-wrapper">
+<!-- ===== SPORTS ===== -->
+<div class="col col-sports">
+<div class="col-header">Sports</div>
 <div class="legend">
-  <div class="legend-item"><div class="dot" style="background:#43a047"></div>Soccer</div>
-  <div class="legend-item"><div class="dot" style="background:#e65100"></div>NBA</div>
-  <div class="legend-item"><div class="dot" style="background:#1565c0"></div>NHL</div>
-  <div class="legend-item"><div class="dot" style="background:#c62828"></div>MLB</div>
-  <div class="legend-item"><div class="dot" style="background:#f9a825"></div>Tennis</div>
-  <div class="legend-item"><div class="dot" style="background:#2e7d32"></div>Golf</div>
-  <div class="legend-item"><div class="dot" style="background:#d32f2f"></div>WWE</div>
-  <div class="legend-item"><div class="dot" style="background:#3949ab"></div>NFL</div>
-  <div class="legend-item"><div class="dot" style="background:#7b1fa2"></div>College</div>
+<div class="legend-item"><div class="dot" style="background:#43a047"></div>Soccer</div>
+<div class="legend-item"><div class="dot" style="background:#e65100"></div>NBA</div>
+<div class="legend-item"><div class="dot" style="background:#1565c0"></div>NHL</div>
+<div class="legend-item"><div class="dot" style="background:#c62828"></div>MLB</div>
+<div class="legend-item"><div class="dot" style="background:#f9a825"></div>Tennis</div>
+<div class="legend-item"><div class="dot" style="background:#2e7d32"></div>Golf</div>
+<div class="legend-item"><div class="dot" style="background:#d32f2f"></div>WWE</div>
+<div class="legend-item"><div class="dot" style="background:#3949ab"></div>NFL</div>
+<div class="legend-item"><div class="dot" style="background:#7b1fa2"></div>College</div>
+<div class="legend-item"><div class="dot" style="background:#ff7043"></div>WNBA</div>
+<div class="legend-item"><div class="dot" style="background:#ffb300"></div>Racing</div>
 </div>
-
 <!-- MAY -->
 <div class="month-block">
-  <div class="month-label">May <span>2026</span></div>
-  <div class="list">
-    <div class="item wwe">
-      <div class="date">May 10</div>
-      <div class="title">WWE Backlash<div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-    <div class="item golf">
-      <div class="date">May 14–17</div>
-      <div class="title">PGA Championship<span class="sub">Aronimink GC, Pennsylvania</span></div>
-      <div class="network">ESPN<br>CBS</div>
-    </div>
-    <div class="item nba">
-      <div class="date">May 19+</div>
-      <div class="title">NBA Conference Finals</div>
-      <div class="network">ESPN<br>ABC</div>
-    </div>
-    <div class="item nhl">
-      <div class="date">May (ongoing)</div>
-      <div class="title">NHL Stanley Cup Playoffs<span class="sub">Conference Finals</span></div>
-      <div class="network">ESPN<br>ABC</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">May (weekly)</div>
-      <div class="title">MLB Saturday Game of the Week</div>
-      <div class="network">FOX<br>FS1</div>
-    </div>
-    <div class="item tennis">
-      <div class="date">May 24–Jun 7</div>
-      <div class="title">French Open (Roland Garros)</div>
-      <div class="network">Tennis Ch.<br>ESPN</div>
-    </div>
-    <div class="item wwe">
-      <div class="date">May 31</div>
-      <div class="title">WWE Clash in Italy<div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-  </div>
+<div class="month-label">May <span>2026</span></div>
+<div class="list">
+<div class="item wwe">
+<div class="date">May 10</div>
+<div class="title">WWE Backlash<div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
 </div>
-
+<div class="item golf">
+<div class="date">May 11–17</div>
+<div class="title">PGA Championship<span class="sub">Aronimink GC, Pennsylvania</span></div>
+<div class="network">ESPN<br/>CBS</div>
+</div>
+<div class="item wnba">
+<div class="date">May 16</div>
+<div class="title">WNBA Season Tip-Off<span class="sub">Regular season opens · All 13 teams</span></div>
+<div class="network">ABC<br/>CBS / ESPN</div>
+</div>
+<div class="item nba">
+<div class="date">May 19+</div>
+<div class="title">NBA Conference Finals</div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item nhl">
+<div class="date">May (ongoing)</div>
+<div class="title">NHL Stanley Cup Playoffs<span class="sub">Conference Finals</span></div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item mlb">
+<div class="date">May (weekly)</div>
+<div class="title">MLB Saturday Game of the Week</div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+<div class="item racing">
+<div class="date">May 24</div>
+<div class="title">Indianapolis 500<span class="sub">Indianapolis Motor Speedway</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item tennis">
+<div class="date">May 24–Jun 7</div>
+<div class="title">French Open (Roland Garros)</div>
+<div class="network">Tennis Ch.<br/>ESPN</div>
+</div>
+<div class="item soccer big">
+<div class="date">May 30</div>
+<div class="title">🏆 UEFA Champions League Final<span class="sub">Munich · Biggest club match in the world</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item wwe">
+<div class="date">May 31</div>
+<div class="title">WWE Clash in Italy<div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+</div>
+</div>
 <!-- JUNE -->
 <div class="month-block">
-  <div class="month-label">June <span>2026</span></div>
-  <div class="list">
-    <div class="item nba">
-      <div class="date">Jun 3–19</div>
-      <div class="title">🏆 NBA Finals</div>
-      <div class="network">ABC<br>ESPN</div>
-    </div>
-    <div class="item soccer big">
-      <div class="date">Jun 11–Jul 19</div>
-      <div class="title">🏆 FIFA World Cup 2026<span class="sub">USA · Canada · Mexico · 104 matches</span></div>
-      <div class="network">FOX<br>FS1</div>
-    </div>
-    <div class="item soccer">
-      <div class="date">Jun 12</div>
-      <div class="title">USMNT vs. Paraguay — Group Stage<span class="sub">SoFi Stadium, Los Angeles</span></div>
-      <div class="network">FOX</div>
-    </div>
-    <div class="item nhl">
-      <div class="date">Jun (TBD)</div>
-      <div class="title">🏆 NHL Stanley Cup Final</div>
-      <div class="network">ABC<br>ESPN</div>
-    </div>
-    <div class="item golf">
-      <div class="date">Jun 18–21</div>
-      <div class="title">U.S. Open Golf<span class="sub">Shinnecock Hills, Southampton NY</span></div>
-      <div class="network">ESPN<br>CBS</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Jun (weekly)</div>
-      <div class="title">MLB Saturday Game of the Week</div>
-      <div class="network">FOX<br>FS1</div>
-    </div>
-    <div class="item wwe">
-      <div class="date">Jun 27</div>
-      <div class="title">WWE Night of Champions<span class="sub">Jeddah, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-  </div>
+<div class="month-label">June <span>2026</span></div>
+<div class="list">
+<div class="item nba">
+<div class="date">Jun 3–19</div>
+<div class="title">🏆 NBA Finals</div>
+<div class="network">ABC<br/>ESPN</div>
 </div>
-
+<div class="item soccer big">
+<div class="date">Jun 11–Jul 19</div>
+<div class="title">🏆 FIFA World Cup 2026<span class="sub">USA · Canada · Mexico · 104 matches</span></div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+<div class="item soccer">
+<div class="date">Jun 12</div>
+<div class="title">USMNT vs. Paraguay — Group Stage<span class="sub">SoFi Stadium, Los Angeles</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item nhl">
+<div class="date">Jun (TBD)</div>
+<div class="title">🏆 NHL Stanley Cup Final</div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
+<div class="item golf">
+<div class="date">Jun 18–21</div>
+<div class="title">U.S. Open Golf<span class="sub">Shinnecock Hills, Southampton NY</span></div>
+<div class="network">ESPN<br/>CBS</div>
+</div>
+<div class="item mlb">
+<div class="date">Jun (weekly)</div>
+<div class="title">MLB Saturday Game of the Week</div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+<div class="item nba">
+<div class="date">Jun 23–24</div>
+<div class="title">2026 NBA Draft<span class="sub">R1 on ABC/ESPN (Jun 23) · R2 on ESPN (Jun 24)</span></div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
+<div class="item nhl">
+<div class="date">Jun 26–27</div>
+<div class="title">2026 NHL Draft<span class="sub">KeyBank Center, Buffalo NY</span></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item wwe">
+<div class="date">Jun 27</div>
+<div class="title">WWE Night of Champions<span class="sub">Jeddah, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+</div>
+</div>
 <!-- JULY -->
 <div class="month-block">
-  <div class="month-label">July <span>2026</span></div>
-  <div class="list">
-    <div class="item soccer">
-      <div class="date">Jul 4+</div>
-      <div class="title">FIFA World Cup — Round of 16 thru Semis<span class="sub">All knockout rounds on FOX exclusively</span></div>
-      <div class="network">FOX</div>
-    </div>
-    <div class="item tennis">
-      <div class="date">Jun 29–Jul 12</div>
-      <div class="title">Wimbledon Championships</div>
-      <div class="network">ESPN<br>Tennis Ch.</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Jul 14</div>
-      <div class="title">MLB All-Star Game<span class="sub">Citizens Bank Park, Philadelphia</span></div>
-      <div class="network">FOX</div>
-    </div>
-    <div class="item golf">
-      <div class="date">Jul 16–19</div>
-      <div class="title">The Open Championship<span class="sub">Royal Birkdale, Southport England</span></div>
-      <div class="network">NBC<br>ESPN</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Jul 16</div>
-      <div class="title">MLB Standalone — Mets vs. Phillies</div>
-      <div class="network">ESPN<br>ABC</div>
-    </div>
-    <div class="item wwe">
-      <div class="date">Jul 18</div>
-      <div class="title">WWE Saturday Night's Main Event XLV<span class="sub">Madison Square Garden, New York</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-    <div class="item soccer big">
-      <div class="date">Jul 19</div>
-      <div class="title">🏆 FIFA World Cup Final<span class="sub">MetLife Stadium, East Rutherford NJ</span></div>
-      <div class="network">FOX</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Jul (weekly)</div>
-      <div class="title">MLB Saturday Game of the Week</div>
-      <div class="network">FOX<br>FS1</div>
-    </div>
-  </div>
+<div class="month-label">July <span>2026</span></div>
+<div class="list">
+<div class="item soccer">
+<div class="date">Jul 4+</div>
+<div class="title">FIFA World Cup — Round of 16 thru Semis<span class="sub">All knockout rounds exclusively on FOX broadcast</span></div>
+<div class="network">FOX</div>
 </div>
-
+<div class="item tennis">
+<div class="date">Jun 29–Jul 12</div>
+<div class="title">Wimbledon Championships</div>
+<div class="network">ESPN<br/>Tennis Ch.</div>
+</div>
+<div class="item nba">
+<div class="date">Jul 9–19</div>
+<div class="title">NBA Summer League<span class="sub">Las Vegas · All 30 teams</span></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item mlb">
+<div class="date">Jul 14</div>
+<div class="title">MLB All-Star Game<span class="sub">Citizens Bank Park, Philadelphia</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item golf">
+<div class="date">Jul 16–19</div>
+<div class="title">The Open Championship<span class="sub">Royal Birkdale, Southport England</span></div>
+<div class="network">NBC<br/>ESPN</div>
+</div>
+<div class="item mlb">
+<div class="date">Jul 16</div>
+<div class="title">MLB Standalone — Mets vs. Phillies</div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item wwe">
+<div class="date">Jul 18</div>
+<div class="title">WWE Saturday Night's Main Event XLV<span class="sub">Madison Square Garden, New York</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item soccer big">
+<div class="date">Jul 19</div>
+<div class="title">🏆 FIFA World Cup Final<span class="sub">MetLife Stadium, East Rutherford NJ</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item wnba">
+<div class="date">Jul 25–26</div>
+<div class="title">WNBA All-Star Game &amp; Skills Weekend</div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
+<div class="item mlb">
+<div class="date">Jul (weekly)</div>
+<div class="title">MLB Saturday Game of the Week</div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+</div>
+</div>
 <!-- AUGUST -->
 <div class="month-block">
-  <div class="month-label">August <span>2026</span></div>
-  <div class="list">
-    <div class="item wwe big">
-      <div class="date">Aug 1–2</div>
-      <div class="title">🏆 WWE SummerSlam — 2 Nights<span class="sub">U.S. Bank Stadium, Minneapolis</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Aug 23</div>
-      <div class="title">MLB Little League Classic</div>
-      <div class="network">ESPN<br>ABC</div>
-    </div>
-    <div class="item tennis">
-      <div class="date">Aug 31–Sep 13</div>
-      <div class="title">US Open Tennis — Begins<span class="sub">USTA Billie Jean King National Tennis Center, NYC</span></div>
-      <div class="network">ESPN<br>ESPN2</div>
-    </div>
-    <div class="item nfl">
-      <div class="date">Aug (TBD)</div>
-      <div class="title">NFL Preseason Games</div>
-      <div class="network">FOX / CBS<br>ESPN / ABC</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Aug (weekly)</div>
-      <div class="title">MLB Saturday Game of the Week</div>
-      <div class="network">FOX<br>FS1</div>
-    </div>
-  </div>
+<div class="month-label">August <span>2026</span></div>
+<div class="list">
+<div class="item wwe big">
+<div class="date">Aug 1–2</div>
+<div class="title">🏆 WWE SummerSlam — 2 Nights<span class="sub">U.S. Bank Stadium, Minneapolis</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
 </div>
-
+<div class="item mlb">
+<div class="date">Aug 19–30</div>
+<div class="title">Little League World Series<span class="sub">Williamsport, PA · International tournament</span></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item college">
+<div class="date">Aug 22–23</div>
+<div class="title">College Football — Week 0<span class="sub">Season opener before Labor Day</span></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item mlb">
+<div class="date">Aug 23</div>
+<div class="title">MLB Little League Classic<span class="sub">Bowman Field, Williamsport PA</span></div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item tennis">
+<div class="date">Aug 31–Sep 13</div>
+<div class="title">US Open Tennis — Begins<span class="sub">USTA Billie Jean King National Tennis Center, NYC</span></div>
+<div class="network">ESPN<br/>ESPN2</div>
+</div>
+<div class="item nfl">
+<div class="date">Aug (TBD)</div>
+<div class="title">NFL Preseason Games</div>
+<div class="network">FOX / CBS<br/>ESPN / NFL Net</div>
+</div>
+<div class="item mlb">
+<div class="date">Aug (weekly)</div>
+<div class="title">MLB Saturday Game of the Week</div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+</div>
+</div>
 <!-- SEPTEMBER -->
 <div class="month-block">
-  <div class="month-label">September <span>2026</span></div>
-  <div class="list">
-    <div class="item wwe">
-      <div class="date">Sep 6</div>
-      <div class="title">WWE Money in the Bank<span class="sub">Smoothie King Center, New Orleans</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-    <div class="item nfl">
-      <div class="date">Sep (TBD)</div>
-      <div class="title">🏈 NFL Regular Season Kicks Off<span class="sub">Thursday Night, Sunday, Monday Night Football</span></div>
-      <div class="network">FOX / CBS<br>ESPN / ABC</div>
-    </div>
-    <div class="item college">
-      <div class="date">Sep (weekly)</div>
-      <div class="title">College Football Saturday<span class="sub">SEC · Big Ten · ACC · Big 12</span></div>
-      <div class="network">ABC / ESPN<br>FOX / FS1</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Sep (weekly)</div>
-      <div class="title">MLB Pennant Race Games</div>
-      <div class="network">FOX / FS1<br>ESPN / ABC</div>
-    </div>
-    <div class="item tennis">
-      <div class="date">Sep (Finals week)</div>
-      <div class="title">US Open Tennis — Semifinals & Finals</div>
-      <div class="network">ESPN<br>ABC</div>
-    </div>
-    <div class="item wwe">
-      <div class="date">Sep 20</div>
-      <div class="title">WWE Wrestlepalooza ★ NEW EVENT<span class="sub">Gainbridge Fieldhouse, Indianapolis</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-  </div>
+<div class="month-label">September <span>2026</span></div>
+<div class="list">
+<div class="item wwe">
+<div class="date">Sep 6</div>
+<div class="title">WWE Money in the Bank<span class="sub">Smoothie King Center, New Orleans</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
 </div>
-
+<div class="item nfl">
+<div class="date">Sep (TBD)</div>
+<div class="title">🏈 NFL Regular Season Kicks Off<span class="sub">Thursday Night, Sunday, Monday Night Football</span></div>
+<div class="network">FOX / CBS<br/>ESPN / ABC</div>
+</div>
+<div class="item college">
+<div class="date">Sep (weekly)</div>
+<div class="title">College Football Saturday<span class="sub">SEC · Big Ten · ACC · Big 12</span></div>
+<div class="network">ABC / ESPN<br/>FOX / FS1</div>
+</div>
+<div class="item mlb">
+<div class="date">Sep (weekly)</div>
+<div class="title">MLB Pennant Race Games</div>
+<div class="network">FOX / FS1<br/>ESPN / ABC</div>
+</div>
+<div class="item tennis">
+<div class="date">Sep (Finals week)</div>
+<div class="title">US Open Tennis — Semifinals &amp; Finals</div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item wwe">
+<div class="date">Sep 20</div>
+<div class="title">WWE Wrestlepalooza ★ NEW EVENT<span class="sub">Gainbridge Fieldhouse, Indianapolis</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item wnba">
+<div class="date">Sep 27</div>
+<div class="title">WNBA Playoffs Begin<span class="sub">First round · Best-of-3 series</span></div>
+<div class="network">ABC<br/>ESPN / ESPN2</div>
+</div>
+<div class="item soccer">
+<div class="date">Sep (TBD)</div>
+<div class="title">UEFA Champions League — Group Stage<span class="sub">2026–27 UCL season opens</span></div>
+<div class="network">CBS</div>
+</div>
+</div>
+</div>
 <!-- OCTOBER -->
 <div class="month-block">
-  <div class="month-label">October <span>2026</span></div>
-  <div class="list">
-    <div class="item mlb">
-      <div class="date">Sep 30–Oct 2</div>
-      <div class="title">MLB Wild Card Series</div>
-      <div class="network">ABC / ESPN<br>FOX / FS1</div>
-    </div>
-    <div class="item wwe">
-      <div class="date">Oct 5</div>
-      <div class="title">WWE Bad Blood<span class="sub">State Farm Arena, Atlanta</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Oct (TBD)</div>
-      <div class="title">MLB Division Series — ALDS & NLDS</div>
-      <div class="network">ABC / ESPN<br>FOX / FS1</div>
-    </div>
-    <div class="item nfl">
-      <div class="date">Oct (weekly)</div>
-      <div class="title">NFL Regular Season — Week 5+<span class="sub">MNF · SNF · TNF</span></div>
-      <div class="network">FOX / CBS<br>ESPN / ABC</div>
-    </div>
-    <div class="item college">
-      <div class="date">Oct (weekly)</div>
-      <div class="title">College Football Saturday — Big Games Week</div>
-      <div class="network">ABC / ESPN<br>FOX / FS1</div>
-    </div>
-    <div class="item mlb">
-      <div class="date">Oct (TBD)</div>
-      <div class="title">MLB League Championship Series — ALCS & NLCS</div>
-      <div class="network">FOX<br>FS1</div>
-    </div>
-    <div class="item nhl">
-      <div class="date">Oct (TBD)</div>
-      <div class="title">NHL Regular Season Opens</div>
-      <div class="network">ESPN<br>ABC</div>
-    </div>
-    <div class="item wwe">
-      <div class="date">Late Oct (TBD)</div>
-      <div class="title">WWE Crown Jewel<span class="sub">Riyadh, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
-      <div class="network">ESPN</div>
-    </div>
-  </div>
+<div class="month-label">October <span>2026</span></div>
+<div class="list">
+<div class="item mlb">
+<div class="date">Sep 30–Oct 2</div>
+<div class="title">MLB Wild Card Series</div>
+<div class="network">ABC / ESPN<br/>FOX / FS1</div>
 </div>
-
+<div class="item wwe">
+<div class="date">Oct 5</div>
+<div class="title">WWE Bad Blood<span class="sub">State Farm Arena, Atlanta</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item mlb">
+<div class="date">Oct (TBD)</div>
+<div class="title">MLB Division Series — ALDS &amp; NLDS</div>
+<div class="network">ABC / ESPN<br/>FOX / FS1</div>
+</div>
+<div class="item nfl">
+<div class="date">Oct (weekly)</div>
+<div class="title">NFL Regular Season — Week 5+<span class="sub">MNF · SNF · TNF</span></div>
+<div class="network">FOX / CBS<br/>ESPN / ABC</div>
+</div>
+<div class="item college">
+<div class="date">Oct (weekly)</div>
+<div class="title">College Football Saturday — Big Games Week</div>
+<div class="network">ABC / ESPN<br/>FOX / FS1</div>
+</div>
+<div class="item mlb">
+<div class="date">Oct (TBD)</div>
+<div class="title">MLB League Championship Series — ALCS &amp; NLCS</div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+<div class="item nhl">
+<div class="date">Oct (TBD)</div>
+<div class="title">NHL Regular Season Opens</div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item wnba">
+<div class="date">Oct (TBD)</div>
+<div class="title">WNBA Finals<span class="sub">Best-of-5 championship series</span></div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
+<div class="item wwe">
+<div class="date">Late Oct (TBD)</div>
+<div class="title">WWE Crown Jewel<span class="sub">Riyadh, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+</div>
+</div>
+<!-- NOVEMBER -->
+<div class="month-block">
+<div class="month-label">November <span>2026</span></div>
+<div class="list">
+<div class="item nfl">
+<div class="date">Nov (weekly)</div>
+<div class="title">NFL Regular Season — Weeks 9–13<span class="sub">FOX/CBS Sunday doubleheaders · MNF on ESPN/ABC</span></div>
+<div class="network">FOX / CBS<br/>ESPN / ABC</div>
+</div>
+<div class="item college">
+<div class="date">Nov (weekly)</div>
+<div class="title">College Football Saturday<span class="sub">SEC · Big Ten · ACC · Big 12 — rivalry season building</span></div>
+<div class="network">ABC / ESPN<br/>FOX / FS1</div>
+</div>
+<div class="item tennis">
+<div class="date">Nov 15–22</div>
+<div class="title">ATP Finals<span class="sub">Inalpi Arena, Turin, Italy · Season-ending singles &amp; doubles</span></div>
+<div class="network">Tennis Ch.<br/>ESPN</div>
+</div>
+<div class="item nfl">
+<div class="date">Nov 26</div>
+<div class="title">NFL Thanksgiving Day Games<span class="sub">FOX early window (Lions host) · CBS afternoon window</span></div>
+<div class="network">FOX<br/>CBS</div>
+</div>
+<div class="item college">
+<div class="date">Nov 28</div>
+<div class="title">College Football — Rivalry Week<span class="sub">Ohio State–Michigan · Alabama–Auburn · Texas–Texas A&amp;M</span></div>
+<div class="network">ABC / ESPN<br/>FOX / FS1</div>
+</div>
+<div class="item wwe">
+<div class="date">~Nov 28</div>
+<div class="title">WWE Survivor Series<span class="sub">Annual elimination-match tradition · Venue TBD</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="network">ESPN</div>
+</div>
+</div>
+</div>
+<!-- DECEMBER -->
+<div class="month-block">
+<div class="month-label">December <span>2026</span></div>
+<div class="list">
+<div class="item college big">
+<div class="date">Dec 4–5</div>
+<div class="title">College Football Conference Championships<span class="sub">Big 12 (Fri, ABC) · SEC &amp; Big Ten (Sat, CBS) · ACC (Sat, ABC)</span></div>
+<div class="network">CBS<br/>ABC / ESPN</div>
+</div>
+<div class="item college">
+<div class="date">Dec 8</div>
+<div class="title">CFP Selection Show<span class="sub">12-team playoff field announced · ESPN special broadcast</span></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item college">
+<div class="date">~Dec 12</div>
+<div class="title">Heisman Trophy Ceremony<span class="sub">New York City · College football's top individual honor</span></div>
+<div class="network">ESPN</div>
+</div>
+<div class="item nba">
+<div class="date">~Dec 16</div>
+<div class="title">NBA Cup Finals<span class="sub">Las Vegas · In-Season Tournament championship game</span></div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
+<div class="item nfl">
+<div class="date">Dec (weekly)</div>
+<div class="title">NFL Regular Season — Weeks 14–17<span class="sub">Playoff seeding race heats up · FOX/CBS/ESPN/ABC</span></div>
+<div class="network">FOX / CBS<br/>ESPN / ABC</div>
+</div>
+<div class="item college big">
+<div class="date">Dec 19–20</div>
+<div class="title">🏆 College Football Playoff — First Round<span class="sub">On-campus sites · Top seeds host · 8 first-round games</span></div>
+<div class="network">ESPN<br/>ABC</div>
+</div>
+<div class="item college">
+<div class="date">Dec 19+</div>
+<div class="title">Bowl Season Begins<span class="sub">Early non-CFP bowl games running through the holidays</span></div>
+<div class="network">ESPN / ABC<br/>CBS / FOX</div>
+</div>
+</div>
+</div>
+</div><!-- end col-sports -->
+<!-- ===== ENTERTAINMENT ===== -->
+<div class="col col-ent">
+<div class="col-header">Entertainment</div>
+<div class="legend">
+<div class="legend-item"><div class="dot" style="background:#0288d1"></div>CBS</div>
+<div class="legend-item"><div class="dot" style="background:#5c6bc0"></div>ABC</div>
+<div class="legend-item"><div class="dot" style="background:#ff8f00"></div>FOX</div>
+<div class="legend-item"><div class="dot" style="background:#bf360c"></div>FX</div>
+<div class="legend-item"><div class="dot" style="background:#d81b60"></div>Hallmark</div>
+<div class="legend-item"><div class="dot" style="background:#c6a700"></div>BET</div>
+<div class="legend-item"><div class="dot" style="background:#e91e63"></div>MTV</div>
+<div class="legend-item"><div class="dot" style="background:#7e57c2"></div>Starz ·<em style="font-style:italic;color:#444"> add-on</em></div>
+<div class="legend-item"><div class="dot" style="background:#00acc1"></div>Freeform</div>
+<div class="legend-item"><div class="dot" style="background:#546e7a"></div>Paramount Net</div>
+</div>
+<!-- MAY -->
+<div class="month-block">
+<div class="month-label">May <span>2026</span></div>
+<div class="list">
+<div class="item cbs-e big">
+<div class="date">May 25</div>
+<div class="title">American Music Awards — 52nd Annual<span class="sub">Live on CBS · Hosted by Queen Latifah · Memorial Day</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item fox-e">
+<div class="date">Apr 15+</div>
+<div class="title">MasterChef S16 — Global Gauntlet<span class="sub">Gordon Ramsay · Currently airing · Wednesday nights</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item paramount-e big">
+<div class="date">May 15</div>
+<div class="title">Dutton Ranch<div class="new-pill">New Series</div><span class="sub">Yellowstone universe · Paramount Network · Runs through Jul 3</span></div>
+<div class="network">Paramount<br/>Network</div>
+</div>
+<div class="item mtv-e big">
+<div class="date">May 7</div>
+<div class="title">Jersey Shore: Family Vacation — FINAL Season<span class="sub">18-episode farewell · One of TV's most influential reality franchises ends</span></div>
+<div class="network">MTV</div>
+</div>
+<div class="item fx-e big">
+<div class="date">May 14</div>
+<div class="title">Welcome to Wrexham S4<div class="new-pill">New Season</div><span class="sub">Ryan Reynolds &amp; Rob McElhenney · FX docuseries returns</span></div>
+<div class="network">FX</div>
+</div>
+<div class="item starz-e">
+<div class="date">May (TBD)</div>
+<div class="title">Outlander — Series Finale<span class="sub">S8 final episodes including landmark 100th ep · 9-season saga ends</span></div>
+<div class="network">Starz<br/><em style="font-style:italic;font-size:9px;color:#888">add-on</em></div>
+</div>
+</div>
+</div>
+<!-- JUNE -->
+<div class="month-block">
+<div class="month-label">June <span>2026</span></div>
+<div class="list">
+<div class="item cbs-e big">
+<div class="date">Jun 7</div>
+<div class="title">79th Tony Awards<span class="sub">Live from Radio City Music Hall · Hosted by P!nk</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item starz-e">
+<div class="date">Jun 12</div>
+<div class="title">Power Book III: Raising Kanan S5<div class="new-pill">Final Season</div><span class="sub">Starz flagship drama · Series finale season</span></div>
+<div class="network">Starz<br/><em style="font-style:italic;font-size:9px;color:#888">add-on</em></div>
+</div>
+<div class="item freeform-e">
+<div class="date">Jun 17</div>
+<div class="title">Million Dollar Nannies<div class="new-pill">New Series</div><span class="sub">New reality series · Freeform premiere</span></div>
+<div class="network">Freeform</div>
+</div>
+<div class="item fx-e big">
+<div class="date">~Jun 25</div>
+<div class="title">The Bear S5 — Final Season<div class="new-pill">Series Finale</div><span class="sub">FX · Award-winning drama ends · Est. based on prior seasons' late-June premieres</span></div>
+<div class="network">FX</div>
+</div>
+<div class="item bet-e big">
+<div class="date">Jun 28</div>
+<div class="title">BET Awards 2026<span class="sub">Los Angeles · BETX experience Jun 25–27</span></div>
+<div class="network">BET</div>
+</div>
+</div>
+</div>
+<!-- JULY -->
+<div class="month-block">
+<div class="month-label">July <span>2026</span></div>
+<div class="list">
+<div class="item hallmark-e">
+<div class="date">Jul 4+</div>
+<div class="title">Hallmark Christmas in July<span class="sub">Annual summer holiday movie marathon</span></div>
+<div class="network">Hallmark</div>
+</div>
+<div class="item abc-e">
+<div class="date">Jul 13</div>
+<div class="title">Dancing with the Stars: The Next Pro<div class="new-pill">New Series</div><span class="sub">DWTS spinoff · 12 dancers compete for a Season 35 slot · Robert Irwin hosts</span></div>
+<div class="network">ABC</div>
+</div>
+<div class="item abc-e big">
+<div class="date">Jul 15</div>
+<div class="title">ESPY Awards 2026<span class="sub">Live from New York City · ESPN's annual sports awards · ABC broadcast</span></div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
+<div class="item cbs-e big">
+<div class="date">Jul 17</div>
+<div class="title">Big Brother 28<span class="sub">Two-night premiere · Live evictions &amp; HOH comps all summer</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item freeform-e">
+<div class="date">Jul 29</div>
+<div class="title">House of Stassi<div class="new-pill">New Series</div><span class="sub">Reality series with Stassi Schroeder · Freeform premiere</span></div>
+<div class="network">Freeform</div>
+</div>
+<div class="item freeform-e">
+<div class="date">Jul 31</div>
+<div class="title">Project Runway — Returns<span class="sub">Fashion competition series back on Freeform</span></div>
+<div class="network">Freeform</div>
+</div>
+</div>
+</div>
+<!-- AUGUST -->
+<div class="month-block">
+<div class="month-label">August <span>2026</span></div>
+<div class="list">
+<div class="item cbs-e">
+<div class="date">Aug (ongoing)</div>
+<div class="title">Big Brother 28 — Live Summer Season<span class="sub">Sun / Tue / Thu evictions &amp; HOH comps</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item freeform-e">
+<div class="date">Aug 26</div>
+<div class="title">Love Thy Nader<div class="new-pill">New Series</div><span class="sub">New Freeform reality series · Two-episode premiere</span></div>
+<div class="network">Freeform</div>
+</div>
+</div>
+</div>
+<!-- SEPTEMBER -->
+<div class="month-block">
+<div class="month-label">September <span>2026</span></div>
+<div class="list">
+<div class="item fx-e big">
+<div class="date">Sep (TBD)</div>
+<div class="title">American Horror Story S13<span class="sub">September confirmed by Ryan Murphy · Exact date TBD</span></div>
+<div class="network">FX</div>
+</div>
+<div class="item abc-e">
+<div class="date">~Sep 15</div>
+<div class="title">Dancing with the Stars S35<span class="sub">Tuesday nights · Est. 3rd week of September</span></div>
+<div class="network">ABC</div>
+</div>
+<div class="item cbs-e">
+<div class="date">~Sep 16</div>
+<div class="title">Survivor S51<span class="sub">Wednesday 8pm · CBS fall premiere week</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item cbs-e">
+<div class="date">~Sep 16</div>
+<div class="title">The Amazing Race S39<span class="sub">Wednesday 9:30pm · Pairs with Survivor</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item fox-e">
+<div class="date">~Sep 20</div>
+<div class="title">The Masked Singer S15<span class="sub">Sunday nights · FOX fall · Not yet officially confirmed</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item cbs-e">
+<div class="date">~Sep 21</div>
+<div class="title">FBI S9 + CIA S2<span class="sub">Monday 8 &amp; 9pm · CIA returns for S2 after Feb 2026 debut</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item cbs-e big">
+<div class="date">~Sep 22</div>
+<div class="title">NCIS S24 + NCIS: New York S1 + Origins S3<div class="new-pill">New Series</div><span class="sub">Tue 8/9/10pm · NCIS: NY stars LL Cool J &amp; Scott Caan</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item abc-e">
+<div class="date">~Sep 24</div>
+<div class="title">Grey's Anatomy S23 + Abbott Elementary S6<span class="sub">ABC Thursday night block returns</span></div>
+<div class="network">ABC</div>
+</div>
+<div class="item fox-e">
+<div class="date">~Sep 27</div>
+<div class="title">FOX Animation Block Returns<span class="sub">The Simpsons · Bob's Burgers · Family Guy · Sundays</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item cbs-e big">
+<div class="date">Sep 27</div>
+<div class="title">MTV VMAs 2026<span class="sub">Annual Video Music Awards · Los Angeles</span></div>
+<div class="network">CBS<br/>MTV</div>
+</div>
+</div>
+</div>
+<!-- OCTOBER -->
+<div class="month-block">
+<div class="month-label">October <span>2026</span></div>
+<div class="list">
+<div class="item freeform-e big">
+<div class="date">Oct 1–31</div>
+<div class="title">Freeform 31 Nights of Halloween 🎃<span class="sub">Month-long Halloween movie marathon · Disney classics &amp; horror favorites</span></div>
+<div class="network">Freeform</div>
+</div>
+<div class="item cbs-e">
+<div class="date">Oct (TBD)</div>
+<div class="title">Big Brother 28 Finale<span class="sub">Est. mid-October based on BB27 pattern</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item hallmark-e big">
+<div class="date">Late Oct (TBD)</div>
+<div class="title">Hallmark Countdown to Christmas 🎄<span class="sub">Typically launches last weekend of October</span></div>
+<div class="network">Hallmark</div>
+</div>
+</div>
+</div>
+<!-- NOVEMBER -->
+<div class="month-block">
+<div class="month-label">November <span>2026</span></div>
+<div class="list">
+<div class="item abc-e big">
+<div class="date">Nov 18</div>
+<div class="title">CMA Awards — 60th Annual<span class="sub">Live · Bridgestone Arena, Nashville · Country music's biggest night</span></div>
+<div class="network">ABC</div>
+</div>
+<div class="item abc-e">
+<div class="date">~Nov 17</div>
+<div class="title">Dancing with the Stars S35 Finale<span class="sub">Live mirror-ball finale · Est. ~9 weeks after Sep premiere</span></div>
+<div class="network">ABC</div>
+</div>
+<div class="item hallmark-e">
+<div class="date">Nov (ongoing)</div>
+<div class="title">Hallmark Countdown to Christmas — In Full Swing<span class="sub">New original movies every weekend through the holidays</span></div>
+<div class="network">Hallmark</div>
+</div>
+</div>
+</div>
+<!-- DECEMBER -->
+<div class="month-block">
+<div class="month-label">December <span>2026</span></div>
+<div class="list">
+<div class="item freeform-e big">
+<div class="date">Dec 1–25</div>
+<div class="title">Freeform 25 Days of Christmas 🎄<span class="sub">Annual 25-day holiday marathon · Disney classics, Pixar &amp; holiday specials</span></div>
+<div class="network">Freeform</div>
+</div>
+<div class="item hallmark-e">
+<div class="date">Dec (ongoing)</div>
+<div class="title">Hallmark Countdown to Christmas — Final Stretch<span class="sub">New holiday premieres through Christmas Eve</span></div>
+<div class="network">Hallmark</div>
+</div>
+<div class="item cbs-e">
+<div class="date">~Dec 16</div>
+<div class="title">Survivor S51 Finale<span class="sub">Live 2-hour finale · Est. ~12 weeks after September premiere</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item cbs-e">
+<div class="date">~Dec 16</div>
+<div class="title">The Amazing Race S39 Finale<span class="sub">Live 2-hour finale · CBS Wednesday anchor show</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item cbs-e">
+<div class="date">~Dec 23</div>
+<div class="title">Kennedy Center Honors<span class="sub">Annual arts tribute · Ceremony at Kennedy Center, Washington D.C.</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item abc-e big">
+<div class="date">Dec 31</div>
+<div class="title">Dick Clark's New Year's Rockin' Eve 2027<span class="sub">Times Square countdown · Live performances · ABC New Year's tradition</span></div>
+<div class="network">ABC</div>
+</div>
+</div>
+</div>
+</div><!-- end col-ent -->
+</div><!-- end columns-wrapper -->
 <div class="note">
-  <strong>Notes:</strong> WWE PLEs require the ESPN Unlimited add-on on FuboTV. · FuboTV dropped NBCUniversal in late 2025 — some NBA &amp; NHL playoff games on NBC/Peacock are not available. · NFL, MLB &amp; CFB game-specific network assignments are confirmed weekly. · World Cup Round of 16 onward (Jul 4+) airs exclusively on FOX broadcast.
+<strong>Sports:</strong> WWE PLEs require the ESPN Unlimited add-on. · FuboTV dropped NBCUniversal in late 2025 — Bravo, USA, E!, Syfy unavailable; some NBA &amp; NHL playoff games on NBC/Peacock not accessible. · The Open Championship and Emmys air on NBC — not currently on FuboTV. · UCL available via CBS and/or Paramount+ add-on. · NFL, MLB &amp; CFB network assignments confirmed weekly. · World Cup knockouts (Jul 4+) exclusively on FOX. · NASCAR Cup Championship on NBC (not on FuboTV). · F1 races moved to Apple TV exclusive in 2026 — not on FuboTV. · NFL SNF on NBC &amp; TNF on Amazon Prime not available. · NFL Christmas games on Netflix (not FuboTV). · NFL Network on FuboTV carries select preseason &amp; regular-season games + NFL RedZone. · UFC moved to Paramount+ exclusively as of Jan 2026 — not on FuboTV. · DAZN add-on on FuboTV for combat sports &amp; international soccer. · NBA League Pass no longer on FuboTV (moved to Amazon Prime exclusively).  ·  <strong>Entertainment:</strong> Dates marked ~ are estimates based on prior season patterns. · Starz available as FuboTV add-on ($10.99/mo). · Bachelorette S22 cancelled; Bachelor in Paradise returns 2027. · Masked Singer S15 not yet officially confirmed for fall 2026.
 </div>
-
 <div class="last-updated" id="last-updated"></div>
-
+</div><!-- end page-wrap -->
 <script>
-// Parse a date string like "May 10", "May 14–17", "May 24–Jun 7", "Jun 11–Jul 19", "Jul 4+", "Aug (TBD)"
 function parseEventDate(dateText, year) {
   const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  dateText = dateText.trim();
-
-  // Try to extract the START date — take the first recognizable "Month Day" pattern
+  dateText = dateText.trim().replace(/^~/, '');
   const match = dateText.match(/^([A-Za-z]+)[^\d]*(\d+)/);
   if (match) {
     const m = months[match[1].slice(0,3)];
     if (m !== undefined) return new Date(year, m, parseInt(match[2]));
   }
-  // Month-only (e.g. "Aug (TBD)", "Oct (weekly)")
   const mOnly = dateText.match(/^([A-Za-z]+)/);
   if (mOnly) {
     const m = months[mOnly[1].slice(0,3)];
@@ -480,14 +852,14 @@ function parseEventDate(dateText, year) {
 (function() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const weekAhead = new Date(today); weekAhead.setDate(today.getDate() + 7);
+  const weekAhead = new Date(today);
+  weekAhead.setDate(today.getDate() + 7);
 
   document.querySelectorAll('.item').forEach(function(item) {
     const dateEl = item.querySelector('.date');
     if (!dateEl) return;
     const d = parseEventDate(dateEl.textContent, 2026);
     if (!d) return;
-
     if (d < today) {
       item.classList.add('past');
     } else if (d <= weekAhead) {
@@ -503,11 +875,8 @@ function parseEventDate(dateText, year) {
   });
 
   const lu = document.getElementById('last-updated');
-  if (lu) {
-    lu.textContent = 'Updated ' + now.toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
-  }
+  if (lu) lu.textContent = 'Updated ' + now.toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
 })();
 </script>
-
 </body>
 </html>
