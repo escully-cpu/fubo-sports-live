@@ -34,6 +34,7 @@ ENT_NETWORKS = {
     "ABC":               ("abc-e",       "ent", "major"),
     "Fox":               ("fox-e",       "ent", "major"),
     "FX":                ("fx-e",        "ent", "major"),
+    "FXX":               ("fxx-e",       "ent", "major"),
     "Freeform":          ("freeform-e",  "ent", "standard"),
     "Hallmark Channel":  ("hallmark-e",  "ent", "standard"),
     "BET":               ("bet-e",       "ent", "standard"),
@@ -316,7 +317,7 @@ def is_significant(ep, show, network_tier):
 
     # Season premiere (SxxE01, season > 1)
     if ep_num == 1 and season > 1:
-        threshold = 7.0 if network_tier == "major" else 7.8
+        threshold = 6.5 if network_tier == "major" else 7.8
         if rating_val >= threshold:
             return True, f"S{season:02d} premiere", ""
 
