@@ -130,28 +130,67 @@
     display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
     padding: 1px 6px; border-radius: 3px;
     background: rgba(255,82,82,0.12); color: #ff8a80;
-    border: 1px solid rgba(255,82,82,0.2); margin-top: 3px;
+    border: 1px solid rgba(255,82,82,0.2); margin-top: 5px; margin-left: 0;
+    display: block; width: fit-content;
   }
   .new-pill {
     display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
     padding: 1px 6px; border-radius: 3px;
-    background: rgba(250,75,19,0.14); color: #fa7013;
-    border: 1px solid rgba(250,75,19,0.25); margin-top: 3px;
+    background: rgba(171,71,188,0.14); color: #ce93d8;
+    border: 1px solid rgba(171,71,188,0.28); margin-top: 3px; margin-left: 7px;
+  }
+  .latino-pill {
+    display: block; width: fit-content; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 1px 6px; border-radius: 3px;
+    background: rgba(255,255,255,0.05); color: #777;
+    border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;
   }
 
   .item.past { opacity: 0.3; }
-  .item.this-week { background: #1c1b2e; box-shadow: 0 0 0 1px rgba(250,75,19,0.25); }
+  .item.this-week { background: #1a1928; }
   .item.this-week .title { color: #fff; }
-  .this-week-badge {
-    display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.07em;
-    text-transform: uppercase; padding: 1px 6px; border-radius: 3px;
-    background: rgba(250,75,19,0.18); color: #fa4b13;
-    border: 1px solid rgba(250,75,19,0.3); margin-left: 6px; vertical-align: middle;
+  .item.this-week .date { position: relative; padding-left: 10px; }
+  .item.this-week .date::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%; transform: translateY(-50%);
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #ef5350;
+    box-shadow: 0 0 4px rgba(239,83,80,0.7);
+    cursor: default;
   }
+  .item.this-week .date::after {
+    content: 'On this week';
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: -2px;
+    background: #1e1d2e;
+    color: #ef5350;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px;
+    border: 1px solid rgba(239,83,80,0.25);
+    white-space: nowrap; pointer-events: none;
+    opacity: 0; transition: opacity 0.12s;
+    z-index: 20;
+  }
+  .item.this-week .date:hover::after { opacity: 1; }
 
   .note { font-size: 11px; color: #444; padding: 16px; background: #13121a; border-radius: 8px; line-height: 1.7; margin-top: 32px; }
   .note strong { color: #666; }
   .last-updated { font-size: 10px; color: #333; text-align: center; margin-top: 24px; letter-spacing: 0.06em; }
+
+  /* Filter system */
+  .legend-item { cursor: pointer; border-radius: 4px; padding: 3px 7px; margin: -3px -7px; transition: opacity 0.15s, background 0.15s; }
+  .legend-item:hover { background: rgba(255,255,255,0.06); }
+  .legend-item.is-dimmed { opacity: 0.2; }
+  .legend-item.is-active { background: rgba(255,255,255,0.09); outline: 1px solid rgba(255,255,255,0.12); }
+  .legend-all {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: #555; cursor: pointer; padding: 3px 9px; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.08); transition: background 0.15s, color 0.15s;
+  }
+  .legend-all:hover { background: rgba(255,255,255,0.06); color: #888; }
+  .legend-all.is-active { background: rgba(250,75,19,0.12); color: #fa4b13; border-color: rgba(250,75,19,0.25); }
 </style>
 </head>
 <body>
@@ -166,25 +205,40 @@
 <div class="col col-sports">
 <div class="col-header">Sports</div>
 <div class="legend">
-<div class="legend-item"><div class="dot" style="background:#43a047"></div>Soccer</div>
-<div class="legend-item"><div class="dot" style="background:#e65100"></div>NBA</div>
-<div class="legend-item"><div class="dot" style="background:#1565c0"></div>NHL</div>
-<div class="legend-item"><div class="dot" style="background:#c62828"></div>MLB</div>
-<div class="legend-item"><div class="dot" style="background:#f9a825"></div>Tennis</div>
-<div class="legend-item"><div class="dot" style="background:#00838f"></div>Golf</div>
-<div class="legend-item"><div class="dot" style="background:#d32f2f"></div>WWE</div>
-<div class="legend-item"><div class="dot" style="background:#3949ab"></div>NFL</div>
-<div class="legend-item"><div class="dot" style="background:#7b1fa2"></div>CFB</div>
-<div class="legend-item"><div class="dot" style="background:#ff7043"></div>WNBA</div>
-<div class="legend-item"><div class="dot" style="background:#ffb300"></div>Racing</div>
+<div class="legend-all is-active">All</div>
+<div class="legend-item" data-filter="soccer"><div class="dot" style="background:#43a047"></div>Soccer</div>
+<div class="legend-item" data-filter="nba wnba"><div class="dot" style="background:#e65100"></div>Basketball</div>
+<div class="legend-item" data-filter="nhl"><div class="dot" style="background:#1565c0"></div>NHL</div>
+<div class="legend-item" data-filter="mlb"><div class="dot" style="background:#c62828"></div>MLB</div>
+<div class="legend-item" data-filter="tennis"><div class="dot" style="background:#f9a825"></div>Tennis</div>
+<div class="legend-item" data-filter="golf"><div class="dot" style="background:#00838f"></div>Golf</div>
+<div class="legend-item" data-filter="wwe"><div class="dot" style="background:#d32f2f"></div>WWE</div>
+<div class="legend-item" data-filter="nfl"><div class="dot" style="background:#3949ab"></div>NFL</div>
+<div class="legend-item" data-filter="college"><div class="dot" style="background:#7b1fa2"></div>CFB</div>
+<div class="legend-item" data-filter="racing"><div class="dot" style="background:#ffb300"></div>Racing</div>
 </div>
 <!-- MAY -->
 <div class="month-block">
 <div class="month-label">May <span>2026</span></div>
 <div class="list">
-<div class="item wwe">
+<div class="item soccer">
+<div class="date">May 2–10</div>
+<div class="title">Liga MX Clausura — Quarterfinals<span class="sub">Liguilla QF · Ida May 2–3 · Vuelta May 9–10</span><div class="latino-pill">Fubo Latino</div></div>
+<div class="network">TUDN</div>
+</div>
+<div class="item soccer big">
 <div class="date">May 10</div>
-<div class="title">WWE Backlash<div class="espn-pill">ESPN Unlimited</div></div>
+<div class="title">🏆 El Clásico — LaLiga<span class="sub">Barcelona vs Real Madrid · Spotify Camp Nou · Matchday 35</span></div>
+<div class="network">ESPN<br/><span style="opacity:0.5;font-size:9px">ESP: ESPN Deportes</span></div>
+</div>
+<div class="item soccer">
+<div class="date">May–Oct</div>
+<div class="title">NWSL Regular Season<span class="sub">16 teams · Select games on CBS, ABC &amp; ESPN · Fri/Sat/Sun · Prime Video games not on Fubo</span></div>
+<div class="network">CBS<br/>ABC / ESPN</div>
+</div>
+<div class="item wwe">
+<div class="date">May 9</div>
+<div class="title">WWE Backlash<span class="sub">Benchmark International Arena, Tampa, FL</span><div class="espn-pill">ESPN Unlimited</div></div>
 <div class="network">ESPN</div>
 </div>
 <div class="item golf">
@@ -222,6 +276,16 @@
 <div class="title">French Open (Roland Garros)</div>
 <div class="network">Tennis Ch.<br/>ESPN</div>
 </div>
+<div class="item soccer">
+<div class="date">May 13–17</div>
+<div class="title">Liga MX Clausura — Semifinals<span class="sub">Liguilla Semis · Ida &amp; Vuelta</span><div class="latino-pill">Fubo Latino</div></div>
+<div class="network">TUDN</div>
+</div>
+<div class="item soccer big">
+<div class="date">May 21 &amp; 24</div>
+<div class="title">🏆 Liga MX Clausura Final<span class="sub">Two-leg championship · Liguilla Grand Final</span><div class="latino-pill">Fubo Latino</div></div>
+<div class="network">TUDN</div>
+</div>
 <div class="item soccer big">
 <div class="date">May 30</div>
 <div class="title">🏆 UEFA Champions League Final<span class="sub">Munich · Biggest club match in the world</span></div>
@@ -229,7 +293,7 @@
 </div>
 <div class="item wwe">
 <div class="date">May 31</div>
-<div class="title">WWE Clash in Italy<div class="espn-pill">ESPN Unlimited</div></div>
+<div class="title">WWE Clash in Italy<span class="sub">Rome, Italy</span><div class="espn-pill">ESPN Unlimited</div></div>
 <div class="network">ESPN</div>
 </div>
 </div>
@@ -280,7 +344,7 @@
 </div>
 <div class="item wwe">
 <div class="date">Jun 27</div>
-<div class="title">WWE Night of Champions<span class="sub">Jeddah, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="title">WWE Night of Champions<span class="sub">Kingdom Arena, Riyadh, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
 <div class="network">ESPN</div>
 </div>
 </div>
@@ -289,6 +353,11 @@
 <div class="month-block">
 <div class="month-label">July <span>2026</span></div>
 <div class="list">
+<div class="item soccer">
+<div class="date">Jul 16</div>
+<div class="title">Liga MX Apertura 2026 — Kickoff<span class="sub">New season begins · Runs through Dec 2026</span><div class="latino-pill">Fubo Latino</div></div>
+<div class="network">TUDN</div>
+</div>
 <div class="item soccer">
 <div class="date">Jul 4+</div>
 <div class="title">FIFA World Cup — Round of 16 thru Semis<span class="sub">All knockout rounds exclusively on FOX broadcast</span></div>
@@ -398,7 +467,7 @@
 </div>
 <div class="item college">
 <div class="date">Sep (weekly)</div>
-<div class="title">College Football Saturday<span class="sub">SEC · Big Ten · ACC · Big 12</span></div>
+<div class="title">College Football — Weeks 1–5<span class="sub">SEC · Big Ten · ACC · Big 12</span></div>
 <div class="network">ABC / ESPN<br/>FOX / FS1</div>
 </div>
 <div class="item mlb">
@@ -454,7 +523,7 @@
 </div>
 <div class="item college">
 <div class="date">Oct (weekly)</div>
-<div class="title">College Football Saturday — Big Games Week</div>
+<div class="title">College Football — Weeks 6–10<span class="sub">Big Games · SEC · Big Ten · ACC · Big 12</span></div>
 <div class="network">ABC / ESPN<br/>FOX / FS1</div>
 </div>
 <div class="item mlb">
@@ -483,6 +552,26 @@
 <div class="month-block">
 <div class="month-label">November <span>2026</span></div>
 <div class="list">
+<div class="item soccer">
+<div class="date">Nov 6–8</div>
+<div class="title">NWSL Playoffs — Quarterfinals<span class="sub">Top 8 teams · Single elimination</span></div>
+<div class="network">CBS<br/>ABC / ESPN</div>
+</div>
+<div class="item soccer">
+<div class="date">Nov 13–15</div>
+<div class="title">NWSL Playoffs — Semifinals<span class="sub">At home of higher seeds</span></div>
+<div class="network">ABC / ESPN</div>
+</div>
+<div class="item soccer big">
+<div class="date">Nov 21</div>
+<div class="title">🏆 NWSL Championship<span class="sub">At higher seed's home stadium · Primetime CBS</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item soccer big">
+<div class="date">Nov 28</div>
+<div class="title">🏆 Copa Libertadores Final<span class="sub">Montevideo, Uruguay · South America's biggest club match</span><div class="latino-pill">Fubo Latino</div></div>
+<div class="network">beIN Sports</div>
+</div>
 <div class="item nfl">
 <div class="date">Nov (weekly)</div>
 <div class="title">NFL Regular Season — Weeks 9–13<span class="sub">FOX/CBS Sunday doubleheaders · MNF on ESPN/ABC</span></div>
@@ -490,7 +579,7 @@
 </div>
 <div class="item college">
 <div class="date">Nov (weekly)</div>
-<div class="title">College Football Saturday<span class="sub">SEC · Big Ten · ACC · Big 12 — rivalry season building</span></div>
+<div class="title">College Football — Weeks 11–13<span class="sub">SEC · Big Ten · ACC · Big 12 — rivalry season building</span></div>
 <div class="network">ABC / ESPN<br/>FOX / FS1</div>
 </div>
 <div class="item tennis">
@@ -505,12 +594,12 @@
 </div>
 <div class="item college">
 <div class="date">Nov 28</div>
-<div class="title">College Football — Rivalry Week<span class="sub">Ohio State–Michigan · Alabama–Auburn · Texas–Texas A&amp;M</span></div>
+<div class="title">College Football — Week 14 · Rivalry Week<span class="sub">Ohio State–Michigan · Alabama–Auburn · Texas–Texas A&amp;M</span></div>
 <div class="network">ABC / ESPN<br/>FOX / FS1</div>
 </div>
 <div class="item wwe">
 <div class="date">~Nov 28</div>
-<div class="title">WWE Survivor Series<span class="sub">Annual elimination-match tradition · Venue TBD</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="title">WWE Survivor Series: WarGames<span class="sub">Rogers Arena, Vancouver, BC</span><div class="espn-pill">ESPN Unlimited</div></div>
 <div class="network">ESPN</div>
 </div>
 </div>
@@ -519,6 +608,11 @@
 <div class="month-block">
 <div class="month-label">December <span>2026</span></div>
 <div class="list">
+<div class="item soccer big">
+<div class="date">Dec 10–13</div>
+<div class="title">🏆 Liga MX Apertura Final<span class="sub">Two-leg championship · Liguilla Grand Final</span><div class="latino-pill">Fubo Latino</div></div>
+<div class="network">TUDN</div>
+</div>
 <div class="item college big">
 <div class="date">Dec 4–5</div>
 <div class="title">College Football Conference Championships<span class="sub">Big 12 (Fri, ABC) · SEC &amp; Big Ten (Sat, CBS) · ACC (Sat, ABC)</span></div>
@@ -561,16 +655,17 @@
 <div class="col col-ent">
 <div class="col-header">Entertainment</div>
 <div class="legend">
-<div class="legend-item"><div class="dot" style="background:#0288d1"></div>CBS</div>
-<div class="legend-item"><div class="dot" style="background:#5c6bc0"></div>ABC</div>
-<div class="legend-item"><div class="dot" style="background:#ff8f00"></div>FOX</div>
-<div class="legend-item"><div class="dot" style="background:#bf360c"></div>FX</div>
-<div class="legend-item"><div class="dot" style="background:#d81b60"></div>Hallmark</div>
-<div class="legend-item"><div class="dot" style="background:#c6a700"></div>BET</div>
-<div class="legend-item"><div class="dot" style="background:#e91e63"></div>MTV</div>
-<div class="legend-item"><div class="dot" style="background:#7e57c2"></div>Starz ·<em style="font-style:italic;color:#444"> add-on</em></div>
-<div class="legend-item"><div class="dot" style="background:#00acc1"></div>Freeform</div>
-<div class="legend-item"><div class="dot" style="background:#546e7a"></div>Paramount Net</div>
+<div class="legend-all is-active">All</div>
+<div class="legend-item" data-filter="cbs-e"><div class="dot" style="background:#0288d1"></div>CBS</div>
+<div class="legend-item" data-filter="abc-e"><div class="dot" style="background:#5c6bc0"></div>ABC</div>
+<div class="legend-item" data-filter="fox-e"><div class="dot" style="background:#ff8f00"></div>FOX</div>
+<div class="legend-item" data-filter="fx-e"><div class="dot" style="background:#bf360c"></div>FX</div>
+<div class="legend-item" data-filter="hallmark-e"><div class="dot" style="background:#d81b60"></div>Hallmark</div>
+<div class="legend-item" data-filter="bet-e"><div class="dot" style="background:#c6a700"></div>BET</div>
+<div class="legend-item" data-filter="mtv-e"><div class="dot" style="background:#e91e63"></div>MTV</div>
+<div class="legend-item" data-filter="starz-e"><div class="dot" style="background:#7e57c2"></div>Starz ·<em style="font-style:italic;color:#444"> add-on</em></div>
+<div class="legend-item" data-filter="freeform-e"><div class="dot" style="background:#00acc1"></div>Freeform</div>
+<div class="legend-item" data-filter="paramount-e"><div class="dot" style="background:#546e7a"></div>Paramount Net</div>
 </div>
 <!-- MAY -->
 <div class="month-block">
@@ -860,18 +955,51 @@ function parseEventDate(dateText, year) {
       item.classList.add('past');
     } else if (d <= weekAhead) {
       item.classList.add('this-week');
-      const titleEl = item.querySelector('.title');
-      if (titleEl && !titleEl.querySelector('.this-week-badge')) {
-        const badge = document.createElement('span');
-        badge.className = 'this-week-badge';
-        badge.textContent = 'This Week';
-        titleEl.insertBefore(badge, titleEl.firstChild);
-      }
     }
   });
 
   const lu = document.getElementById('last-updated');
   if (lu) lu.textContent = 'Updated ' + now.toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+})();
+</script>
+<script>
+(function() {
+  document.querySelectorAll('.col').forEach(function(col) {
+    var items   = Array.from(col.querySelectorAll('.item'));
+    var filters = Array.from(col.querySelectorAll('.legend-item[data-filter]'));
+    var allBtn  = col.querySelector('.legend-all');
+    var current = null;
+
+    function reset() {
+      current = null;
+      items.forEach(function(el) { el.style.display = ''; });
+      filters.forEach(function(el) { el.classList.remove('is-active', 'is-dimmed'); });
+      if (allBtn) { allBtn.classList.add('is-active'); }
+    }
+
+    function applyFilter(cls) {
+      current = cls;
+      var classes = cls.split(' ');
+      items.forEach(function(el) {
+        el.style.display = classes.some(function(c) { return el.classList.contains(c); }) ? '' : 'none';
+      });
+      filters.forEach(function(el) {
+        var match = el.dataset.filter === cls;
+        el.classList.toggle('is-active', match);
+        el.classList.toggle('is-dimmed', !match);
+      });
+      if (allBtn) { allBtn.classList.remove('is-active'); }
+    }
+
+    if (allBtn) { allBtn.addEventListener('click', reset); }
+
+    filters.forEach(function(el) {
+      el.addEventListener('click', function() {
+        if (current === this.dataset.filter) { reset(); }
+        else { applyFilter(this.dataset.filter); }
+      });
+    });
+  });
 })();
 </script>
 </body>
