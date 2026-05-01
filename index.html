@@ -199,7 +199,8 @@
 <div class="page-wrap">
 <div class="hero">
 <div class="fubo-logo">fubo · All Plans</div>
-<h1>Sports &amp; Entertainment — Now thru Dec 2026</h1>
+<h1>Upcoming Sports &amp; Entertainment Events</h1>
+<p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May – December 2026</p>
 <p>FOX · FS1 · ABC · ESPN · CBS · FX · FXX · BET · MTV · Freeform · Hallmark · NFL Network · NBA TV · NHL Network · MLB Network · Starz (add-on) · DAZN (add-on) · ESPN Unlimited (WWE add-on)</p>
 </div>
 <div class="columns-wrapper">
@@ -683,7 +684,6 @@
 <div class="title">American Music Awards — 52nd Annual<span class="sub">Live on CBS · Hosted by Queen Latifah · Memorial Day</span></div>
 <div class="network">CBS</div>
 </div>
-
 <div class="item paramount-e big">
 <div class="date">May 15</div>
 <div class="title">Dutton Ranch<div class="new-pill">New Series</div><span class="sub">Yellowstone universe · Paramount Network · Runs through Jul 3</span></div>
@@ -855,7 +855,7 @@
 </div>
 <div class="item abc-e">
 <div class="date">~Sep (TBD)</div>
-<div class="title">9-1-1: Nashville S2<span class="sub">ABC · Jay Ellis & Chris Sullivan return for sophomore season</span></div>
+<div class="title">9-1-1: Nashville S2<span class="sub">ABC · Jay Ellis &amp; Chris Sullivan return for sophomore season</span></div>
 <div class="network">ABC</div>
 </div>
 <div class="item fox-e">
@@ -1005,35 +1005,37 @@ function parseEventDate(dateText, year) {
     var items   = Array.from(col.querySelectorAll('.item'));
     var filters = Array.from(col.querySelectorAll('.legend-item[data-filter]'));
     var allBtn  = col.querySelector('.legend-all');
-    var current = null;
+    var active  = new Set();
 
-    function reset() {
-      current = null;
-      items.forEach(function(el) { el.style.display = ''; });
-      filters.forEach(function(el) { el.classList.remove('is-active', 'is-dimmed'); });
-      if (allBtn) { allBtn.classList.add('is-active'); }
-    }
-
-    function applyFilter(cls) {
-      current = cls;
-      var classes = cls.split(' ');
+    function applyState() {
+      if (active.size === 0) {
+        items.forEach(function(el) { el.style.display = ''; });
+        filters.forEach(function(el) { el.classList.remove('is-active', 'is-dimmed'); });
+        if (allBtn) { allBtn.classList.add('is-active'); }
+        return;
+      }
+      if (allBtn) { allBtn.classList.remove('is-active'); }
       items.forEach(function(el) {
-        el.style.display = classes.some(function(c) { return el.classList.contains(c); }) ? '' : 'none';
+        var show = false;
+        active.forEach(function(f) {
+          f.split(' ').forEach(function(c) { if (el.classList.contains(c)) show = true; });
+        });
+        el.style.display = show ? '' : 'none';
       });
       filters.forEach(function(el) {
-        var match = el.dataset.filter === cls;
-        el.classList.toggle('is-active', match);
-        el.classList.toggle('is-dimmed', !match);
+        var on = active.has(el.dataset.filter);
+        el.classList.toggle('is-active', on);
+        el.classList.toggle('is-dimmed', !on);
       });
-      if (allBtn) { allBtn.classList.remove('is-active'); }
     }
 
-    if (allBtn) { allBtn.addEventListener('click', reset); }
+    if (allBtn) { allBtn.addEventListener('click', function() { active.clear(); applyState(); }); }
 
     filters.forEach(function(el) {
       el.addEventListener('click', function() {
-        if (current === this.dataset.filter) { reset(); }
-        else { applyFilter(this.dataset.filter); }
+        if (active.has(this.dataset.filter)) { active.delete(this.dataset.filter); }
+        else { active.add(this.dataset.filter); }
+        applyState();
       });
     });
   });
