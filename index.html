@@ -193,6 +193,15 @@
   }
   .legend-all:hover { background: rgba(255,255,255,0.06); color: #888; }
   .legend-all.is-active { background: rgba(250,75,19,0.12); color: #fa4b13; border-color: rgba(250,75,19,0.25); }
+
+  .legend-row-label {
+    width: 100%; font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #383848; padding-top: 8px;
+    margin-top: 2px; border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  .legend-item[data-network-filter].is-active {
+    background: rgba(255,255,255,0.07); outline: 1px solid rgba(255,255,255,0.1);
+  }
 </style>
 </head>
 <body>
@@ -219,6 +228,18 @@
 <div class="legend-item" data-filter="nfl"><div class="dot" style="background:#3949ab"></div>NFL</div>
 <div class="legend-item" data-filter="college"><div class="dot" style="background:#7b1fa2"></div>CFB</div>
 <div class="legend-item" data-filter="racing"><div class="dot" style="background:#ffb300"></div>Racing</div>
+<div class="legend-row-label">By Network</div>
+<div class="legend-all legend-net-all is-active">All</div>
+<div class="legend-item" data-network-filter="fox fs1">FOX / FS1</div>
+<div class="legend-item" data-network-filter="espn abc">ESPN / ABC</div>
+<div class="legend-item" data-network-filter="cbs">CBS</div>
+<div class="legend-item" data-network-filter="nfl net">NFL Net</div>
+<div class="legend-item" data-network-filter="nba tv">NBA TV</div>
+<div class="legend-item" data-network-filter="nhl network">NHL Net</div>
+<div class="legend-item" data-network-filter="mlb network">MLB Net</div>
+<div class="legend-item" data-network-filter="dazn">DAZN</div>
+<div class="legend-item" data-network-filter="espn unlimited">ESPN+</div>
+<div class="legend-item" data-network-filter="tudn bein">Latino / beIN</div>
 </div>
 <!-- MAY -->
 <div class="month-block">
@@ -1002,39 +1023,80 @@ function parseEventDate(dateText, year) {
 <script>
 (function() {
   document.querySelectorAll('.col').forEach(function(col) {
-    var items   = Array.from(col.querySelectorAll('.item'));
-    var filters = Array.from(col.querySelectorAll('.legend-item[data-filter]'));
-    var allBtn  = col.querySelector('.legend-all');
-    var active  = new Set();
+    var items      = Array.from(col.querySelectorAll('.item'));
+    var sportChips = Array.from(col.querySelectorAll('.legend-item[data-filter]'));
+    var netChips   = Array.from(col.querySelectorAll('.legend-item[data-network-filter]'));
+    var allBtn     = col.querySelector('.legend-all:not(.legend-net-all)');
+    var netAllBtn  = col.querySelector('.legend-net-all');
+    var activeSport = new Set();
+    var activeNet   = new Set();
 
-    function applyState() {
-      if (active.size === 0) {
-        items.forEach(function(el) { el.style.display = ''; });
-        filters.forEach(function(el) { el.classList.remove('is-active', 'is-dimmed'); });
-        if (allBtn) { allBtn.classList.add('is-active'); }
-        return;
-      }
-      if (allBtn) { allBtn.classList.remove('is-active'); }
-      items.forEach(function(el) {
-        var show = false;
-        active.forEach(function(f) {
-          f.split(' ').forEach(function(c) { if (el.classList.contains(c)) show = true; });
-        });
-        el.style.display = show ? '' : 'none';
+    function itemMatchesSport(el) {
+      if (activeSport.size === 0) return true;
+      var matched = false;
+      activeSport.forEach(function(f) {
+        f.split(' ').forEach(function(c) { if (el.classList.contains(c)) matched = true; });
       });
-      filters.forEach(function(el) {
-        var on = active.has(el.dataset.filter);
-        el.classList.toggle('is-active', on);
-        el.classList.toggle('is-dimmed', !on);
-      });
+      return matched;
     }
 
-    if (allBtn) { allBtn.addEventListener('click', function() { active.clear(); applyState(); }); }
+    function itemMatchesNet(el) {
+      if (activeNet.size === 0) return true;
+      var netText = (el.querySelector('.network') || {textContent:''}).textContent.toLowerCase();
+      var matched = false;
+      activeNet.forEach(function(f) {
+        f.split(' ').forEach(function(kw) { if (netText.indexOf(kw) !== -1) matched = true; });
+      });
+      return matched;
+    }
 
-    filters.forEach(function(el) {
+    function applyState() {
+      items.forEach(function(el) {
+        el.style.display = (itemMatchesSport(el) && itemMatchesNet(el)) ? '' : 'none';
+      });
+
+      // sport chips
+      if (activeSport.size === 0) {
+        sportChips.forEach(function(el) { el.classList.remove('is-active', 'is-dimmed'); });
+        if (allBtn) allBtn.classList.add('is-active');
+      } else {
+        if (allBtn) allBtn.classList.remove('is-active');
+        sportChips.forEach(function(el) {
+          var on = activeSport.has(el.dataset.filter);
+          el.classList.toggle('is-active', on);
+          el.classList.toggle('is-dimmed', !on);
+        });
+      }
+
+      // network chips
+      if (activeNet.size === 0) {
+        netChips.forEach(function(el) { el.classList.remove('is-active', 'is-dimmed'); });
+        if (netAllBtn) netAllBtn.classList.add('is-active');
+      } else {
+        if (netAllBtn) netAllBtn.classList.remove('is-active');
+        netChips.forEach(function(el) {
+          var on = activeNet.has(el.dataset.networkFilter);
+          el.classList.toggle('is-active', on);
+          el.classList.toggle('is-dimmed', !on);
+        });
+      }
+    }
+
+    if (allBtn) { allBtn.addEventListener('click', function() { activeSport.clear(); applyState(); }); }
+    if (netAllBtn) { netAllBtn.addEventListener('click', function() { activeNet.clear(); applyState(); }); }
+
+    sportChips.forEach(function(el) {
       el.addEventListener('click', function() {
-        if (active.has(this.dataset.filter)) { active.delete(this.dataset.filter); }
-        else { active.add(this.dataset.filter); }
+        if (activeSport.has(this.dataset.filter)) activeSport.delete(this.dataset.filter);
+        else activeSport.add(this.dataset.filter);
+        applyState();
+      });
+    });
+
+    netChips.forEach(function(el) {
+      el.addEventListener('click', function() {
+        if (activeNet.has(this.dataset.networkFilter)) activeNet.delete(this.dataset.networkFilter);
+        else activeNet.add(this.dataset.networkFilter);
         applyState();
       });
     });
