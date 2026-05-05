@@ -1,11 +1,14 @@
 """
 auto_update.py
 Discovers and adds new events to the calendar automatically.
-Runs every Monday at 9:00 AM via LaunchAgent (before the 9:05 AM GitHub push).
+Runs every day at 9:00 AM via LaunchAgent (before the 9:05 AM GitHub push).
 
 Sources:
-  - TVMaze API (free, no key)    → TV premieres, finales, specials
-  - TheSportsDB (free, no key)   → Major sports events
+  - TVMaze API (free, no key)         → TV premieres, finales, specials
+  - TheSportsDB (free, no key)        → Major sports events
+  - Network press room RSS feeds      → CBS, ESPN, Deadline, Variety
+  - Google News RSS (targeted)        → FOX/ABC/CBS premiere announcements,
+                                        confirmed sports event dates
 
 Optional upgrade (still free):
   Add GEMINI_API_KEY to .env for smarter filtering via Google Gemini 1.5 Flash.
@@ -14,7 +17,9 @@ Optional upgrade (still free):
 """
 
 import os, re, sys, json, time, subprocess
+import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta
+from urllib.parse import quote_plus
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, "/Users/emmascully/Library/Python/3.9/lib/python/site-packages")
@@ -52,6 +57,12 @@ MONTH_LABELS = {
 
 ABBR_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun",
                "Jul","Aug","Sep","Oct","Nov","Dec"]
+
+MONTHS = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4,
+    "may": 5, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+}
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -446,6 +457,222 @@ def discover_sports(existing, start, end):
     print(f"    → {len(candidates)} sports candidates", flush=True)
     return candidates
 
+# ── Press release / news discovery ───────────────────────────────────────────
+
+# RSS feeds from official network press rooms + targeted Google News searches
+PRESS_FEEDS = [
+    {
+        "name":    "CBS Press Express",
+        "url":     "https://cbspressexpress.com/cbs-entertainment/feed/",
+        "css":     "cbs-e", "col": "ent", "network": "CBS",
+    },
+    {
+        "name":    "ESPN Press Room",
+        "url":     "https://espnpressroom.com/us/feed/",
+        "css":     None, "col": "sports", "network": "ESPN",
+    },
+    {
+        "name":    "Deadline — Premiere Dates",
+        "url":     "https://deadline.com/feed/",
+        "css":     None, "col": None, "network": None,
+    },
+    {
+        "name":    "Variety — TV News",
+        "url":     "https://variety.com/v/tv/feed/",
+        "css":     None, "col": None, "network": None,
+    },
+    {
+        "name":    "Google News — FOX/ABC/CBS premieres",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%22premiere+date%22+2026+%28FOX+OR+ABC+OR+CBS+OR+FX+OR+Freeform%29"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": None, "network": None,
+    },
+    {
+        "name":    "Google News — sports events announced",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=2026+sports+%22announced%22+OR+%22confirmed%22+OR+%22scheduled%22"
+                    "+%28ESPN+OR+FOX+OR+CBS+OR+NBC%29+date"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": None,
+    },
+]
+
+# Words in a headline that signal a new event announcement
+PRESS_ANNOUNCE_KW = [
+    "premiere", "premieres", "debut", "debuts", "returning", "returns",
+    "new series", "new show", "season finale", "series finale",
+    "announces", "confirmed", "first look", "picks up", "renews",
+    "ordered to series", "greenlit", "kicks off", "kicks-off",
+]
+
+_MO_PAT = (r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?"
+           r"|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)")
+_DATE_IN_TEXT_RE = re.compile(
+    rf"(?:on\s+)?(?:Mon(?:day)?|Tue(?:sday)?|Wed(?:nesday)?|Thu(?:rsday)?"
+    rf"|Fri(?:day)?|Sat(?:urday)?|Sun(?:day)?,?\s+)?"
+    rf"({_MO_PAT}\.?\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,?\s*2026)?)",
+    re.IGNORECASE,
+)
+
+# Network name → (css, col, display_name)
+_NETWORK_HINTS = [
+    (r"\bCBS\b",              "cbs-e",       "ent",    "CBS"),
+    (r"\bABC\b",              "abc-e",       "ent",    "ABC"),
+    (r"\bFOX\b",              "fox-e",       "ent",    "FOX"),
+    (r"\bFreeform\b",         "freeform-e",  "ent",    "Freeform"),
+    (r"\bFXX\b",              "fxx-e",       "ent",    "FXX"),
+    (r"\bFX\b",               "fx-e",        "ent",    "FX"),
+    (r"\bHallmark\b",         "hallmark-e",  "ent",    "Hallmark"),
+    (r"\bBET\b",              "bet-e",       "ent",    "BET"),
+    (r"\bMTV\b",              "mtv-e",       "ent",    "MTV"),
+    (r"\bStarz\b",            "starz-e",     "ent",    "Starz"),
+    (r"\bParamount Network\b","paramount-e", "ent",    "Paramount Network"),
+    (r"\bESPN\b",             "sports",      "sports", "ESPN"),
+    (r"\bFS1\b",              "sports",      "sports", "FOX / FS1"),
+]
+
+
+def _parse_press_date(text, year=2026):
+    """Extract the first recognisable calendar date from a headline or blurb."""
+    m = _DATE_IN_TEXT_RE.search(text)
+    if not m:
+        return None
+    raw = m.group(1).strip()
+    raw = re.sub(r"(\d+)(?:st|nd|rd|th)", r"\1", raw)
+    raw = re.sub(r",?\s*2026", "", raw).strip()
+    for fmt in ("%B %d", "%b %d", "%b. %d"):
+        try:
+            d = datetime.strptime(raw, fmt)
+            return date(year, d.month, d.day)
+        except ValueError:
+            continue
+    return None
+
+
+def _infer_network(text):
+    """Return (css, col, display_name) by scanning text for network mentions."""
+    for pattern, css, col, name in _NETWORK_HINTS:
+        if re.search(pattern, text, re.IGNORECASE):
+            return css, col, name
+    return None, None, None
+
+
+def _extract_show_name(headline):
+    """Pull a show/event name from a press release headline."""
+    # Quoted title is most reliable
+    m = re.search(r'[“"‘’]([^”"’]{3,60})[”"’]', headline)
+    if m:
+        return m.group(1).strip()
+    # Strip leading "[Network] [verb]" and take the subject
+    cleaned = re.sub(
+        r"^(?:CBS|ABC|FOX|FX(?:X)?|Freeform|ESPN|Hallmark|BET|MTV|Starz|Paramount)\s+"
+        r"(?:Announces?|Confirms?|Orders?|Picks?\s+Up|Renews?|Greenlights?|Sets?|Reveals?)\s+",
+        "", headline, flags=re.IGNORECASE,
+    ).strip()
+    m = re.match(
+        r"^([\w]['\w\s:!?&-]{3,50?}?)\s+"
+        r"(?:Premiere|Returns?|Debuts?|Season\s+\d|Series\s+Finale|Gets?|Will\b|Has\b)",
+        cleaned, re.IGNORECASE,
+    )
+    if m:
+        return m.group(1).strip()
+    return None
+
+
+def _fetch_rss(url):
+    """Fetch an RSS feed and return a list of {title, description, link} dicts."""
+    try:
+        r = requests.get(url, timeout=14,
+                         headers={"User-Agent": "Mozilla/5.0 (Macintosh)"})
+        r.raise_for_status()
+        root = ET.fromstring(r.content)
+        return [
+            {
+                "title":       (item.findtext("title") or "").strip(),
+                "description": re.sub(r"<[^>]+>", " ",
+                               (item.findtext("description") or "")).strip(),
+                "link":        (item.findtext("link") or "").strip(),
+            }
+            for item in root.findall(".//item")
+        ]
+    except Exception as e:
+        print(f"      [skip] {e}", flush=True)
+        return []
+
+
+def discover_press_releases(existing, start, end):
+    """
+    Scan network press room RSS feeds and Google News for new event/show
+    announcements. Returns candidates in the same format as discover_tv().
+    """
+    candidates = []
+    seen = set()
+    print("  Press releases & news feeds:", flush=True)
+
+    for feed in PRESS_FEEDS:
+        print(f"    {feed['name']} ...", flush=True)
+        items = _fetch_rss(feed["url"])
+
+        for item in items:
+            headline = item["title"]
+            blurb    = item.get("description", "")
+            combined = f"{headline} {blurb}"
+            h_lower  = headline.lower()
+
+            # Must look like an announcement
+            if not any(kw in h_lower for kw in PRESS_ANNOUNCE_KW):
+                continue
+
+            # Need a parseable future date
+            ev_date = _parse_press_date(combined)
+            if not ev_date or not (start <= ev_date <= end):
+                continue
+
+            # Determine network
+            css = feed.get("css")
+            col = feed.get("col")
+            net = feed.get("network")
+            if not css:
+                css, col, net = _infer_network(combined)
+            if not css:
+                continue
+
+            # Extract show name
+            show_name = _extract_show_name(headline)
+            if not show_name or len(show_name) < 4:
+                continue
+
+            if already_in_calendar(show_name, existing):
+                continue
+
+            key = f"{show_name.lower()[:30]}|{ev_date}"
+            if key in seen:
+                continue
+            seen.add(key)
+
+            is_new = any(k in h_lower for k in
+                         ("new series", "series premiere", "debut", "greenlit", "ordered to series"))
+            candidates.append({
+                "column":     col,
+                "date":       ev_date,
+                "title":      show_name,
+                "season":     None,
+                "ep_num":     None,
+                "reason":     "press release",
+                "pill_label": "New Series" if is_new else "",
+                "network":    net or css,
+                "css":        css,
+                "rating":     0.0,
+                "summary":    blurb[:80] if blurb else "",
+            })
+
+        time.sleep(0.5)
+
+    print(f"    → {len(candidates)} press release candidates", flush=True)
+    return candidates
+
+
 # ── Gemini filtering (optional, free) ────────────────────────────────────────
 
 GEMINI_PROMPT = """You maintain a FuboTV sports & entertainment calendar for 2026.
@@ -590,11 +817,14 @@ def run():
 
     corrections = verify_existing_dates(soup)
 
-    tv_cands    = discover_tv(existing, start, end)
-    sport_cands = discover_sports(existing, start, end)
-    all_cands   = tv_cands + sport_cands
+    tv_cands     = discover_tv(existing, start, end)
+    sport_cands  = discover_sports(existing, start, end)
+    press_cands  = discover_press_releases(existing, start, end)
+    all_cands    = tv_cands + sport_cands + press_cands
 
-    print(f"  Total candidates: {len(all_cands)}", flush=True)
+    print(f"  Total candidates: {len(all_cands)} "
+          f"(TV:{len(tv_cands)} Sports:{len(sport_cands)} Press:{len(press_cands)})",
+          flush=True)
 
     if not all_cands and not corrections:
         msg = "auto_update: no new candidates found, all dates verified"
