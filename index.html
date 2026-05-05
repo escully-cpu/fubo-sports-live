@@ -635,6 +635,16 @@
 <div class="title">WNBA Finals<span class="sub">Best-of-5 championship series</span></div>
 <div class="network">ABC<br/>ESPN</div>
 </div>
+<div class="item mlb big">
+<div class="date">~Oct 24–Nov 3</div>
+<div class="title">🏆 MLB World Series<span class="sub">Best-of-7 Fall Classic · Fox has exclusive broadcast rights</span></div>
+<div class="network">FOX<br/>FS1</div>
+</div>
+<div class="item nba">
+<div class="date">~Oct 22 (TBD)</div>
+<div class="title">NBA 2026-27 Regular Season Opens<span class="sub">Opening Night on ABC/ESPN · 82-game season tips off</span></div>
+<div class="network">ABC<br/>ESPN</div>
+</div>
 <div class="item wwe">
 <div class="date">Late Oct (TBD)</div>
 <div class="title">WWE Crown Jewel<span class="sub">Riyadh, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
@@ -1070,11 +1080,37 @@
 function parseEventDate(dateText, year) {
   const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
   dateText = dateText.trim().replace(/^~/, '');
+
+  // Month-only range "May–Oct", "Aug–Nov" → last day of END month (season stays visible)
+  const moRange = dateText.match(/^([A-Za-z]{3,})\s*[–\-]\s*([A-Za-z]{3,})\s*$/i);
+  if (moRange) {
+    const m = months[moRange[2].slice(0,3)];
+    if (m !== undefined) return new Date(year, m + 1, 0);
+  }
+
+  // Date range with explicit end: "Sep 30–Oct 2", "Oct 7–18" → END date
+  const dateRange = dateText.match(/[–\-]\s*([A-Za-z]+\s+)?(\d+)\s*$/);
+  if (dateRange && dateText.match(/\d/)) {
+    const endDay = parseInt(dateRange[2]);
+    const endMoStr = (dateRange[1] || '').trim();
+    let endMo;
+    if (endMoStr) {
+      endMo = months[endMoStr.slice(0,3)];
+    } else {
+      const startMo = dateText.match(/^([A-Za-z]+)/);
+      if (startMo) endMo = months[startMo[1].slice(0,3)];
+    }
+    if (endMo !== undefined) return new Date(year, endMo, endDay);
+  }
+
+  // Single date: "May 24", "~Sep 15"
   const match = dateText.match(/^([A-Za-z]+)[^\d]*(\d+)/);
   if (match) {
     const m = months[match[1].slice(0,3)];
     if (m !== undefined) return new Date(year, m, parseInt(match[2]));
   }
+
+  // Month only: "Sep (TBD)", "Fall (TBD)"
   const mOnly = dateText.match(/^([A-Za-z]+)/);
   if (mOnly) {
     const m = months[mOnly[1].slice(0,3)];
