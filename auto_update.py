@@ -630,6 +630,108 @@ PRESS_FEEDS = [
                     "&hl=en-US&gl=US&ceid=US:en"),
         "css":     None, "col": "sports", "network": "FOX / FS1 / BTN",
     },
+    # ── Disney / ABC / ESPN family ────────────────────────────────────────────
+    {
+        "name":    "Disney corporate news",
+        "url":     "https://thewaltdisneycompany.com/feed/",
+        "css":     None, "col": None, "network": None,
+    },
+    {
+        "name":    "Google News — ABC / Freeform / FX premieres",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28ABC+OR+Freeform+OR+FX+OR+FXX%29+premiere+OR+%22series+finale%22+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "ent", "network": None,
+    },
+    {
+        "name":    "Google News — ESPN / ABC sports announcements",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28ESPN+OR+%22ESPN%2B%22+OR+%22ABC%22%29+%28schedule+OR+broadcast+OR+exclusive%29+sports+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "ESPN / ABC",
+    },
+    # ── CBS / Paramount / Showtime ────────────────────────────────────────────
+    {
+        "name":    "Google News — CBS Sports / CBS Sports Net",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%22CBS+Sports%22+OR+%22CBS+Sports+Network%22+%28schedule+OR+broadcast%29+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "CBS Sports",
+    },
+    {
+        "name":    "Google News — Paramount Network / CMT premieres",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22Paramount+Network%22+OR+CMT%29+premiere+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "ent", "network": None,
+    },
+    # ── Hallmark / Lifetime / BET / MTV / VH1 / Comedy Central ────────────────
+    {
+        "name":    "Google News — Hallmark / Lifetime premieres",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28Hallmark+OR+Lifetime%29+%22premiere+date%22+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "ent", "network": None,
+    },
+    {
+        "name":    "Google News — BET / MTV / VH1 / Comedy Central",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28BET+OR+MTV+OR+VH1+OR+%22Comedy+Central%22%29+premiere+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "ent", "network": None,
+    },
+    # ── League-specific networks ──────────────────────────────────────────────
+    {
+        "name":    "Google News — NFL Network / RedZone",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%22NFL+Network%22+OR+%22NFL+RedZone%22+schedule+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "NFL Network",
+    },
+    {
+        "name":    "Google News — NHL Network / MLB Network",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22NHL+Network%22+OR+%22MLB+Network%22%29+schedule+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "NHL/MLB Net",
+    },
+    {
+        "name":    "Google News — Tennis Channel / Golf Channel",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22Tennis+Channel%22+OR+%22Golf+Channel%22%29+schedule+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "Tennis/Golf Ch.",
+    },
+    {
+        "name":    "Google News — ACC / SEC Network",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22ACC+Network%22+OR+%22SEC+Network%22%29+schedule+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "ACC/SEC Net",
+    },
+    # ── Fubo Latino — Spanish-language networks ───────────────────────────────
+    {
+        "name":    "Google News — TUDN / Univision",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28TUDN+OR+Univision+OR+UniMas+OR+Galavision%29+%28schedule+OR+broadcast%29+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "TUDN",
+    },
+    {
+        "name":    "Google News — beIN Sports / GolTV",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22beIN+Sports%22+OR+GolTV+OR+%22ESPN+Deportes%22%29+schedule+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "beIN Sports",
+    },
+    # ── Fubo Canada — DAZN, FSN, beIN ─────────────────────────────────────────
+    {
+        "name":    "Google News — DAZN Canada / FSN",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22DAZN+Canada%22+OR+%22Fubo+Sports+Network%22+OR+%22FSN+Canada%22%29+2026"
+                    "&hl=en-CA&gl=CA&ceid=CA:en"),
+        "css":     None, "col": "sports", "network": "DAZN (CA)",
+    },
 ]
 
 # Words in a headline that signal a new event announcement
@@ -654,21 +756,60 @@ _DATE_IN_TEXT_RE = re.compile(
 
 # Network name → (css, col, display_name)
 _NETWORK_HINTS = [
-    (r"\bCBS\b",              "cbs-e",       "ent",    "CBS"),
-    (r"\bABC\b",              "abc-e",       "ent",    "ABC"),
-    (r"\bFOX\b",              "fox-e",       "ent",    "FOX"),
-    (r"\bFreeform\b",         "freeform-e",  "ent",    "Freeform"),
-    (r"\bFXX\b",              "fxx-e",       "ent",    "FXX"),
-    (r"\bFX\b",               "fx-e",        "ent",    "FX"),
-    (r"\bHallmark\b",         "hallmark-e",  "ent",    "Hallmark"),
-    (r"\bBET\b",              "bet-e",       "ent",    "BET"),
-    (r"\bMTV\b",              "mtv-e",       "ent",    "MTV"),
-    (r"\bStarz\b",            "starz-e",     "ent",    "Starz"),
-    (r"\bParamount Network\b","paramount-e", "ent",    "Paramount Network"),
-    (r"\bESPN\b",             "sports",      "sports", "ESPN"),
-    (r"\bFS1\b",              "sports",      "sports", "FOX / FS1"),
-    (r"\bBTN\b|\bBig Ten Network\b", "sports", "sports", "BTN"),
-    (r"\bFOX Deportes\b",     "sports",      "sports", "FOX Deportes"),
+    # ── Entertainment (broadcast + cable) ─────────────────────────────────────
+    (r"\bCBS\b(?!\s+Sports)",         "cbs-e",       "ent",    "CBS"),
+    (r"\bABC\b(?!\s+News)",           "abc-e",       "ent",    "ABC"),
+    (r"\bFOX\b(?!\s+(?:Sports|News|Deportes|Soccer))", "fox-e", "ent", "FOX"),
+    (r"\bFreeform\b",                 "freeform-e",  "ent",    "Freeform"),
+    (r"\bFXX\b",                      "fxx-e",       "ent",    "FXX"),
+    (r"\bFX\b",                       "fx-e",        "ent",    "FX"),
+    (r"\bHallmark\b",                 "hallmark-e",  "ent",    "Hallmark"),
+    (r"\bBET\b",                      "bet-e",       "ent",    "BET"),
+    (r"\bMTV\b",                      "mtv-e",       "ent",    "MTV"),
+    (r"\bVH1\b",                      "mtv-e",       "ent",    "VH1"),
+    (r"\bComedy Central\b",           "paramount-e", "ent",    "Comedy Central"),
+    (r"\bStarz\b",                    "starz-e",     "ent",    "Starz"),
+    (r"\bParamount Network\b",        "paramount-e", "ent",    "Paramount Network"),
+    (r"\bCMT\b",                      "cmt-e",       "ent",    "CMT"),
+    (r"\bLifetime\b",                 "hallmark-e",  "ent",    "Lifetime"),
+    (r"\bA&E\b",                      "paramount-e", "ent",    "A&E"),
+    (r"\bHistory\s+Channel\b",        "paramount-e", "ent",    "History"),
+    (r"\bTLC\b",                      "paramount-e", "ent",    "TLC"),
+    (r"\bDiscovery\b",                "paramount-e", "ent",    "Discovery"),
+    (r"\bAMC\b",                      "paramount-e", "ent",    "AMC"),
+    (r"\bThe\s+CW\b|\bCW\s+Network\b","paramount-e", "ent",    "CW"),
+    # ── Sports (US base plan) ─────────────────────────────────────────────────
+    (r"\bESPN\b",                     "sports",      "sports", "ESPN"),
+    (r"\bESPN2\b",                    "sports",      "sports", "ESPN2"),
+    (r"\bESPNU\b",                    "sports",      "sports", "ESPNU"),
+    (r"\bESPN\+\b|\bESPN\s+Plus\b",   "sports",      "sports", "ESPN+"),
+    (r"\bFS1\b",                      "sports",      "sports", "FOX / FS1"),
+    (r"\bFS2\b",                      "sports",      "sports", "FS2"),
+    (r"\bBTN\b|\bBig Ten Network\b",  "sports",      "sports", "BTN"),
+    (r"\bACC Network\b|\bACCN\b",     "sports",      "sports", "ACC Network"),
+    (r"\bSEC Network\b|\bSECN\b",     "sports",      "sports", "SEC Network"),
+    (r"\bCBS Sports Network\b|\bCBSSN\b", "sports",  "sports", "CBS Sports Net"),
+    (r"\bCBS Sports\b",               "sports",      "sports", "CBS Sports"),
+    (r"\bNFL Network\b",              "sports",      "sports", "NFL Network"),
+    (r"\bNFL RedZone\b",              "sports",      "sports", "NFL RedZone"),
+    (r"\bNHL Network\b",              "sports",      "sports", "NHL Network"),
+    (r"\bMLB Network\b",              "sports",      "sports", "MLB Network"),
+    (r"\bTennis Channel\b",           "sports",      "sports", "Tennis Ch."),
+    (r"\bGolf Channel\b",             "sports",      "sports", "Golf Ch."),
+    # ── Fubo Latino (Spanish-language) ────────────────────────────────────────
+    (r"\bTUDN\b",                     "sports",      "sports", "TUDN"),
+    (r"\bUnivision\b",                "sports",      "sports", "Univision"),
+    (r"\bUniM[áa]s\b",                "sports",      "sports", "UniMás"),
+    (r"\bGalavisi[óo]n\b",            "sports",      "sports", "Galavisión"),
+    (r"\bbeIN\s+Sports?\b",           "sports",      "sports", "beIN Sports"),
+    (r"\bESPN Deportes\b",            "sports",      "sports", "ESPN Deportes"),
+    (r"\bFOX Deportes\b",             "sports",      "sports", "FOX Deportes"),
+    (r"\bFOX Soccer Plus\b|\bFSP\b",  "sports",      "sports", "FOX Soccer Plus"),
+    (r"\bGolTV\b",                    "sports",      "sports", "GolTV"),
+    (r"\bTyC Sports\b",               "sports",      "sports", "TyC Sports"),
+    # ── Fubo Canada ───────────────────────────────────────────────────────────
+    (r"\bDAZN\s*(?:Canada)?\b",       "sports",      "sports", "DAZN (CA)"),
+    (r"\bFubo Sports Network\b|\bFSN\b","sports",    "sports", "FSN"),
 ]
 
 
