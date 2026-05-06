@@ -591,6 +591,45 @@ PRESS_FEEDS = [
                     "&hl=en-US&gl=US&ceid=US:en"),
         "css":     None, "col": "sports", "network": None,
     },
+    # ── FOX-specific feeds ────────────────────────────────────────────────────
+    {
+        "name":    "FOX Sports Press Pass",
+        "url":     "https://www.foxsports.com/presspass/feed",
+        "css":     None, "col": "sports", "network": "FOX",
+    },
+    {
+        "name":    "Big Ten Network — News",
+        "url":     "https://btn.com/feed/",
+        "css":     None, "col": "sports", "network": "BTN",
+    },
+    {
+        "name":    "Google News — FS1 / FS2 schedule",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28%22FS1%22+OR+%22FS2%22%29+%22schedule%22+OR+%22announce%22+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "FOX / FS1",
+    },
+    {
+        "name":    "Google News — BTN / Big Ten Network",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%22Big+Ten+Network%22+OR+%22BTN%22+%22schedule%22+OR+%22announce%22+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "BTN",
+    },
+    {
+        "name":    "Google News — FOX Deportes",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%22FOX+Deportes%22+%28schedule+OR+announce+OR+broadcast%29+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "FOX Deportes",
+    },
+    {
+        "name":    "Google News — FOX college football / CFB",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%22college+football%22+%28FOX+OR+FS1+OR+BTN%29+schedule+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": "sports", "network": "FOX / FS1 / BTN",
+    },
 ]
 
 # Words in a headline that signal a new event announcement
@@ -599,6 +638,9 @@ PRESS_ANNOUNCE_KW = [
     "new series", "new show", "season finale", "series finale",
     "announces", "confirmed", "first look", "picks up", "renews",
     "ordered to series", "greenlit", "kicks off", "kicks-off",
+    # Sports-broadcast specific
+    "schedule", "broadcast", "to air", "will air", "exclusive coverage",
+    "tip-off", "matchup", "doubleheader", "kickoff",
 ]
 
 _MO_PAT = (r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?"
