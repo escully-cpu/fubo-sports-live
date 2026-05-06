@@ -397,19 +397,110 @@ SIG_SPORT_KW = [
     "nba finals", "wnba final", "masters", "open championship",
     "world cup", "gold cup", "bowl game", "conference championship",
     "wildcard", "wild card", "divisional", "semifinal", "semi-final",
-    "title game", "ncaa", "march madness",
+    "quarterfinal", "quarter-final", "title game", "ncaa", "march madness",
+    "matchday", "round of", "group stage", "league phase", "liguilla",
 ]
 
 LEAGUES = [
-    ("NFL",     "nfl"),
-    ("NBA",     "nba"),
-    ("NHL",     "nhl"),
-    ("MLB",     "mlb"),
-    ("WNBA",    "wnba"),
-    ("PGA Tour","golf"),
-    ("MLS",     "soccer"),
-    ("Tennis",  "tennis"),
+    ("NFL",                   "nfl"),
+    ("NBA",                   "nba"),
+    ("NHL",                   "nhl"),
+    ("MLB",                   "mlb"),
+    ("WNBA",                  "wnba"),
+    ("PGA Tour",              "golf"),
+    ("Tennis",                "tennis"),
+    ("UEFA Champions League", "soccer"),
+    ("Copa Libertadores",     "soccer"),
+    ("NWSL",                  "soccer"),
+    ("Liga MX",               "soccer"),
 ]
+
+# ── Recurring events manifest ─────────────────────────────────────────────────
+# Events that MUST exist in the calendar for their expected month(s).
+# Checked every morning — any that are absent trigger a SportsDB lookup + add.
+# (title_fragment_to_match, sportsdb_search_query, expected_months, css, network_html)
+RECURRING_MANIFEST = [
+    # UCL 2025-26 current season
+    ("UCL Semifinal",           "UEFA Champions League Semifinal",     [4, 5],       "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    ("UCL Final",               "UEFA Champions League Final",         [5, 6],       "soccer big", "CBS<br/>DAZN (CA)"),
+    # UCL 2026-27 league phase matchdays (Sep–Dec)
+    ("UCL 2026-27 — Matchday 1","UEFA Champions League Matchday",      [8, 9],       "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    ("UCL 2026-27 — Matchday 2","UEFA Champions League Matchday",      [9, 10],      "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    ("UCL 2026-27 — Matchday 3","UEFA Champions League Matchday",      [10],         "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    ("UCL 2026-27 — Matchday 4","UEFA Champions League Matchday",      [10, 11],     "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    ("UCL 2026-27 — Matchday 5","UEFA Champions League Matchday",      [11],         "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    ("UCL 2026-27 — Matchday 6","UEFA Champions League Matchday",      [11, 12],     "soccer",     "CBS Sports<br/>DAZN (CA)"),
+    # NBA
+    ("NBA Conference Finals",   "NBA Conference Finals",               [5],          "nba big",    "ABC<br/>ESPN"),
+    ("NBA Finals",              "NBA Finals",                          [6],          "nba big",    "ABC<br/>ESPN"),
+    # NHL
+    ("Stanley Cup Final",       "NHL Stanley Cup Final",               [5, 6],       "nhl big",    "ABC<br/>ESPN"),
+    # MLB postseason
+    ("MLB Wild Card",           "MLB Wild Card",                       [9, 10],      "mlb",        "ABC/ESPN<br/>FOX/FS1"),
+    ("MLB Division Series",     "MLB Division Series",                 [10],         "mlb",        "ABC/ESPN<br/>FOX/FS1"),
+    ("MLB Championship Series", "MLB Championship Series",             [10],         "mlb",        "FOX<br/>FS1"),
+    ("MLB World Series",        "MLB World Series",                    [10, 11],     "mlb big",    "FOX<br/>FS1"),
+    # NFL
+    ("NFL Wild Card",           "NFL Wild Card",                       [1],          "nfl big",    "FOX/CBS<br/>ESPN/ABC"),
+    ("NFL Divisional",          "NFL Divisional",                      [1],          "nfl big",    "FOX/CBS<br/>ESPN/ABC"),
+    ("Super Bowl",              "Super Bowl",                          [2],          "nfl big",    "FOX"),
+    # Soccer cups
+    ("Copa Libertadores Final", "Copa Libertadores Final",             [11],         "soccer big", "beIN Sports"),
+    ("Liga MX Clausura Final",  "Liga MX Clausura Final",             [5],          "soccer big", "TUDN"),
+    ("Liga MX Apertura Final",  "Liga MX Apertura Final",             [12],         "soccer big", "TUDN"),
+    # Tennis Grand Slams
+    ("French Open",             "French Open Roland Garros",           [5, 6],       "tennis",     "Tennis Ch.<br/>NBC"),
+    ("Wimbledon",               "Wimbledon",                           [6, 7],       "tennis",     "ESPN"),
+    ("US Open Tennis",          "US Open Tennis",                      [8, 9],       "tennis",     "ESPN"),
+    # NWSL
+    ("NWSL Championship",       "NWSL Championship",                   [11],         "soccer big", "CBS"),
+    # NASCAR
+    ("NASCAR Cup Championship", "NASCAR Cup Championship",             [11],         "racing big", "FOX"),
+]
+
+def audit_recurring(existing, today):
+    """
+    Check RECURRING_MANIFEST: for each expected event whose month window
+    includes today's month, verify it's in the calendar. For any that are
+    missing, attempt a TheSportsDB lookup to get the real date, then return
+    it as a candidate so it gets added automatically.
+    """
+    candidates = []
+    current_month = today.month
+    print("  Recurring events audit...", flush=True)
+
+    for title_frag, search_q, months, css, network in RECURRING_MANIFEST:
+        if current_month not in months:
+            continue
+        if already_in_calendar(title_frag, existing):
+            continue
+
+        print(f"    ⚠ Missing: {title_frag}", flush=True)
+        ev_date = sportsdb_event_date(search_q)
+        time.sleep(0.3)
+
+        # Fall back to first day of current month if SportsDB has nothing
+        if not ev_date or ev_date < today:
+            ev_date = today
+
+        net_display = network.replace("<br/>", " / ")
+        candidates.append({
+            "column":     "sports",
+            "date":       ev_date,
+            "title":      title_frag,
+            "season":     None,
+            "ep_num":     None,
+            "reason":     "recurring event",
+            "pill_label": "",
+            "network":    net_display,
+            "css":        css,
+            "rating":     0.0,
+            "summary":    "",
+        })
+
+    print(f"    → {len(candidates)} missing recurring event(s)", flush=True)
+    return candidates
+
 
 def discover_sports(existing, start, end):
     candidates = []
@@ -797,7 +888,7 @@ def insert_events(soup, items):
 
 def run():
     today    = date.today()
-    start    = today + timedelta(days=1)
+    start    = today                            # include today's events
     end      = today + timedelta(days=LOOKAHEAD)
     log_path = f"{LOGS}/auto_update_{today}.log"
     env      = load_env()
@@ -817,13 +908,15 @@ def run():
 
     corrections = verify_existing_dates(soup)
 
-    tv_cands     = discover_tv(existing, start, end)
-    sport_cands  = discover_sports(existing, start, end)
-    press_cands  = discover_press_releases(existing, start, end)
-    all_cands    = tv_cands + sport_cands + press_cands
+    tv_cands       = discover_tv(existing, start, end)
+    sport_cands    = discover_sports(existing, start, end)
+    press_cands    = discover_press_releases(existing, start, end)
+    recurring_cands= audit_recurring(existing, today)
+    all_cands      = tv_cands + sport_cands + press_cands + recurring_cands
 
     print(f"  Total candidates: {len(all_cands)} "
-          f"(TV:{len(tv_cands)} Sports:{len(sport_cands)} Press:{len(press_cands)})",
+          f"(TV:{len(tv_cands)} Sports:{len(sport_cands)} "
+          f"Press:{len(press_cands)} Recurring:{len(recurring_cands)})",
           flush=True)
 
     if not all_cands and not corrections:
@@ -864,6 +957,7 @@ def run():
         f.write(f"Candidates: {len(all_cands)}\n")
         f.write(f"Added     : {added}\n")
         f.write(f"Date fixes: {len(corrections)}\n")
+        f.write(f"Recurring : {len(recurring_cands)} missing\n")
         f.write("=" * 50 + "\n\n")
         if corrections:
             f.write("DATE CORRECTIONS:\n")
