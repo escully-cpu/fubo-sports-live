@@ -456,6 +456,10 @@ RECURRING_MANIFEST = [
     ("NWSL Championship",       "NWSL Championship",                   [11],         "soccer big", "CBS"),
     # NASCAR
     ("NASCAR Cup Championship", "NASCAR Cup Championship",             [11],         "racing big", "FOX"),
+    # Big Ten Network — football championship
+    ("Big Ten Championship",    "Big Ten Football Championship",       [12],         "college big","CBS<br/>BTN"),
+    # FOX Deportes — Spanish-language Liga MX broadcasts (Fubo Latino)
+    ("Liga MX Apertura — Kickoff","Liga MX Apertura",                  [7],          "soccer",     "TUDN<br/>FOX Deportes"),
 ]
 
 def audit_recurring(existing, today):
@@ -621,6 +625,8 @@ _NETWORK_HINTS = [
     (r"\bParamount Network\b","paramount-e", "ent",    "Paramount Network"),
     (r"\bESPN\b",             "sports",      "sports", "ESPN"),
     (r"\bFS1\b",              "sports",      "sports", "FOX / FS1"),
+    (r"\bBTN\b|\bBig Ten Network\b", "sports", "sports", "BTN"),
+    (r"\bFOX Deportes\b",     "sports",      "sports", "FOX Deportes"),
 ]
 
 
