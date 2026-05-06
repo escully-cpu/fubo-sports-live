@@ -242,7 +242,8 @@
 <div class="legend-item" data-network-filter="dazn">DAZN</div>
 <div class="legend-item" data-network-filter="espn unlimited">ESPN+</div>
 <div class="legend-item" data-network-filter="tudn bein sports">beIN / TUDN</div>
-<div class="legend-item" data-network-filter="fsn dazn">Fubo Canada</div>
+<div class="legend-item" data-network-filter="pill:latino-pill">Fubo Latino</div>
+<div class="legend-item" data-network-filter="pill:canada-pill">Fubo Canada</div>
 </div>
 <!-- MAY -->
 <div class="month-block">
@@ -1194,7 +1195,11 @@ function parseEventDate(dateText, year) {
       var netText = (el.querySelector('.network') || {textContent:''}).textContent.toLowerCase();
       var matched = false;
       activeNet.forEach(function(f) {
-        f.split(' ').forEach(function(kw) { if (netText.indexOf(kw) !== -1) matched = true; });
+        if (f.indexOf('pill:') === 0) {
+          if (el.querySelector('.' + f.slice(5))) matched = true;
+        } else {
+          f.split(' ').forEach(function(kw) { if (netText.indexOf(kw) !== -1) matched = true; });
+        }
       });
       return matched;
     }
