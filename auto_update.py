@@ -456,6 +456,11 @@ RECURRING_MANIFEST = [
     ("NWSL Championship",       "NWSL Championship",                   [11],         "soccer big", "CBS"),
     # NASCAR
     ("NASCAR Cup Championship", "NASCAR Cup Championship",             [11],         "racing big", "FOX"),
+    # Serie A / Coppa Italia (Fubo Canada — FSN)
+    ("Serie A Final Day",       "Serie A Matchday 38",                 [5],          "soccer big", "FSN"),
+    ("Serie A — Matchday 1",    "Serie A Matchday 1",                  [8],          "soccer",     "FSN"),
+    ("Coppa Italia",            "Coppa Italia Round",                  [9, 10, 12],  "soccer",     "FSN"),
+    ("Supercoppa Italiana",     "Supercoppa Italiana",                 [12, 1],      "soccer big", "FSN"),
     # Big Ten Network — football championship
     ("Big Ten Championship",    "Big Ten Football Championship",       [12],         "college big","CBS<br/>BTN"),
     # FOX Deportes — Spanish-language Liga MX broadcasts (Fubo Latino)
