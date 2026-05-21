@@ -98,6 +98,13 @@
     color: #555; min-width: 64px; padding-top: 1px;
   }
   .item-details .det-val { flex: 1; color: #ccc; }
+  .item-details .det-bullets { list-style: none; padding: 0; margin: 0; }
+  .item-details .det-bullets li {
+    position: relative; padding-left: 12px; margin-bottom: 3px; line-height: 1.5;
+  }
+  .item-details .det-bullets li::before {
+    content: '•'; position: absolute; left: 0; top: 0; color: #fa4b13;
+  }
 
   /* Sports */
   .soccer  { border-left-color: #43a047; }
@@ -1309,7 +1316,13 @@ function parseEventDate(dateText, year) {
     rows.push('<div class="det-row"><div class="det-label">Date</div><div class="det-val">' + date + '</div></div>');
     rows.push('<div class="det-row"><div class="det-label">Time (ET)</div><div class="det-val">' + time + '</div></div>');
     if (loc)      rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
-    if (sub)      rows.push('<div class="det-row"><div class="det-label">Details</div><div class="det-val">' + sub + '</div></div>');
+    if (sub) {
+      var parts = sub.split(/\s·\s/).map(function(s){ return s.trim(); }).filter(Boolean);
+      var bullets = parts.length > 1
+        ? '<ul class="det-bullets">' + parts.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>'
+        : sub;
+      rows.push('<div class="det-row"><div class="det-label">Details</div><div class="det-val">' + bullets + '</div></div>');
+    }
     if (nets)     rows.push('<div class="det-row"><div class="det-label">Watch on</div><div class="det-val">' + nets + '</div></div>');
     if (fuboNote) rows.push('<div class="det-row"><div class="det-label">Fubo Avail.</div><div class="det-val">' + fuboNote + '</div></div>');
     if (pills)    rows.push('<div class="det-row"><div class="det-label">Plan</div><div class="det-val">' + pills + '</div></div>');
