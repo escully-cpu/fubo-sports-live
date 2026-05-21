@@ -212,7 +212,8 @@ def _utc_time_to_et(time_str, ev_date):
         return None
 
 def sportsdb_event_full(title):
-    """Look up an event in TheSportsDB and return {date,time_et,venue,city,country}."""
+    """Look up an event in TheSportsDB and return
+    {date,time_et,venue,city,country,matchup}."""
     try:
         url = (f"https://www.thesportsdb.com/api/v1/json/3/searchevents.php"
                f"?e={requests.utils.quote(title)}&s=2026")
@@ -238,12 +239,16 @@ def sportsdb_event_full(title):
                 ev_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             except Exception:
                 continue
+            home = (ev.get("strHomeTeam") or "").strip()
+            away = (ev.get("strAwayTeam") or "").strip()
+            matchup = f"{away} @ {home}" if home and away else ""
             return {
                 "date":    ev_date,
                 "time_et": _utc_time_to_et(ev.get("strTime", ""), ev_date),
                 "venue":   (ev.get("strVenue") or "").strip(),
                 "city":    (ev.get("strCity") or "").strip(),
                 "country": (ev.get("strCountry") or "").strip(),
+                "matchup": matchup,
             }
     except Exception:
         pass
@@ -424,6 +429,21 @@ def enrich_event_details(soup, today):
             item["data-fubo-note"] = fubo_note
             enriched += 1
             print(f"    ⓘ {title}: Fubo → {fubo_note[:60]}", flush=True)
+
+        # Matchup check for championship-style events: keep retrying daily
+        # until teams are determined (playoffs conclude → finals get teams).
+        championship_kws = ("finals", "championship", "stanley cup", "world series",
+                            "super bowl", "world cup final", "title game",
+                            "champions league final")
+        if (not item.get("data-matchup")
+                and any(kw in title.lower() for kw in championship_kws)
+                and classes & sports_classes):
+            mu_details = sportsdb_event_full(title)
+            time.sleep(0.3)
+            if mu_details and mu_details.get("matchup"):
+                item["data-matchup"] = mu_details["matchup"]
+                enriched += 1
+                print(f"    🆚 {title}: matchup → {mu_details['matchup']}", flush=True)
 
         # Skip time/venue lookup if already done
         if item.get("data-time"):

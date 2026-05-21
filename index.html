@@ -1309,12 +1309,14 @@ function parseEventDate(dateText, year) {
     var venue    = item.getAttribute('data-venue');
     var city     = item.getAttribute('data-city');
     var country  = item.getAttribute('data-country');
+    var matchup  = item.getAttribute('data-matchup');
     var fuboNote = item.getAttribute('data-fubo-note');
     var loc      = [venue, city, country].filter(Boolean).join(', ');
 
     var rows = [];
     rows.push('<div class="det-row"><div class="det-label">Date</div><div class="det-val">' + date + '</div></div>');
     rows.push('<div class="det-row"><div class="det-label">Time (ET)</div><div class="det-val">' + time + '</div></div>');
+    if (matchup)  rows.push('<div class="det-row"><div class="det-label">Matchup</div><div class="det-val">' + matchup + '</div></div>');
     if (loc)      rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
     if (sub) {
       // Drop bullets that just repeat info already shown in Time/Location/Watch on rows
