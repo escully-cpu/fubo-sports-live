@@ -162,6 +162,99 @@ def parse_single_date(text, year=2026):
     except ValueError:
         return None
 
+def parse_end_date(date_text, year=2026):
+    """Return the LAST date an event could still be active.
+    Handles single dates, date ranges, month-only ranges, and '&' multi-leg
+    events. Returns None for vague/recurring/TBD/ongoing dates."""
+    text = (date_text or "").strip().replace("~", "").strip()
+    if not text:
+        return None
+    low = text.lower()
+    # Vague / open-ended descriptors — never prune
+    if any(w in low for w in ("weekly", "ongoing", "tbd", "season",
+                              "thru", "finals week", "+ ")):
+        return None
+    if low.endswith("+"):
+        return None
+
+    mo = {"jan":1, "feb":2, "mar":3, "apr":4, "may":5, "jun":6,
+          "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12}
+
+    # Month-only range: "May–Oct" → last day of end month
+    m = re.match(r"^([A-Za-z]{3,})\s*[–\-]\s*([A-Za-z]{3,})\s*$", text)
+    if m:
+        end_mo = mo.get(m.group(2)[:3].lower())
+        if end_mo:
+            return (date(year, 12, 31) if end_mo == 12
+                    else date(year, end_mo + 1, 1) - timedelta(days=1))
+
+    # Date range: "Sep 30–Oct 2", "Oct 7–18", "Jun 3–19"
+    m = re.match(r"^([A-Za-z]+)\s+\d+\s*[–\-]\s*(?:([A-Za-z]+)\s+)?(\d+)",
+                 text)
+    if m:
+        start_mo_str = m.group(1)
+        end_mo_str   = m.group(2) or start_mo_str
+        end_mo = mo.get(end_mo_str[:3].lower())
+        if end_mo:
+            try:
+                return date(year, end_mo, int(m.group(3)))
+            except ValueError:
+                pass
+
+    # "May 21 & 24" → second day
+    m = re.match(r"^([A-Za-z]+)\s+\d+\s*&\s*(\d+)", text)
+    if m:
+        mo_n = mo.get(m.group(1)[:3].lower())
+        if mo_n:
+            try:
+                return date(year, mo_n, int(m.group(2)))
+            except ValueError:
+                pass
+
+    # Single date: "May 24", "May 24 (TBD)"
+    m = re.match(r"^([A-Za-z]+)\s+(\d+)", text)
+    if m:
+        mo_n = mo.get(m.group(1)[:3].lower())
+        if mo_n:
+            try:
+                return date(year, mo_n, int(m.group(2)))
+            except ValueError:
+                pass
+
+    # Month only — too vague to prune safely
+    return None
+
+def prune_past_events(soup, today, cutoff_days=5):
+    """Remove events whose end date was more than `cutoff_days` ago.
+    Also removes month blocks that become empty as a result.
+    Returns list of (title, end_date) tuples for the log."""
+    pruned = []
+    cutoff = today - timedelta(days=cutoff_days)
+    print(f"  Pruning events ended on or before {cutoff} "
+          f"(>{cutoff_days} days ago)...", flush=True)
+
+    for item in list(soup.find_all("div", class_="item")):
+        date_el  = item.find("div", class_="date")
+        title_el = item.find("div", class_="title")
+        if not (date_el and title_el):
+            continue
+        end_d = parse_end_date(date_el.get_text().strip())
+        if not end_d or end_d >= cutoff:
+            continue
+        title = _clean_title(title_el)
+        print(f"    🗑  {title} ({end_d})", flush=True)
+        item.decompose()
+        pruned.append((title, end_d))
+
+    # Clean up empty month blocks
+    for mb in list(soup.find_all("div", class_="month-block")):
+        lst = mb.find("div", class_="list")
+        if lst and not lst.find("div", class_="item"):
+            mb.decompose()
+
+    print(f"    → {len(pruned)} event(s) pruned", flush=True)
+    return pruned
+
 def _clean_title(title_el):
     """Strip pill/sub/badge children and return plain title text."""
     clone = BeautifulSoup(str(title_el), "html.parser")
@@ -1424,6 +1517,7 @@ def run():
     existing = get_existing_titles(soup)
     print(f"  Existing events: {len(existing)}", flush=True)
 
+    pruned       = prune_past_events(soup, today, cutoff_days=5)
     corrections  = verify_existing_dates(soup)
     time_updates = verify_existing_times(soup, today)
     enrichments  = enrich_event_details(soup, today)
@@ -1439,25 +1533,30 @@ def run():
           f"Press:{len(press_cands)} Recurring:{len(recurring_cands)})",
           flush=True)
 
-    if not all_cands and not corrections and not enrichments and not time_updates:
+    if (not all_cands and not corrections and not enrichments
+            and not time_updates and not pruned):
         msg = "auto_update: no new candidates found, all dates verified"
         with open(log_path, "w") as f:
             f.write(f"{msg}\nRun: {today}\nMode: {mode}\n")
         print(f"[{today}] {msg}", flush=True)
         return
 
-    # Enrichments / time updates alone (no new events, no date fixes) still warrant a save
-    if not all_cands and (corrections or enrichments or time_updates):
+    # Audit-only path (no new events to add) still warrants a save
+    if not all_cands and (corrections or enrichments or time_updates or pruned):
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
         with open(log_path, "w") as f:
             f.write(f"auto_update — {today}\nMode: {mode}\n"
                     f"Date fixes : {len(corrections)}\n"
                     f"Time shifts: {len(time_updates)}\n"
-                    f"Enriched   : {enrichments}\n")
+                    f"Enriched   : {enrichments}\n"
+                    f"Pruned     : {len(pruned)}\n")
             for title, old, new in time_updates:
                 f.write(f"  ⏰ {title}: {old} → {new}\n")
+            for title, end_d in pruned:
+                f.write(f"  🗑  {title} (ended {end_d})\n")
         msg_bits = []
+        if pruned:       msg_bits.append(f"{len(pruned)} past event(s) pruned")
         if corrections:  msg_bits.append(f"{len(corrections)} date(s) corrected")
         if time_updates: msg_bits.append(f"{len(time_updates)} time shift(s)")
         if enrichments:  msg_bits.append(f"{enrichments} item(s) enriched")
@@ -1488,7 +1587,7 @@ def run():
 
     added = insert_events(soup, items_to_add)
 
-    if added > 0 or corrections or enrichments or time_updates:
+    if added > 0 or corrections or enrichments or time_updates or pruned:
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
@@ -1497,11 +1596,17 @@ def run():
         f.write(f"Mode       : {mode}\n")
         f.write(f"Candidates : {len(all_cands)}\n")
         f.write(f"Added      : {added}\n")
+        f.write(f"Pruned     : {len(pruned)}\n")
         f.write(f"Date fixes : {len(corrections)}\n")
         f.write(f"Time shifts: {len(time_updates)}\n")
         f.write(f"Enriched   : {enrichments}\n")
         f.write(f"Recurring  : {len(recurring_cands)} missing\n")
         f.write("=" * 50 + "\n\n")
+        if pruned:
+            f.write("PRUNED (ended >5 days ago):\n")
+            for title, end_d in pruned:
+                f.write(f"  🗑  {title} (ended {end_d})\n")
+            f.write("\n")
         if corrections:
             f.write("DATE CORRECTIONS:\n")
             for title, old, new in corrections:
@@ -1519,6 +1624,8 @@ def run():
     parts = []
     if added:
         parts.append(f"{added} new event(s) added")
+    if pruned:
+        parts.append(f"{len(pruned)} past event(s) pruned")
     if corrections:
         parts.append(f"{len(corrections)} date(s) corrected")
     if time_updates:
