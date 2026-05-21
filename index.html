@@ -284,6 +284,114 @@
   .legend-item[data-network-filter].is-active {
     background: rgba(255,255,255,0.07); outline: 1px solid rgba(255,255,255,0.1);
   }
+
+  /* ─── Theme toggle button (dark defaults) ─────────────────────────────── */
+  .theme-toggle {
+    flex-shrink: 0; cursor: pointer; user-select: none;
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    color: #888;
+  }
+  .theme-toggle:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .theme-toggle svg { width: 14px; height: 14px; }
+  .theme-toggle .icon-moon { display: none; }
+  .theme-toggle .icon-sun  { display: block; }
+
+  /* ─── LIGHT THEME OVERRIDES (when body.theme-light) ───────────────────── */
+  body.theme-light { background: #f5f5f7; color: #1a1a1a; }
+  body.theme-light .hero {
+    background: linear-gradient(135deg, #ffffff 0%, #fef2ec 100%);
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  body.theme-light .hero h1 { color: #1a1a1a; }
+  body.theme-light .hero p  { color: #777 !important; }
+  body.theme-light .col-header { color: #4a4a4a; border-bottom-color: rgba(0,0,0,0.08); }
+  body.theme-light .legend-item { color: #555; }
+  body.theme-light .month-label {
+    background: #ffffff; color: #1a1a1a;
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+  body.theme-light .month-label span { color: #888; }
+  body.theme-light .item {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.06); border-left: 3px solid #d4d4d8;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  }
+  body.theme-light .item:hover { background: #fafafa; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+  body.theme-light .item .chev { color: #bbb; }
+  body.theme-light .item:hover .chev { color: #888; }
+  body.theme-light .item-details {
+    border-top-color: rgba(0,0,0,0.08); color: #555;
+  }
+  body.theme-light .item-details .det-label { color: #999; }
+  body.theme-light .item-details .det-val   { color: #333; }
+  body.theme-light .item.big {
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06), inset 4px 0 0 rgba(250,75,19,0.08);
+  }
+  body.theme-light .item.this-week {
+    background: #ffffff; border-left-color: #fa4b13;
+    box-shadow: 0 1px 0 rgba(250,75,19,0.18);
+  }
+  body.theme-light .item.this-week .title { color: #1a1a1a; }
+  body.theme-light .item.this-week .date  { color: #1a1a1a; }
+  body.theme-light .item.this-week .date::after {
+    background: #1a1a1a; color: #fa4b13; border-color: rgba(250,75,19,0.3);
+  }
+  body.theme-light .date  { color: #555; }
+  body.theme-light .title { color: #1a1a1a; }
+  body.theme-light .title .sub { color: #6b6b73; }
+  body.theme-light .note  { background: #ffffff; border: 1px solid rgba(0,0,0,0.07); color: #6b6b73; }
+  body.theme-light .note strong { color: #1a1a1a; }
+  body.theme-light .last-updated { color: #999; }
+  body.theme-light .legend-row-label { color: #999; border-top-color: rgba(0,0,0,0.06); }
+  body.theme-light .legend-item:hover { background: rgba(0,0,0,0.05); }
+  body.theme-light .legend-item.is-active { background: rgba(0,0,0,0.07); outline-color: rgba(0,0,0,0.12); }
+  body.theme-light .legend-item[data-network-filter].is-active { background: rgba(0,0,0,0.06); outline-color: rgba(0,0,0,0.12); }
+  body.theme-light .legend-all { color: #555; border-color: rgba(0,0,0,0.1); }
+  body.theme-light .legend-all:hover { background: rgba(0,0,0,0.04); color: #333; }
+  body.theme-light .legend-all.is-active { background: rgba(250,75,19,0.1); color: #fa4b13; border-color: rgba(250,75,19,0.3); }
+  body.theme-light .latino-pill, body.theme-light .canada-pill {
+    background: rgba(0,0,0,0.04); color: #6b6b73; border-color: rgba(0,0,0,0.1);
+  }
+  body.theme-light .search-bar { background: #ffffff; border-color: rgba(0,0,0,0.1); }
+  body.theme-light .search-bar input { color: #1a1a1a; }
+  body.theme-light .search-bar input::placeholder { color: #aaa; }
+  body.theme-light .search-bar .clear-btn { color: #999; }
+  body.theme-light .search-bar .clear-btn:hover { color: #1a1a1a; background: rgba(0,0,0,0.05); }
+  body.theme-light .search-result-count { color: #888; }
+  body.theme-light .theme-toggle { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #555; }
+  body.theme-light .theme-toggle:hover { background: rgba(0,0,0,0.04); color: #1a1a1a; }
+  body.theme-light .theme-toggle .icon-moon { display: block; }
+  body.theme-light .theme-toggle .icon-sun  { display: none; }
+  body.theme-light .item-details .det-bullets li::before { color: #fa4b13; }
+
+  /* Network text colors — light overrides (darker shades for white bg) */
+  body.theme-light .soccer  .network { color: #2e7d32; }
+  body.theme-light .nba     .network { color: #e65100; }
+  body.theme-light .nhl     .network { color: #1565c0; }
+  body.theme-light .mlb     .network { color: #c62828; }
+  body.theme-light .tennis  .network { color: #f57f17; }
+  body.theme-light .golf    .network { color: #00838f; }
+  body.theme-light .wwe     .network { color: #c62828; }
+  body.theme-light .nfl     .network { color: #3949ab; }
+  body.theme-light .college .network { color: #7b1fa2; }
+  body.theme-light .wnba    .network { color: #d84315; }
+  body.theme-light .racing  .network { color: #f57f17; }
+  body.theme-light .cbs-e      .network { color: #0277bd; }
+  body.theme-light .abc-e      .network { color: #3949ab; }
+  body.theme-light .fox-e      .network { color: #e65100; }
+  body.theme-light .fx-e       .network { color: #bf360c; }
+  body.theme-light .fxx-e      .network { color: #d84315; }
+  body.theme-light .hallmark-e .network { color: #c2185b; }
+  body.theme-light .bet-e      .network { color: #a17600; }
+  body.theme-light .mtv-e      .network { color: #c2185b; }
+  body.theme-light .starz-e    .network { color: #6a1b9a; }
+  body.theme-light .freeform-e .network { color: #00838f; }
+  body.theme-light .paramount-e .network { color: #455a64; }
 </style>
 </head>
 <body>
@@ -295,13 +403,26 @@
 <p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May – December 2026</p>
 </div>
 <div class="hero-search">
-  <div class="search-bar" id="search-bar">
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-      <circle cx="7" cy="7" r="5" stroke="#777" stroke-width="1.5"/>
-      <path d="M11 11 L14 14" stroke="#777" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-    <input id="event-search" type="text" placeholder="Search events…" autocomplete="off" spellcheck="false">
-    <span class="clear-btn" id="event-search-clear" title="Clear">×</span>
+  <div style="display:flex;gap:8px;align-items:stretch;">
+    <div class="search-bar" id="search-bar" style="flex:1;">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M11 11 L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input id="event-search" type="text" placeholder="Search events…" autocomplete="off" spellcheck="false">
+      <span class="clear-btn" id="event-search-clear" title="Clear">×</span>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light mode" aria-label="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 16 16" fill="none">
+        <path d="M13 9.5a5 5 0 0 1-6.5-6.5A5.5 5.5 0 1 0 13 9.5z" fill="currentColor"/>
+      </svg>
+      <svg class="icon-sun" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="3" fill="currentColor"/>
+        <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.3 3.3l1.1 1.1M11.6 11.6l1.1 1.1M3.3 12.7l1.1-1.1M11.6 4.4l1.1-1.1"/>
+        </g>
+      </svg>
+    </button>
   </div>
   <div class="search-result-count" id="search-result-count"></div>
 </div>
@@ -1479,6 +1600,21 @@ function parseEventDate(dateText, year) {
       applySearch();
       input.blur();
     }
+  });
+})();
+</script>
+<script>
+// Theme toggle — defaults to dark, remembers choice in localStorage
+(function() {
+  var STORAGE_KEY = 'fubo-calendar-theme';
+  var toggle = document.getElementById('theme-toggle');
+  if (!toggle) return;
+  if (localStorage.getItem(STORAGE_KEY) === 'light') {
+    document.body.classList.add('theme-light');
+  }
+  toggle.addEventListener('click', function() {
+    var isLight = document.body.classList.toggle('theme-light');
+    localStorage.setItem(STORAGE_KEY, isLight ? 'light' : 'dark');
   });
 })();
 </script>
