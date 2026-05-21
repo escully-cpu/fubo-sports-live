@@ -1317,11 +1317,21 @@ function parseEventDate(dateText, year) {
     rows.push('<div class="det-row"><div class="det-label">Time (ET)</div><div class="det-val">' + time + '</div></div>');
     if (loc)      rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
     if (sub) {
-      var parts = sub.split(/\s·\s/).map(function(s){ return s.trim(); }).filter(Boolean);
-      var bullets = parts.length > 1
-        ? '<ul class="det-bullets">' + parts.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>'
-        : sub;
-      rows.push('<div class="det-row"><div class="det-label">Details</div><div class="det-val">' + bullets + '</div></div>');
+      // Drop bullets that just repeat info already shown in Time/Location/Watch on rows
+      var otherText = [date, time, loc, nets].join(' ').toLowerCase();
+      var parts = sub.split(/\s·\s/)
+        .map(function(s){ return s.trim(); })
+        .filter(function(p) {
+          if (!p) return false;
+          var pl = p.toLowerCase();
+          return otherText.indexOf(pl) === -1;
+        });
+      if (parts.length) {
+        var bullets = parts.length > 1
+          ? '<ul class="det-bullets">' + parts.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>'
+          : parts[0];
+        rows.push('<div class="det-row"><div class="det-label">Details</div><div class="det-val">' + bullets + '</div></div>');
+      }
     }
     if (nets)     rows.push('<div class="det-row"><div class="det-label">Watch on</div><div class="det-val">' + nets + '</div></div>');
     if (fuboNote) rows.push('<div class="det-row"><div class="det-label">Fubo Avail.</div><div class="det-val">' + fuboNote + '</div></div>');
