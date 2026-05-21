@@ -872,9 +872,9 @@
 <div class="title">Million Dollar Nannies<div class="new-pill">New Series</div><span class="sub">New reality series · Freeform premiere</span></div>
 <div class="network">Freeform</div>
 </div>
-<div class="item fx-e big" data-time="9:00 PM ET (all 8 episodes drop)">
+<div class="item fx-e big" data-time="9:00 PM ET (FX linear premiere)" data-fubo-note="First 2 episodes Thu Jun 25 at 9 PM ET on FX, then 1 new ep weekly on Thursdays — day-and-date with Hulu drop">
 <div class="date">Jun 25</div>
-<div class="title">The Bear S5 — Final Season<div class="new-pill">Series Finale</div><span class="sub">FX · 9:00 PM ET premiere · All 8 episodes drop on Hulu · Award-winning drama ends</span></div>
+<div class="title">The Bear S5 — Final Season<div class="new-pill">Series Finale</div><span class="sub">FX · 9:00 PM ET Thursday premiere (first 2 episodes on FX linear, then weekly Thursdays) · All 8 episodes drop on Hulu simultaneously · Award-winning drama ends</span></div>
 <div class="network">FX</div>
 </div>
 <div class="item bet-e big" data-time="8:00 PM ET" data-venue="Peacock Theater" data-city="Los Angeles" data-country="USA">
@@ -1298,19 +1298,21 @@ function parseEventDate(dateText, year) {
     var nets  = networksList(item);
     var pills = pillsList(item);
 
-    var time    = item.getAttribute('data-time') || 'TBD — pending broadcaster confirmation';
-    var venue   = item.getAttribute('data-venue');
-    var city    = item.getAttribute('data-city');
-    var country = item.getAttribute('data-country');
-    var loc     = [venue, city, country].filter(Boolean).join(', ');
+    var time     = item.getAttribute('data-time') || 'TBD — pending broadcaster confirmation';
+    var venue    = item.getAttribute('data-venue');
+    var city     = item.getAttribute('data-city');
+    var country  = item.getAttribute('data-country');
+    var fuboNote = item.getAttribute('data-fubo-note');
+    var loc      = [venue, city, country].filter(Boolean).join(', ');
 
     var rows = [];
     rows.push('<div class="det-row"><div class="det-label">Date</div><div class="det-val">' + date + '</div></div>');
     rows.push('<div class="det-row"><div class="det-label">Time (ET)</div><div class="det-val">' + time + '</div></div>');
-    if (loc)   rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
-    if (sub)   rows.push('<div class="det-row"><div class="det-label">Details</div><div class="det-val">' + sub + '</div></div>');
-    if (nets)  rows.push('<div class="det-row"><div class="det-label">Watch on</div><div class="det-val">' + nets + '</div></div>');
-    if (pills) rows.push('<div class="det-row"><div class="det-label">Plan</div><div class="det-val">' + pills + '</div></div>');
+    if (loc)      rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
+    if (sub)      rows.push('<div class="det-row"><div class="det-label">Details</div><div class="det-val">' + sub + '</div></div>');
+    if (nets)     rows.push('<div class="det-row"><div class="det-label">Watch on</div><div class="det-val">' + nets + '</div></div>');
+    if (fuboNote) rows.push('<div class="det-row"><div class="det-label">Fubo Avail.</div><div class="det-val">' + fuboNote + '</div></div>');
+    if (pills)    rows.push('<div class="det-row"><div class="det-label">Plan</div><div class="det-val">' + pills + '</div></div>');
 
     var d = document.createElement('div');
     d.className = 'item-details';

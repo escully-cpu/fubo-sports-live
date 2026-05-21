@@ -341,11 +341,53 @@ def tvmaze_show_full(show_name):
     except Exception:
         return None
 
+# Streaming services NOT included in the Fubo base plan.
+# When an item mentions one of these without a clear Fubo-accessible alternative,
+# flag it for manual confirmation of when (or whether) Fubo viewers can watch.
+NOT_ON_FUBO_STREAMING = [
+    "hulu", "netflix", "peacock", "apple tv+", "apple tv plus",
+    "disney+", "disney plus", "amazon prime", "prime video",
+    "max ", "hbo max", "paramount+",
+]
+# Linear networks Fubo carries — if one of these is the item's network and
+# the sub mentions a streaming service, the show probably airs there too
+# but the linear schedule should be verified.
+FUBO_LINEAR_NETWORKS = [
+    "fx", "fxx", "abc", "cbs", "fox", "freeform", "bet", "mtv",
+    "vh1", "hallmark", "cmt", "paramount network", "espn", "fs1",
+    "fs2", "btn", "tudn", "univision", "starz",
+]
+
+def check_fubo_availability(item):
+    """
+    If the item's description mentions a non-Fubo streaming service (Hulu,
+    Netflix, etc.) but the network is a Fubo linear channel, return a default
+    note prompting manual confirmation. Otherwise return None.
+    """
+    if item.get("data-fubo-note"):
+        return None  # already annotated
+    sub_el = item.find("span", class_="sub")
+    net_el = item.find("div", class_="network")
+    if not sub_el:
+        return None
+    sub_text = sub_el.get_text().lower()
+    net_text = (net_el.get_text() if net_el else "").lower()
+
+    streaming_hit = next((s for s in NOT_ON_FUBO_STREAMING if s in sub_text), None)
+    if not streaming_hit:
+        return None
+    linear_hit = next((n for n in FUBO_LINEAR_NETWORKS if n in net_text), None)
+    if linear_hit:
+        return f"{linear_hit.upper()} linear schedule — confirm episode cadence on {linear_hit.upper()}"
+    return f"Streaming-only on {streaming_hit.strip().title()} — not available on Fubo"
+
 def enrich_event_details(soup, today):
     """
     For each upcoming item that doesn't yet have a stored time/venue,
     look it up in TheSportsDB (sports) or TVMaze (entertainment) and set
     data-time, data-venue, data-city, data-country attributes on the item.
+    Also runs a Fubo-availability check (streaming-service mentions) and
+    sets data-fubo-note where applicable.
 
     Stores nothing on items that already have details, so reruns are cheap.
     Returns count of items enriched this run.
@@ -359,9 +401,6 @@ def enrich_event_details(soup, today):
                       "cmt-e"}
 
     for item in soup.find_all("div", class_="item"):
-        # Skip if already enriched
-        if item.get("data-time"):
-            continue
         date_el  = item.find("div", class_="date")
         title_el = item.find("div", class_="title")
         if not (date_el and title_el):
@@ -372,6 +411,17 @@ def enrich_event_details(soup, today):
         classes = set(item.get("class", []))
         title = _clean_title(title_el)
         if len(title) < 4:
+            continue
+
+        # Fubo availability check runs every day (cheap, no API call)
+        fubo_note = check_fubo_availability(item)
+        if fubo_note:
+            item["data-fubo-note"] = fubo_note
+            enriched += 1
+            print(f"    ⓘ {title}: Fubo → {fubo_note[:60]}", flush=True)
+
+        # Skip time/venue lookup if already done
+        if item.get("data-time"):
             continue
 
         details = None
