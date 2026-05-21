@@ -419,6 +419,62 @@ def check_fubo_availability(item):
         return f"{linear_hit.upper()} linear schedule — confirm episode cadence on {linear_hit.upper()}"
     return f"Streaming-only on {streaming_hit.strip().title()} — not available on Fubo"
 
+def verify_existing_times(soup, today):
+    """
+    Re-check stored data-time values against the latest SportsDB / TVMaze
+    data for upcoming events (next 14 days). Updates the attribute if the
+    source now returns a different time. Skips manually-curated times that
+    contain extra context (parentheticals, multiple slots, em-dashes).
+
+    Returns list of (title, old_time, new_time) tuples.
+    """
+    updates = []
+    print("  Verifying stored times against latest sources...", flush=True)
+    sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
+                      "wnba", "college", "tennis", "golf", "racing"}
+    ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
+                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
+                      "cmt-e"}
+
+    for item in soup.find_all("div", class_="item"):
+        old_time = item.get("data-time")
+        if not old_time:
+            continue
+        # Skip manually-curated times (parenthetical context, multi-slot, etc.)
+        if any(c in old_time for c in ("(", "·", "—", "&")):
+            continue
+        date_el  = item.find("div", class_="date")
+        title_el = item.find("div", class_="title")
+        if not (date_el and title_el):
+            continue
+        d = parse_single_date(date_el.get_text().strip())
+        if not d or d <= today or (d - today).days > 14:
+            continue
+
+        classes = set(item.get("class", []))
+        title = _clean_title(title_el)
+        if len(title) < 4:
+            continue
+
+        details = None
+        if classes & sports_classes:
+            details = sportsdb_event_full(title)
+            time.sleep(0.3)
+        elif classes & ent_classes:
+            details = tvmaze_show_full(title)
+            time.sleep(0.2)
+        if not details:
+            continue
+
+        new_time = details.get("time_et")
+        if new_time and new_time != old_time:
+            item["data-time"] = new_time
+            updates.append((title, old_time, new_time))
+            print(f"    ⏰ {title}: {old_time} → {new_time}", flush=True)
+
+    print(f"    → {len(updates)} time update(s)", flush=True)
+    return updates
+
 def enrich_event_details(soup, today):
     """
     For each upcoming item that doesn't yet have a stored time/venue,
@@ -1369,6 +1425,7 @@ def run():
     print(f"  Existing events: {len(existing)}", flush=True)
 
     corrections  = verify_existing_dates(soup)
+    time_updates = verify_existing_times(soup, today)
     enrichments  = enrich_event_details(soup, today)
 
     tv_cands       = discover_tv(existing, start, end)
@@ -1382,23 +1439,28 @@ def run():
           f"Press:{len(press_cands)} Recurring:{len(recurring_cands)})",
           flush=True)
 
-    if not all_cands and not corrections and not enrichments:
+    if not all_cands and not corrections and not enrichments and not time_updates:
         msg = "auto_update: no new candidates found, all dates verified"
         with open(log_path, "w") as f:
             f.write(f"{msg}\nRun: {today}\nMode: {mode}\n")
         print(f"[{today}] {msg}", flush=True)
         return
 
-    # Enrichments alone (no new events, no date fixes) still warrant a save
-    if not all_cands and (corrections or enrichments):
+    # Enrichments / time updates alone (no new events, no date fixes) still warrant a save
+    if not all_cands and (corrections or enrichments or time_updates):
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
         with open(log_path, "w") as f:
             f.write(f"auto_update — {today}\nMode: {mode}\n"
-                    f"Date fixes: {len(corrections)}\nEnriched : {enrichments}\n")
+                    f"Date fixes : {len(corrections)}\n"
+                    f"Time shifts: {len(time_updates)}\n"
+                    f"Enriched   : {enrichments}\n")
+            for title, old, new in time_updates:
+                f.write(f"  ⏰ {title}: {old} → {new}\n")
         msg_bits = []
-        if corrections: msg_bits.append(f"{len(corrections)} date(s) corrected")
-        if enrichments: msg_bits.append(f"{enrichments} item(s) enriched")
+        if corrections:  msg_bits.append(f"{len(corrections)} date(s) corrected")
+        if time_updates: msg_bits.append(f"{len(time_updates)} time shift(s)")
+        if enrichments:  msg_bits.append(f"{enrichments} item(s) enriched")
         msg = "Calendar refreshed: " + " · ".join(msg_bits)
         subprocess.run(["osascript", "-e",
             f'display notification "{msg}" with title "fubo Calendar" sound name "Glass"'])
@@ -1426,23 +1488,29 @@ def run():
 
     added = insert_events(soup, items_to_add)
 
-    if added > 0 or corrections or enrichments:
+    if added > 0 or corrections or enrichments or time_updates:
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
     with open(log_path, "w", encoding="utf-8") as f:
         f.write(f"auto_update Report — {today}\n")
-        f.write(f"Mode      : {mode}\n")
-        f.write(f"Candidates: {len(all_cands)}\n")
-        f.write(f"Added     : {added}\n")
-        f.write(f"Date fixes: {len(corrections)}\n")
-        f.write(f"Enriched  : {enrichments}\n")
-        f.write(f"Recurring : {len(recurring_cands)} missing\n")
+        f.write(f"Mode       : {mode}\n")
+        f.write(f"Candidates : {len(all_cands)}\n")
+        f.write(f"Added      : {added}\n")
+        f.write(f"Date fixes : {len(corrections)}\n")
+        f.write(f"Time shifts: {len(time_updates)}\n")
+        f.write(f"Enriched   : {enrichments}\n")
+        f.write(f"Recurring  : {len(recurring_cands)} missing\n")
         f.write("=" * 50 + "\n\n")
         if corrections:
             f.write("DATE CORRECTIONS:\n")
             for title, old, new in corrections:
                 f.write(f"  ✎ {title}: {old} → {new}\n")
+            f.write("\n")
+        if time_updates:
+            f.write("TIME SHIFTS:\n")
+            for title, old, new in time_updates:
+                f.write(f"  ⏰ {title}: {old} → {new}\n")
             f.write("\n")
         for it in items_to_add:
             snippet = re.sub(r"<[^>]+>", " ", it.get("html", ""))[:80].strip()
@@ -1453,6 +1521,8 @@ def run():
         parts.append(f"{added} new event(s) added")
     if corrections:
         parts.append(f"{len(corrections)} date(s) corrected")
+    if time_updates:
+        parts.append(f"{len(time_updates)} time shift(s)")
     if enrichments:
         parts.append(f"{enrichments} item(s) enriched")
     msg = ("Calendar updated: " + " · ".join(parts)
