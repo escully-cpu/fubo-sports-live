@@ -24,6 +24,13 @@
     margin-bottom: 32px;
     position: relative;
     overflow: hidden;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .hero-text { flex: 1; min-width: 0; }
+  .hero-search { flex-shrink: 0; width: 240px; }
+  @media (max-width: 700px) {
+    .hero { flex-direction: column; align-items: stretch; gap: 14px; }
+    .hero-search { width: 100%; }
   }
   .hero::before {
     content: '';
@@ -35,6 +42,39 @@
   .fubo-logo { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #fa4b13; margin-bottom: 10px; }
   .hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
   .hero p { font-size: 12px; color: #555; letter-spacing: 0.03em; line-height: 1.6; }
+
+  /* Search bar */
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 6px 10px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .search-bar:focus-within {
+    border-color: rgba(250,75,19,0.55);
+    box-shadow: 0 0 0 3px rgba(250,75,19,0.1);
+  }
+  .search-bar svg { flex-shrink: 0; }
+  .search-bar input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+    font: inherit; font-size: 12px; color: #eee;
+  }
+  .search-bar input::placeholder { color: #666; }
+  .search-bar .clear-btn {
+    cursor: pointer; color: #777; font-size: 14px; line-height: 1;
+    padding: 1px 4px; border-radius: 3px; user-select: none;
+    display: none;
+  }
+  .search-bar.has-text .clear-btn { display: block; }
+  .search-bar .clear-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .search-result-count {
+    font-size: 10px; color: #666; letter-spacing: 0.04em;
+    margin-top: 6px; padding-left: 4px; display: none; text-align: right;
+  }
+  .search-result-count.is-active { display: block; }
+  .item.search-hide { display: none !important; }
+  .month-block.search-hide { display: none !important; }
 
   .columns-wrapper {
     display: grid;
@@ -249,9 +289,22 @@
 <body>
 <div class="page-wrap">
 <div class="hero">
+<div class="hero-text">
 <div class="fubo-logo">fubo · All Plans</div>
 <h1>Upcoming Sports &amp; Entertainment Events</h1>
 <p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May – December 2026</p>
+</div>
+<div class="hero-search">
+  <div class="search-bar" id="search-bar">
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+      <circle cx="7" cy="7" r="5" stroke="#777" stroke-width="1.5"/>
+      <path d="M11 11 L14 14" stroke="#777" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <input id="event-search" type="text" placeholder="Search events…" autocomplete="off" spellcheck="false">
+    <span class="clear-btn" id="event-search-clear" title="Clear">×</span>
+  </div>
+  <div class="search-result-count" id="search-result-count"></div>
+</div>
 </div>
 <div class="columns-wrapper">
 <!-- ===== SPORTS ===== -->
@@ -1357,6 +1410,75 @@ function parseEventDate(dateText, year) {
         item.appendChild(buildDetails(item));
       }
     });
+  });
+})();
+</script>
+<script>
+// Live search across titles, networks, matchups, cards, venues
+(function() {
+  var input    = document.getElementById('event-search');
+  var clearBtn = document.getElementById('event-search-clear');
+  var bar      = document.getElementById('search-bar');
+  var count    = document.getElementById('search-result-count');
+  if (!input) return;
+
+  function buildSearchText(item) {
+    var bits = [
+      (item.querySelector('.title')   || {}).textContent || '',
+      (item.querySelector('.network') || {}).textContent || '',
+      (item.querySelector('.date')    || {}).textContent || '',
+      item.getAttribute('data-matchup') || '',
+      item.getAttribute('data-card')    || '',
+      item.getAttribute('data-venue')   || '',
+      item.getAttribute('data-city')    || '',
+      item.getAttribute('data-country') || ''
+    ];
+    return bits.join(' ').toLowerCase();
+  }
+
+  function applySearch() {
+    var q = input.value.trim().toLowerCase();
+    bar.classList.toggle('has-text', !!q);
+    if (!q) {
+      document.querySelectorAll('.item.search-hide').forEach(function(el) {
+        el.classList.remove('search-hide');
+      });
+      document.querySelectorAll('.month-block.search-hide').forEach(function(mb) {
+        mb.classList.remove('search-hide');
+      });
+      count.classList.remove('is-active');
+      return;
+    }
+    var matched = 0;
+    document.querySelectorAll('.item').forEach(function(item) {
+      var hit = buildSearchText(item).indexOf(q) !== -1;
+      item.classList.toggle('search-hide', !hit);
+      if (hit) matched++;
+    });
+    document.querySelectorAll('.month-block').forEach(function(mb) {
+      var visible = mb.querySelectorAll('.item:not(.search-hide)').length;
+      mb.classList.toggle('search-hide', visible === 0);
+    });
+    count.textContent = matched + ' match' + (matched === 1 ? '' : 'es')
+                      + ' for "' + input.value.trim() + '"';
+    count.classList.add('is-active');
+  }
+
+  input.addEventListener('input', applySearch);
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    applySearch();
+    input.focus();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '/' && document.activeElement !== input) {
+      e.preventDefault();
+      input.focus();
+    } else if (e.key === 'Escape' && document.activeElement === input) {
+      input.value = '';
+      applySearch();
+      input.blur();
+    }
   });
 })();
 </script>
