@@ -317,27 +317,32 @@ def verify_existing_dates(soup):
     return corrections
 
 def tvmaze_show_full(show_name):
-    """Return TVMaze airtime/network/network_country for a show — used to
-    enrich entertainment items in the calendar."""
+    """Return TVMaze airtime info for a show. For shows with a weekly
+    schedule, formats as 'Every Wednesday 9:00 PM ET' so running series
+    display their cadence in the expand panel."""
     try:
         url = (f"https://api.tvmaze.com/singlesearch/shows"
                f"?q={requests.utils.quote(show_name)}&embed=nextepisode")
         r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
         if r.status_code != 200:
             return None
-        data = r.json()
+        data    = r.json()
+        sched   = data.get("schedule") or {}
+        days    = sched.get("days") or []
         ep      = (data.get("_embedded") or {}).get("nextepisode") or {}
-        airtime = (data.get("schedule") or {}).get("time") or ep.get("airtime") or ""
-        # TVMaze returns network local airtime (typically ET for US networks)
-        # but no explicit timezone. We append "ET" since most US shows air ET-anchored.
+        airtime = sched.get("time") or ep.get("airtime") or ""
         if not airtime:
             return None
         try:
             t = datetime.strptime(airtime, "%H:%M")
-            time_et = t.strftime("%-I:%M %p ET")
+            time_str = t.strftime("%-I:%M %p ET")
         except Exception:
-            time_et = airtime
-        return {"time_et": time_et}
+            time_str = airtime
+        # If the show airs on specific weekday(s), present as a recurring slot
+        if days and len(days) <= 2:
+            day_str = " & ".join(days)
+            return {"time_et": f"Every {day_str} {time_str}"}
+        return {"time_et": time_str}
     except Exception:
         return None
 
