@@ -1493,15 +1493,30 @@ function parseEventDate(dateText, year) {
     if (card)     rows.push('<div class="det-row"><div class="det-label">Card</div><div class="det-val">' + bulletify(card) + '</div></div>');
     if (loc)      rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
     if (sub) {
-      // Drop bullets that just repeat info already shown in Time/Location/Watch on rows
-      var otherText = [date, time, loc, nets].join(' ').toLowerCase();
-      var parts = sub.split(/\s·\s/)
-        .map(function(s){ return s.trim(); })
-        .filter(function(p) {
-          if (!p) return false;
-          var pl = p.toLowerCase();
-          return otherText.indexOf(pl) === -1;
-        });
+      // Build the "everything else" text so we don't repeat any of it in Details
+      var otherText = [date, time, loc, nets, matchup || '', card || '', fuboNote || '']
+        .join(' ').toLowerCase();
+      var stop = ['and','the','for','with','from','this','that','then','than',
+                  'will','have','been','also','only','plus','live','game','games'];
+      function sigWords(t) {
+        return (t.toLowerCase().match(/[a-z0-9]+/g) || [])
+          .filter(function(w){ return w.length >= 4 && stop.indexOf(w) === -1; });
+      }
+      var otherWords = sigWords(otherText);
+      var parts = sub.split(/\s·\s/).map(function(s){ return s.trim(); }).filter(function(p) {
+        if (!p) return false;
+        var pl = p.toLowerCase();
+        // 1) exact substring match
+        if (otherText.indexOf(pl) !== -1) return false;
+        // 2) token-overlap: drop if 60%+ of significant words appear elsewhere
+        var bw = sigWords(p);
+        if (bw.length === 0) return true;
+        var hits = 0;
+        for (var i = 0; i < bw.length; i++) {
+          if (otherWords.indexOf(bw[i]) !== -1) hits++;
+        }
+        return (hits / bw.length) < 0.6;
+      });
       if (parts.length) {
         var bullets = parts.length > 1
           ? '<ul class="det-bullets">' + parts.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>'
