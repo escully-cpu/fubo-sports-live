@@ -321,6 +321,34 @@ def verify_existing_dates(soup):
     print(f"    → {len(corrections)} date correction(s)", flush=True)
     return corrections
 
+def lookup_fight_card(event_title):
+    """Search Google News RSS for an announced match/fight card.
+    Returns a " · "-joined string of the top matches, or None if none
+    were extractable from the recent news."""
+    try:
+        q = quote_plus(f'"{event_title}" match card 2026')
+        url = (f"https://news.google.com/rss/search?q={q}"
+               f"&hl=en-US&gl=US&ceid=US:en")
+        items = _fetch_rss(url)
+    except Exception:
+        return None
+    if not items:
+        return None
+    # Look at the most recent ~5 headlines+blurbs and pull out "X vs Y" pairs
+    vs_pattern = re.compile(
+        r'([A-Z][\w\.\'\-]+(?:\s+[A-Z][\w\.\'\-]+){0,3})'
+        r'\s+vs\.?\s+'
+        r'([A-Z][\w\.\'\-]+(?:\s+[A-Z][\w\.\'\-]+){0,3})'
+    )
+    matches = []
+    for it in items[:5]:
+        text = f"{it.get('title','')} {it.get('description','')}"
+        for m in vs_pattern.finditer(text):
+            pair = f"{m.group(1).strip()} vs. {m.group(2).strip()}"
+            if pair not in matches and len(matches) < 4:
+                matches.append(pair)
+    return " · ".join(matches) if matches else None
+
 def tvmaze_show_full(show_name):
     """Return TVMaze airtime info for a show. For shows with a weekly
     schedule, formats as 'Every Wednesday 9:00 PM ET' so running series
@@ -444,6 +472,18 @@ def enrich_event_details(soup, today):
                 item["data-matchup"] = mu_details["matchup"]
                 enriched += 1
                 print(f"    🆚 {title}: matchup → {mu_details['matchup']}", flush=True)
+
+        # Card check for fight events (WWE PLEs, UFC, boxing) — daily search
+        # for "<Event> match card" via Google News until populated.
+        if (not item.get("data-card")
+                and ("wwe" in classes or "ufc" in title.lower()
+                     or "boxing" in title.lower())):
+            card = lookup_fight_card(title)
+            time.sleep(0.4)
+            if card:
+                item["data-card"] = card
+                enriched += 1
+                print(f"    🥊 {title}: card → {card[:60]}…", flush=True)
 
         # Skip time/venue lookup if already done
         if item.get("data-time"):

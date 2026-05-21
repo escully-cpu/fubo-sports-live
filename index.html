@@ -344,9 +344,9 @@
 <div class="title">🏆 UEFA Champions League Final<span class="sub">Puskás Aréna, Budapest · Kickoff 12:00 PM ET (18:00 CEST) · CBS Morning Footy from 11:00 AM ET</span></div>
 <div class="network">CBS<br/>DAZN (CA)</div>
 </div>
-<div class="item wwe" data-time="2:00 PM ET" data-city="Rome" data-country="Italy">
+<div class="item wwe" data-time="2:00 PM ET" data-venue="Inalpi Arena" data-city="Turin" data-country="Italy" data-card="Main Event: Roman Reigns (c) vs. Jacob Fatu — Tribal Combat for World Heavyweight Title · Cody Rhodes (c) vs. Gunther — Undisputed WWE Title · Brock Lesnar vs. Oba Femi">
 <div class="date">May 31</div>
-<div class="title">WWE Clash in Italy<span class="sub">Rome, Italy · 2:00 PM ET</span><div class="espn-pill">ESPN Unlimited</div></div>
+<div class="title">WWE Clash in Italy<span class="sub">Inalpi Arena, Turin · 2:00 PM ET</span><div class="espn-pill">ESPN Unlimited</div></div>
 <div class="network">ESPN</div>
 </div>
 </div>
@@ -1310,13 +1310,21 @@ function parseEventDate(dateText, year) {
     var city     = item.getAttribute('data-city');
     var country  = item.getAttribute('data-country');
     var matchup  = item.getAttribute('data-matchup');
+    var card     = item.getAttribute('data-card');
     var fuboNote = item.getAttribute('data-fubo-note');
     var loc      = [venue, city, country].filter(Boolean).join(', ');
+
+    function bulletify(text) {
+      var parts = text.split(/\s·\s/).map(function(s){ return s.trim(); }).filter(Boolean);
+      if (parts.length <= 1) return text;
+      return '<ul class="det-bullets">' + parts.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>';
+    }
 
     var rows = [];
     rows.push('<div class="det-row"><div class="det-label">Date</div><div class="det-val">' + date + '</div></div>');
     rows.push('<div class="det-row"><div class="det-label">Time (ET)</div><div class="det-val">' + time + '</div></div>');
     if (matchup)  rows.push('<div class="det-row"><div class="det-label">Matchup</div><div class="det-val">' + matchup + '</div></div>');
+    if (card)     rows.push('<div class="det-row"><div class="det-label">Card</div><div class="det-val">' + bulletify(card) + '</div></div>');
     if (loc)      rows.push('<div class="det-row"><div class="det-label">Location</div><div class="det-val">' + loc + '</div></div>');
     if (sub) {
       // Drop bullets that just repeat info already shown in Time/Location/Watch on rows
