@@ -21,6 +21,10 @@ import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta
 from urllib.parse import quote_plus
 from bs4 import BeautifulSoup
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    ZoneInfo = None
 
 sys.path.insert(0, "/Users/emmascully/Library/Python/3.9/lib/python/site-packages")
 import requests
@@ -193,6 +197,58 @@ def sportsdb_event_date(title):
         pass
     return None
 
+def _utc_time_to_et(time_str, ev_date):
+    """Convert a UTC 'HH:MM:SS' time on a given date into a formatted ET string."""
+    if not time_str or not ZoneInfo or len(time_str) < 5:
+        return None
+    try:
+        parts = time_str.split(":")
+        h, m = int(parts[0]), int(parts[1])
+        dt_utc = datetime(ev_date.year, ev_date.month, ev_date.day, h, m,
+                          tzinfo=ZoneInfo("UTC"))
+        dt_et  = dt_utc.astimezone(ZoneInfo("America/New_York"))
+        return dt_et.strftime("%-I:%M %p ET")
+    except Exception:
+        return None
+
+def sportsdb_event_full(title):
+    """Look up an event in TheSportsDB and return {date,time_et,venue,city,country}."""
+    try:
+        url = (f"https://www.thesportsdb.com/api/v1/json/3/searchevents.php"
+               f"?e={requests.utils.quote(title)}&s=2026")
+        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        if r.status_code != 200:
+            return None
+        events = r.json().get("event") or []
+        kw       = _key_words(title)
+        kw_stems = [_stem(w) for w in kw]
+        for ev in events:
+            ev_name  = ev.get("strEvent", "").lower()
+            ev_kw    = _key_words(ev_name)
+            ev_stems = [_stem(w) for w in ev_kw]
+            hits = sum(1 for w, s in zip(kw, kw_stems)
+                       if w in ev_name or s in ev_stems)
+            needed = 1 if len(kw) <= 2 else 2
+            if hits < needed:
+                continue
+            date_str = ev.get("dateEvent", "")
+            if not date_str:
+                continue
+            try:
+                ev_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except Exception:
+                continue
+            return {
+                "date":    ev_date,
+                "time_et": _utc_time_to_et(ev.get("strTime", ""), ev_date),
+                "venue":   (ev.get("strVenue") or "").strip(),
+                "city":    (ev.get("strCity") or "").strip(),
+                "country": (ev.get("strCountry") or "").strip(),
+            }
+    except Exception:
+        pass
+    return None
+
 def tvmaze_premiere_date(show_name):
     """Return the next confirmed air date for a show from TVMaze."""
     try:
@@ -259,6 +315,60 @@ def verify_existing_dates(soup):
 
     print(f"    → {len(corrections)} date correction(s)", flush=True)
     return corrections
+
+def enrich_event_details(soup, today):
+    """
+    For each upcoming sports item that doesn't yet have a stored time/venue,
+    look it up in TheSportsDB and set data-time, data-venue, data-city,
+    data-country attributes on the item.
+
+    Stores nothing on items that already have details, so reruns are cheap.
+    Returns count of items enriched this run.
+    """
+    enriched = 0
+    print("  Enriching event details (time/venue/location)...", flush=True)
+    eligible_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
+                        "wnba", "college", "tennis", "golf", "racing"}
+
+    for item in soup.find_all("div", class_="item"):
+        # Skip if already enriched
+        if item.get("data-time") and item.get("data-venue"):
+            continue
+        date_el  = item.find("div", class_="date")
+        title_el = item.find("div", class_="title")
+        if not (date_el and title_el):
+            continue
+        d = parse_single_date(date_el.get_text().strip())
+        if not d or d <= today:
+            continue
+        if not (set(item.get("class", [])) & eligible_classes):
+            continue
+        title = _clean_title(title_el)
+        if len(title) < 4:
+            continue
+
+        details = sportsdb_event_full(title)
+        time.sleep(0.3)
+        if not details:
+            continue
+
+        changed = False
+        if details.get("time_et") and not item.get("data-time"):
+            item["data-time"] = details["time_et"]; changed = True
+        if details.get("venue") and not item.get("data-venue"):
+            item["data-venue"] = details["venue"]; changed = True
+        if details.get("city") and not item.get("data-city"):
+            item["data-city"] = details["city"]; changed = True
+        if details.get("country") and not item.get("data-country"):
+            item["data-country"] = details["country"]; changed = True
+        if changed:
+            enriched += 1
+            bits = [details.get("time_et") or "—",
+                    details.get("venue") or details.get("city") or "—"]
+            print(f"    ✎ {title}: {' · '.join(bits)}", flush=True)
+
+    print(f"    → {enriched} item(s) enriched", flush=True)
+    return enriched
 
 # ── TVMaze data source ────────────────────────────────────────────────────────
 
@@ -927,6 +1037,17 @@ def discover_press_releases(existing, start, end):
             show_name = _extract_show_name(headline)
             if not show_name or len(show_name) < 4:
                 continue
+            # Reject malformed names (unbalanced quotes, truncated, leading clutter)
+            if show_name.count("'") % 2 or show_name.count('"') % 2:
+                continue
+            if show_name.lower().startswith(("emmy-", "the ", "a ", "an ")) and len(show_name) < 12:
+                continue
+
+            # Sports candidates must have a specific css class (not the generic "sports")
+            valid_sports = {"nfl","nba","nhl","mlb","soccer","tennis","golf","wwe",
+                            "college","wnba","racing"}
+            if col == "sports" and css not in valid_sports:
+                continue
 
             if already_in_calendar(show_name, existing):
                 continue
@@ -1100,7 +1221,8 @@ def run():
     existing = get_existing_titles(soup)
     print(f"  Existing events: {len(existing)}", flush=True)
 
-    corrections = verify_existing_dates(soup)
+    corrections  = verify_existing_dates(soup)
+    enrichments  = enrich_event_details(soup, today)
 
     tv_cands       = discover_tv(existing, start, end)
     sport_cands    = discover_sports(existing, start, end)
@@ -1113,10 +1235,26 @@ def run():
           f"Press:{len(press_cands)} Recurring:{len(recurring_cands)})",
           flush=True)
 
-    if not all_cands and not corrections:
+    if not all_cands and not corrections and not enrichments:
         msg = "auto_update: no new candidates found, all dates verified"
         with open(log_path, "w") as f:
             f.write(f"{msg}\nRun: {today}\nMode: {mode}\n")
+        print(f"[{today}] {msg}", flush=True)
+        return
+
+    # Enrichments alone (no new events, no date fixes) still warrant a save
+    if not all_cands and (corrections or enrichments):
+        with open(INDEX, "w", encoding="utf-8") as f:
+            f.write(str(soup))
+        with open(log_path, "w") as f:
+            f.write(f"auto_update — {today}\nMode: {mode}\n"
+                    f"Date fixes: {len(corrections)}\nEnriched : {enrichments}\n")
+        msg_bits = []
+        if corrections: msg_bits.append(f"{len(corrections)} date(s) corrected")
+        if enrichments: msg_bits.append(f"{enrichments} item(s) enriched")
+        msg = "Calendar refreshed: " + " · ".join(msg_bits)
+        subprocess.run(["osascript", "-e",
+            f'display notification "{msg}" with title "fubo Calendar" sound name "Glass"'])
         print(f"[{today}] {msg}", flush=True)
         return
 
@@ -1141,7 +1279,7 @@ def run():
 
     added = insert_events(soup, items_to_add)
 
-    if added > 0 or corrections:
+    if added > 0 or corrections or enrichments:
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
@@ -1151,6 +1289,7 @@ def run():
         f.write(f"Candidates: {len(all_cands)}\n")
         f.write(f"Added     : {added}\n")
         f.write(f"Date fixes: {len(corrections)}\n")
+        f.write(f"Enriched  : {enrichments}\n")
         f.write(f"Recurring : {len(recurring_cands)} missing\n")
         f.write("=" * 50 + "\n\n")
         if corrections:
@@ -1167,6 +1306,8 @@ def run():
         parts.append(f"{added} new event(s) added")
     if corrections:
         parts.append(f"{len(corrections)} date(s) corrected")
+    if enrichments:
+        parts.append(f"{enrichments} item(s) enriched")
     msg = ("Calendar updated: " + " · ".join(parts)
            if parts else "Calendar check complete — all clear")
 

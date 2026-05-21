@@ -8,5 +8,5 @@ cd "$DIR"
 git add index.html
 git diff --cached --quiet && exit 0   # nothing changed, skip push
 
-git commit -m "Weekly update — $(date '+%Y-%m-%d')"
+git commit -m "Daily update — $(date '+%Y-%m-%d')"
 git push origin main >> "$DIR/logs/push.log" 2>> "$DIR/logs/push_error.log"
