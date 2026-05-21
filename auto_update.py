@@ -316,23 +316,51 @@ def verify_existing_dates(soup):
     print(f"    → {len(corrections)} date correction(s)", flush=True)
     return corrections
 
+def tvmaze_show_full(show_name):
+    """Return TVMaze airtime/network/network_country for a show — used to
+    enrich entertainment items in the calendar."""
+    try:
+        url = (f"https://api.tvmaze.com/singlesearch/shows"
+               f"?q={requests.utils.quote(show_name)}&embed=nextepisode")
+        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        ep      = (data.get("_embedded") or {}).get("nextepisode") or {}
+        airtime = (data.get("schedule") or {}).get("time") or ep.get("airtime") or ""
+        # TVMaze returns network local airtime (typically ET for US networks)
+        # but no explicit timezone. We append "ET" since most US shows air ET-anchored.
+        if not airtime:
+            return None
+        try:
+            t = datetime.strptime(airtime, "%H:%M")
+            time_et = t.strftime("%-I:%M %p ET")
+        except Exception:
+            time_et = airtime
+        return {"time_et": time_et}
+    except Exception:
+        return None
+
 def enrich_event_details(soup, today):
     """
-    For each upcoming sports item that doesn't yet have a stored time/venue,
-    look it up in TheSportsDB and set data-time, data-venue, data-city,
-    data-country attributes on the item.
+    For each upcoming item that doesn't yet have a stored time/venue,
+    look it up in TheSportsDB (sports) or TVMaze (entertainment) and set
+    data-time, data-venue, data-city, data-country attributes on the item.
 
     Stores nothing on items that already have details, so reruns are cheap.
     Returns count of items enriched this run.
     """
     enriched = 0
     print("  Enriching event details (time/venue/location)...", flush=True)
-    eligible_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
-                        "wnba", "college", "tennis", "golf", "racing"}
+    sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
+                      "wnba", "college", "tennis", "golf", "racing"}
+    ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
+                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
+                      "cmt-e"}
 
     for item in soup.find_all("div", class_="item"):
         # Skip if already enriched
-        if item.get("data-time") and item.get("data-venue"):
+        if item.get("data-time"):
             continue
         date_el  = item.find("div", class_="date")
         title_el = item.find("div", class_="title")
@@ -341,14 +369,18 @@ def enrich_event_details(soup, today):
         d = parse_single_date(date_el.get_text().strip())
         if not d or d <= today:
             continue
-        if not (set(item.get("class", [])) & eligible_classes):
-            continue
+        classes = set(item.get("class", []))
         title = _clean_title(title_el)
         if len(title) < 4:
             continue
 
-        details = sportsdb_event_full(title)
-        time.sleep(0.3)
+        details = None
+        if classes & sports_classes:
+            details = sportsdb_event_full(title)
+            time.sleep(0.3)
+        elif classes & ent_classes:
+            details = tvmaze_show_full(title)
+            time.sleep(0.2)
         if not details:
             continue
 
