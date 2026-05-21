@@ -224,8 +224,51 @@ def parse_end_date(date_text, year=2026):
     # Month only — too vague to prune safely
     return None
 
+_RUNS_THROUGH_RE = re.compile(
+    r"(?:runs?\s+through|thru|airs?\s+through)\s+"
+    r"([A-Za-z]{3,})\s+(\d+)", re.IGNORECASE)
+
+def _series_end_date(item, fallback_end, year=2026):
+    """If this item looks like a running TV series, try to find its true
+    end date (e.g. "Runs through Jul 3"). Returns the later of the parsed
+    end and the fallback. Returns None if we should skip pruning entirely
+    (recurring schedule with no obvious end)."""
+    title_el = item.find("div", class_="title")
+    title    = (title_el.get_text() if title_el else "").lower()
+    sub_el   = title_el.find("span", class_="sub") if title_el else None
+    sub_text = (sub_el.get_text() if sub_el else "")
+    full     = f"{title} {sub_text}"
+
+    # Recurring weekly-show signals — don't prune by single date
+    data_time = (item.get("data-time") or "").lower()
+    if "every " in data_time:
+        return None
+    if re.search(r"\bs\d+\b", title):       # "S5", "S22"
+        return None
+    if any(kw in full.lower() for kw in
+           ("season", "weekly", "premiere", "final season",
+            "series finale", "episode")):
+        # Try to find an explicit end date in the sub
+        m = _RUNS_THROUGH_RE.search(sub_text)
+        if m:
+            mo_map = {"jan":1,"feb":2,"mar":3,"apr":4,"may":5,"jun":6,
+                      "jul":7,"aug":8,"sep":9,"oct":10,"nov":11,"dec":12}
+            mo = mo_map.get(m.group(1)[:3].lower())
+            if mo:
+                try:
+                    return date(year, mo, int(m.group(2)))
+                except ValueError:
+                    pass
+        return None  # series-ish, no parseable end → never prune by date alone
+    return fallback_end
+
 def prune_past_events(soup, today, cutoff_days=5):
     """Remove events whose end date was more than `cutoff_days` ago.
+    For TV series with weekly cadence (data-time 'Every ...' or title 'S5'
+    or sub containing 'season'/'weekly'/'episode'/'premiere'), uses the
+    explicit 'Runs through X' end date if present, otherwise skips the
+    item entirely so we don't drop a still-airing series.
+
     Also removes month blocks that become empty as a result.
     Returns list of (title, end_date) tuples for the log."""
     pruned = []
@@ -239,6 +282,10 @@ def prune_past_events(soup, today, cutoff_days=5):
         if not (date_el and title_el):
             continue
         end_d = parse_end_date(date_el.get_text().strip())
+        if not end_d:
+            continue
+        # Series-aware end check (may upgrade to "Runs through Jul 3" or skip)
+        end_d = _series_end_date(item, end_d)
         if not end_d or end_d >= cutoff:
             continue
         title = _clean_title(title_el)
