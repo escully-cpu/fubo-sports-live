@@ -395,6 +395,20 @@
   body.theme-light .starz-e    .network { color: #6a1b9a; }
   body.theme-light .freeform-e .network { color: #00838f; }
   body.theme-light .paramount-e .network { color: #455a64; }
+
+  /* Cross-link to the movies page */
+  .movies-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 8px; padding: 5px 11px; border-radius: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+    color: #fa9669; text-decoration: none;
+    background: rgba(250,75,19,0.08);
+    border: 1px solid rgba(250,75,19,0.25);
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .movies-cta:hover { background: rgba(250,75,19,0.18); color: #fff; border-color: rgba(250,75,19,0.45); }
+  body.theme-light .movies-cta { color: #fa4b13; background: rgba(250,75,19,0.06); border-color: rgba(250,75,19,0.3); }
+  body.theme-light .movies-cta:hover { background: rgba(250,75,19,0.15); color: #fa4b13; border-color: rgba(250,75,19,0.45); }
 </style>
 </head>
 <body>
@@ -404,6 +418,7 @@
 <div class="fubo-logo">fubo · All Plans</div>
 <h1>Upcoming Sports &amp; Entertainment Events</h1>
 <p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May – December 2026</p>
+<a href="https://escully-cpu.github.io/escully-cpu-fubo-movies-live/" target="_blank" rel="noopener" class="movies-cta">🎬 Looking for movies on Fubo? Browse the full catalog →</a>
 </div>
 <div class="hero-search">
 <div style="display:flex;gap:8px;align-items:stretch;">
