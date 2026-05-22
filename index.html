@@ -6,6 +6,9 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Fubo Upcoming Events</title>
 <link href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🟠&lt;/text&gt;&lt;/svg&gt;" rel="icon"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -39,7 +42,9 @@
     height: 3px;
     background: linear-gradient(90deg, #fa4b13, #fa7013);
   }
-  .fubo-logo { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #fa4b13; margin-bottom: 10px; }
+  .fubo-logo { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .fubo-wm { font-family: 'Lilita One', system-ui, sans-serif; font-size: 30px; color: #fa4b13; line-height: 1; letter-spacing: -0.01em; }
+  .fubo-sub { font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #555; }
   .hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
   .hero p { font-size: 12px; color: #555; letter-spacing: 0.03em; line-height: 1.6; }
 
@@ -415,7 +420,7 @@
 <div class="page-wrap">
 <div class="hero">
 <div class="hero-text">
-<div class="fubo-logo">fubo · All Plans</div>
+<div class="fubo-logo"><span class="fubo-wm">fubo</span><span class="fubo-sub">All Plans</span></div>
 <h1>Upcoming Sports &amp; Entertainment Events</h1>
 <p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May – December 2026</p>
 <a href="https://escully-cpu.github.io/escully-cpu-fubo-movies-live/" target="_blank" rel="noopener" class="movies-cta">🎬 Looking for movies on Fubo? Browse the full catalog →</a>
