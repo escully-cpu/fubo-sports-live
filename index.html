@@ -406,28 +406,28 @@
 <p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May – December 2026</p>
 </div>
 <div class="hero-search">
-  <div style="display:flex;gap:8px;align-items:stretch;">
-    <div class="search-bar" id="search-bar" style="flex:1;">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-        <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M11 11 L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <input id="event-search" type="text" placeholder="Search events…" autocomplete="off" spellcheck="false">
-      <span class="clear-btn" id="event-search-clear" title="Clear">×</span>
-    </div>
-    <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light mode" aria-label="Toggle theme">
-      <svg class="icon-moon" viewBox="0 0 16 16" fill="none">
-        <path d="M13 9.5a5 5 0 0 1-6.5-6.5A5.5 5.5 0 1 0 13 9.5z" fill="currentColor"/>
-      </svg>
-      <svg class="icon-sun" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="8" r="3" fill="currentColor"/>
-        <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.3 3.3l1.1 1.1M11.6 11.6l1.1 1.1M3.3 12.7l1.1-1.1M11.6 4.4l1.1-1.1"/>
-        </g>
-      </svg>
-    </button>
-  </div>
-  <div class="search-result-count" id="search-result-count"></div>
+<div style="display:flex;gap:8px;align-items:stretch;">
+<div class="search-bar" id="search-bar" style="flex:1;">
+<svg fill="none" height="12" viewbox="0 0 16 16" width="12">
+<circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"></circle>
+<path d="M11 11 L14 14" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+<input autocomplete="off" id="event-search" placeholder="Search events…" spellcheck="false" type="text"/>
+<span class="clear-btn" id="event-search-clear" title="Clear">×</span>
+</div>
+<button aria-label="Toggle theme" class="theme-toggle" id="theme-toggle" title="Toggle dark/light mode">
+<svg class="icon-moon" fill="none" viewbox="0 0 16 16">
+<path d="M13 9.5a5 5 0 0 1-6.5-6.5A5.5 5.5 0 1 0 13 9.5z" fill="currentColor"></path>
+</svg>
+<svg class="icon-sun" fill="none" viewbox="0 0 16 16">
+<circle cx="8" cy="8" fill="currentColor" r="3"></circle>
+<g stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+<path d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.3 3.3l1.1 1.1M11.6 11.6l1.1 1.1M3.3 12.7l1.1-1.1M11.6 4.4l1.1-1.1"></path>
+</g>
+</svg>
+</button>
+</div>
+<div class="search-result-count" id="search-result-count"></div>
 </div>
 </div>
 <div class="columns-wrapper">
@@ -461,8 +461,6 @@
 <div class="month-block">
 <div class="month-label">May <span>2026</span></div>
 <div class="list">
-
-
 <div class="item golf">
 <div class="date">May 11–17</div>
 <div class="title">PGA Championship<span class="sub">Aronimink GC, Pennsylvania</span></div>
@@ -859,7 +857,7 @@
 <div class="title">WTA Finals — Riyadh<span class="sub">King Saud University Arena · Season-ending WTA championship</span></div>
 <div class="network">Tennis Ch.</div>
 </div>
-<div class="item racing big">
+<div class="item racing big" data-city="Miami" data-country="United States" data-time="5:00 AM ET" data-venue="Homestead Miami Speedway">
 <div class="date">Nov 8</div>
 <div class="title">🏆 NASCAR Cup Series Championship<span class="sub">Homestead-Miami Speedway · Season finale · Champion crowned</span></div>
 <div class="network">NBC</div>
@@ -1013,11 +1011,6 @@
 <div class="title">Dutton Ranch<div class="new-pill">New Series</div><span class="sub">Yellowstone universe spinoff · Beth &amp; Rip in South Texas · Stars Kelly Reilly, Cole Hauser, Ed Harris, Annette Bening · 9 episodes Fridays 8 PM ET · Runs through Jul 3</span></div>
 <div class="network">Paramount<br/>Network</div>
 </div>
-<div class="item mtv-e big">
-<div class="date">May 7</div>
-<div class="title">Jersey Shore: Family Vacation — FINAL Season<span class="sub">18-episode farewell · One of TV's most influential reality franchises ends</span></div>
-<div class="network">MTV</div>
-</div>
 <div class="item fx-e big">
 <div class="date">May 14</div>
 <div class="title">Welcome to Wrexham S4<div class="new-pill">New Season</div><span class="sub">Ryan Reynolds &amp; Rob McElhenney · FX docuseries returns</span></div>
@@ -1053,12 +1046,12 @@
 <div class="title">The Bear S5 — Final Season<div class="new-pill">Series Finale</div><span class="sub">FX · 9:00 PM ET Thursday premiere (first 2 episodes on FX linear, then weekly Thursdays) · All 8 episodes drop on Hulu simultaneously · Award-winning drama ends</span></div>
 <div class="network">FX</div>
 </div>
-<div class="item bet-e big" data-city="Los Angeles" data-country="USA" data-time="8:00 PM ET" data-venue="Peacock Theater">
+<div class="item bet-e big" data-city="Los Angeles" data-country="USA" data-fubo-note="BET linear schedule — confirm episode cadence on BET" data-time="8:00 PM ET" data-venue="Peacock Theater">
 <div class="date">Jun 28</div>
 <div class="title">BET Awards 2026<span class="sub">Peacock Theater, LA · 8:00 PM ET on BET · BETX experience Jun 25–27</span></div>
 <div class="network">BET</div>
 </div>
-<div class="item abc-e big" data-time="8:00 PM ET (8/7c)">
+<div class="item abc-e big" data-fubo-note="ABC linear schedule — confirm episode cadence on ABC" data-time="8:00 PM ET (8/7c)">
 <div class="date">Jun 26</div>
 <div class="title">CMA Fest 2026 — Primetime Special<span class="sub">ABC primetime concert special · 8:00 PM ET · Next day on Hulu · Festival ran Jun 4–7 in Nashville</span></div>
 <div class="network">ABC</div>
@@ -1073,7 +1066,7 @@
 <div class="title">Hallmark Christmas in July<span class="sub">Annual summer holiday movie marathon</span></div>
 <div class="network">Hallmark</div>
 </div>
-<div class="item abc-e">
+<div class="item abc-e" data-time="Every Monday 8:00 PM ET">
 <div class="date">Jul 13</div>
 <div class="title">Dancing with the Stars: The Next Pro<div class="new-pill">New Series</div><span class="sub">DWTS spinoff · 12 dancers compete for a Season 35 slot · Robert Irwin hosts</span></div>
 <div class="network">ABC</div>
