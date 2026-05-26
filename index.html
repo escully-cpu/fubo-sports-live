@@ -322,7 +322,10 @@
   body.theme-light .month-label span { color: #888; }
   body.theme-light .item {
     background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.06); border-left: 3px solid #d4d4d8;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    border-right: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    /* border-left intentionally untouched — keeps the 3px category color */
     box-shadow: 0 1px 0 rgba(0,0,0,0.04);
   }
   body.theme-light .item:hover { background: #fafafa; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
@@ -569,7 +572,7 @@
 <div class="title">2026 NHL Draft<span class="sub">KeyBank Center, Buffalo · R1 Fri 7:00 PM ET on ESPN · R2-7 Sat 11:00 AM ET</span></div>
 <div class="network">ESPN</div>
 </div>
-<div class="item wwe">
+<div class="item wwe" data-card="John Cena vs. CM Punk">
 <div class="date">Jun 27</div>
 <div class="title">WWE Night of Champions<span class="sub">Kingdom Arena, Riyadh, Saudi Arabia</span><div class="espn-pill">ESPN Unlimited</div></div>
 <div class="network">ESPN</div>
