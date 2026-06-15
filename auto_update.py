@@ -51,6 +51,8 @@ ENT_NETWORKS = {
     "Starz":             ("starz-e",     "ent", "major"),
     "Paramount Network": ("paramount-e", "ent", "standard"),
     "CMT":               ("cmt-e",       "ent", "standard"),
+    "Telemundo":         ("telemundo-e", "ent", "major"),
+    "Universo":          ("telemundo-e", "ent", "standard"),
 }
 
 MONTH_LABELS = {
