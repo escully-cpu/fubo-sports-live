@@ -1176,6 +1176,13 @@ PRESS_FEEDS = [
         "css":     None, "col": "sports", "network": "TUDN",
     },
     {
+        "name":    "Google News — Telemundo / Universo",
+        "url":     ("https://news.google.com/rss/search"
+                    "?q=%28Telemundo+OR+Universo%29+%28schedule+OR+broadcast+OR+premiere%29+2026"
+                    "&hl=en-US&gl=US&ceid=US:en"),
+        "css":     None, "col": None, "network": "Telemundo",
+    },
+    {
         "name":    "Google News — beIN Sports / GolTV",
         "url":     ("https://news.google.com/rss/search"
                     "?q=%28%22beIN+Sports%22+OR+GolTV+OR+%22ESPN+Deportes%22%29+schedule+2026"
@@ -1259,6 +1266,9 @@ _NETWORK_HINTS = [
     (r"\bUnivision\b",                "sports",      "sports", "Univision"),
     (r"\bUniM[áa]s\b",                "sports",      "sports", "UniMás"),
     (r"\bGalavisi[óo]n\b",            "sports",      "sports", "Galavisión"),
+    (r"\bTelemundo\b",                "sports",      "sports", "Telemundo"),
+    (r"\bUniverso\b",                 "sports",      "sports", "Universo"),
+    (r"\bNBC\s+Deportes\b",           "sports",      "sports", "NBC Deportes"),
     (r"\bbeIN\s+Sports?\b",           "sports",      "sports", "beIN Sports"),
     (r"\bESPN Deportes\b",            "sports",      "sports", "ESPN Deportes"),
     (r"\bFOX Deportes\b",             "sports",      "sports", "FOX Deportes"),
