@@ -485,11 +485,6 @@
 <div class="month-block">
 <div class="month-label">June <span>2026</span></div>
 <div class="list">
-<div class="item nba" data-time="Game 1: 8:30 PM ET (Jun 3)">
-<div class="date">Jun 3–19</div>
-<div class="title">🏆 NBA Finals<span class="sub">Best-of-7 · Game 1 tips off June 3 at 8:30 PM ET on ABC</span></div>
-<div class="network">ABC<br/>ESPN</div>
-</div>
 <div class="item soccer big">
 <div class="date">Jun 11–Jul 19</div>
 <div class="title">🏆 FIFA World Cup 2026<div class="latino-pill">Fubo Latino</div><span class="sub">USA · Canada · Mexico · 104 matches · English on FOX/FS1 (US base plan) · Spanish on Telemundo/Universo (also on Fubo Latino) · Opener: Mexico vs South Africa, Jun 11 at 3:00 PM ET, Estadio Azteca</span></div>
@@ -990,10 +985,6 @@
 <div class="date">Jun 26</div>
 <div class="title">CMA Fest 2026 — Primetime Special<span class="sub">ABC primetime concert special · 8:00 PM ET · Next day on Hulu · Festival ran Jun 4–7 in Nashville</span></div>
 <div class="network">ABC</div>
-</div><div class="item hallmark-e" data-time="Every Sunday 9:00 PM ET">
-<div class="date">Jun 7</div>
-<div class="title">The Way Home<span class="sub">As “The Way Home” nears the end, Hallmark will release a playlist fe</span></div>
-<div class="network">Hallmark</div>
 </div><div class="item bet-e big" data-time="Every Tuesday 10:00 PM ET">
 <div class="date">Jun 30</div>
 <div class="title">Lot Patrol<div class="new-pill">New Series</div><span class="sub">Lot Patrol follows a mismatched squad of eccentric security guards as they patrol the chaotic backlo</span></div>
@@ -1596,6 +1587,60 @@ function parseEventDate(dateText, year) {
   toggle.addEventListener('click', function() {
     var isLight = document.body.classList.toggle('theme-light');
     localStorage.setItem(STORAGE_KEY, isLight ? 'light' : 'dark');
+  });
+})();
+</script>
+<script>
+// Chronological sort within each month-block: by event start date,
+// then by data-time as tiebreaker
+(function() {
+  var MO = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,
+            jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+
+  // Parse "Jun 11–Jul 19" / "Jun 7" / "~Jun 27" / "Jun (TBD)" → start day-of-year-ish int
+  function dateRank(text) {
+    text = (text || '').trim().replace(/^~/, '');
+    var low = text.toLowerCase();
+    if (low.indexOf('tbd') !== -1)     return 9000;   // TBD → near-end
+    if (low.indexOf('weekly') !== -1)  return 1;      // weekly → top of month
+    if (low.indexOf('ongoing') !== -1) return 1;
+    // First "Mon D" we find = the start date
+    var m = text.match(/([A-Za-z]+)\s+(\d+)/);
+    if (m) {
+      var mo = MO[m[1].slice(0,3).toLowerCase()];
+      if (mo) return mo * 100 + parseInt(m[2], 10);
+    }
+    // Month-only or month-range "May–Oct"
+    var mOnly = text.match(/^([A-Za-z]+)/);
+    if (mOnly) {
+      var mo2 = MO[mOnly[1].slice(0,3).toLowerCase()];
+      if (mo2) return mo2 * 100;
+    }
+    return 9999;
+  }
+  function timeRank(dataTime) {
+    if (!dataTime) return 9999;
+    var m = dataTime.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!m) return 9999;
+    var h = parseInt(m[1], 10), min = parseInt(m[2], 10);
+    if (m[3].toUpperCase() === 'PM' && h !== 12) h += 12;
+    if (m[3].toUpperCase() === 'AM' && h === 12) h = 0;
+    return h * 60 + min;
+  }
+
+  document.querySelectorAll('.list').forEach(function(list) {
+    var items = Array.from(list.children).filter(function(c) {
+      return c.classList && c.classList.contains('item');
+    });
+    if (items.length < 2) return;
+    items.sort(function(a, b) {
+      var da = dateRank((a.querySelector('.date') || {}).textContent);
+      var db = dateRank((b.querySelector('.date') || {}).textContent);
+      if (da !== db) return da - db;
+      return timeRank(a.getAttribute('data-time')) -
+             timeRank(b.getAttribute('data-time'));
+    });
+    items.forEach(function(item) { list.appendChild(item); });
   });
 })();
 </script>
