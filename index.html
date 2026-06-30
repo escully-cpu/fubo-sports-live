@@ -176,6 +176,7 @@
   .freeform-e   { border-left-color: #00acc1; }
   .paramount-e  { border-left-color: #546e7a; }
   .telemundo-e  { border-left-color: #d50000; }
+  .nbc-e        { border-left-color: #00897b; }
 
   .date { font-size: 11px; font-weight: 700; color: #666; letter-spacing: 0.04em; line-height: 1.4; }
   .title { font-size: 13px; font-weight: 600; color: #eee; line-height: 1.35; }
@@ -207,6 +208,7 @@
   .freeform-e   .network { color: #80deea; }
   .paramount-e  .network { color: #90a4ae; }
   .telemundo-e  .network { color: #ef9a9a; }
+  .nbc-e        .network { color: #80cbc4; }
 
   .item.big { background: #1a1929; border-left-width: 4px; }
 
@@ -403,6 +405,7 @@
   body.theme-light .freeform-e .network { color: #00838f; }
   body.theme-light .paramount-e .network { color: #455a64; }
   body.theme-light .telemundo-e .network { color: #c62828; }
+  body.theme-light .nbc-e       .network { color: #00695c; }
 
   /* Cross-link to the movies page */
   .movies-cta {
@@ -485,21 +488,8 @@
 <div class="month-block">
 <div class="month-label">June <span>2026</span></div>
 <div class="list">
-<div class="item soccer big">
-<div class="date">Jun 11–Jul 19</div>
-<div class="title">🏆 FIFA World Cup 2026<div class="latino-pill">Fubo Latino</div><span class="sub">USA · Canada · Mexico · 104 matches · English on FOX/FS1 (US base plan) · Spanish on Telemundo/Universo (also on Fubo Latino) · Opener: Mexico vs South Africa, Jun 11 at 3:00 PM ET, Estadio Azteca</span></div>
-<div class="network">FOX / FS1<br/>Telemundo</div>
-</div>
-<div class="item golf">
-<div class="date">Jun 18–21</div>
-<div class="title">U.S. Open Golf<span class="sub">Shinnecock Hills, Southampton NY</span></div>
-<div class="network">ESPN<br/>CBS</div>
-</div>
-<div class="item nba" data-city="Brooklyn, NY" data-country="USA" data-time="R1: 8:00 PM ET (Jun 23)" data-venue="Barclays Center">
-<div class="date">Jun 23–24</div>
-<div class="title">2026 NBA Draft<span class="sub">Barclays Center, Brooklyn · R1 on ABC/ESPN (Jun 23, 8:00 PM ET) · R2 on ESPN (Jun 24)</span></div>
-<div class="network">ABC<br/>ESPN</div>
-</div>
+
+
 <div class="item nhl" data-city="Buffalo, NY" data-country="USA" data-time="R1: 7:00 PM ET (Jun 26) · R2-7: 11:00 AM ET (Jun 27)" data-venue="KeyBank Center">
 <div class="date">Jun 26–27</div>
 <div class="title">2026 NHL Draft<span class="sub">KeyBank Center, Buffalo · R1 Fri 7:00 PM ET on ESPN · R2-7 Sat 11:00 AM ET</span></div>
@@ -543,8 +533,13 @@
 </div>
 <div class="item golf">
 <div class="date">Jul 16–19</div>
-<div class="title">The Open Championship<span class="sub">Royal Birkdale, Southport England</span></div>
-<div class="network">NBC<br/>ESPN</div>
+<div class="title">The Open Championship<span class="sub">Royal Birkdale, Southport England · Rounds 1-2 on Golf Channel (Versant — not on Fubo) · Rounds 3-4 (Sat/Sun) on NBC</span></div>
+<div class="network">NBC<br/>(weekend only)</div>
+</div>
+<div class="item mlb">
+<div class="date">Jul (weekly)</div>
+<div class="title">⚾ Sunday Night Baseball — NBC<div class="latino-pill">Fubo Latino</div><span class="sub">NBC took over from ESPN for 2026-2028 · Sundays through Sep 6 (NFL takes over after) · Marquee matchup each week · Spanish on Telemundo Deportes</span></div>
+<div class="network">NBC<br/>Telemundo</div>
 </div>
 <div class="item mlb">
 <div class="date">Jul 16</div>
@@ -589,8 +584,8 @@
 </div>
 <div class="item soccer">
 <div class="date">Aug 22</div>
-<div class="title">EPL 2026-27 Season Opener<div class="latino-pill">Fubo Latino</div><div class="canada-pill">Fubo Canada</div><span class="sub">Latest start in Premier League history · Delayed for 2026 World Cup · Select matches on Universo/Telemundo (Spanish) · All 380 matches on FSN (CA)</span></div>
-<div class="network">Universo / Telemundo<br/>FSN (CA)</div>
+<div class="title">EPL 2026-27 Season Opener<div class="latino-pill">Fubo Latino</div><div class="canada-pill">Fubo Canada</div><span class="sub">Latest opener in PL history · Delayed for 2026 World Cup · Saturday 12:30 PM ET marquee on NBC (Brentford v Tottenham) · Select matches on Universo/Telemundo (Spanish) · Most matches on USA (Versant, not on Fubo) or Peacock · Full 380-match slate on FSN (CA)</span></div>
+<div class="network">NBC / Universo<br/>Telemundo<br/>FSN (CA)</div>
 </div>
 <div class="item soccer">
 <div class="date">Aug 22–23</div>
@@ -650,13 +645,23 @@
 <div class="list">
 <div class="item soccer">
 <div class="date">Sep (weekly)</div>
-<div class="title">EPL — 2026-27 Regular Season<div class="latino-pill">Fubo Latino</div><div class="canada-pill">Fubo Canada</div><span class="sub">All 380 matches · Saturdays &amp; Sundays · Select matches on Universo/Telemundo (Spanish) · Full slate on FSN (CA)</span></div>
-<div class="network">Universo / Telemundo<br/>FSN (CA)</div>
+<div class="title">EPL — 2026-27 Regular Season<div class="latino-pill">Fubo Latino</div><div class="canada-pill">Fubo Canada</div><span class="sub">All 380 matches · Sat 12:30 PM ET marquee on NBC (~25-30 OTA matches/season) · Most matches on USA (Versant, not on Fubo) or Peacock · Spanish on Universo/Telemundo · Full slate on FSN (CA)</span></div>
+<div class="network">NBC / Universo<br/>Telemundo<br/>FSN (CA)</div>
+</div>
+<div class="item college">
+<div class="date">Sep 5–Nov 21</div>
+<div class="title">🏈 Notre Dame Football — Home Games<span class="sub">7 home games on NBC · Sep 6 Wisconsin (Lambeau Shamrock Series) · Sep 12 Rice · Sep 19 Michigan State · Oct 10 Stanford · Nov 7 Miami (FL) · Nov 14 Boston College · Nov 21 SMU</span></div>
+<div class="network">NBC</div>
+</div>
+<div class="item college">
+<div class="date">Sep 5+</div>
+<div class="title">🏈 Big Ten Saturday Night — NBC<span class="sub">Sep 5: Western Michigan at Michigan (7:30 PM ET) · Sep 6: Washington State at Washington (4 PM, doubleheader lead-in) · Sep 12: Iowa State at Iowa Cy-Hawk (7:30 PM ET) · Weekly Big Ten selections through fall</span></div>
+<div class="network">NBC</div>
 </div>
 <div class="item racing">
 <div class="date">Sep 6</div>
-<div class="title">NASCAR Playoffs — Round of 16 Begins<span class="sub">Cook Out Southern 500 · Darlington Raceway · Playoff opener</span></div>
-<div class="network">USA<br/>FOX / FS1</div>
+<div class="title">NASCAR Playoffs — Round of 16 Begins<span class="sub">Cook Out Southern 500 · Darlington Raceway · Playoff opener · Note: Round of 16 + Round of 12 races air on USA Network (Versant) — not on Fubo</span></div>
+<div class="network">USA (Versant)<br/>not on Fubo</div>
 </div>
 <div class="item wwe">
 <div class="date">Sep 6</div>
@@ -665,8 +670,8 @@
 </div>
 <div class="item nfl">
 <div class="date">Sep (TBD)</div>
-<div class="title">🏈 NFL Regular Season Kicks Off<div class="latino-pill">Fubo Latino</div><span class="sub">Thursday Night, Sunday, Monday Night Football · Spanish: SNF on Telemundo/Universo, MNF on ESPN Deportes, Sun FOX windows on FOX Deportes</span></div>
-<div class="network">FOX / CBS<br/>ESPN / ABC<br/>Telemundo / ESPN Deportes</div>
+<div class="title">🏈 NFL Regular Season Kicks Off<div class="latino-pill">Fubo Latino</div><span class="sub">SNF on NBC · MNF on ESPN/ABC · Sunday afternoon FOX/CBS · Spanish: SNF on Telemundo/Universo, MNF on ESPN Deportes, Sun FOX windows on FOX Deportes</span></div>
+<div class="network">NBC / FOX / CBS<br/>ESPN / ABC<br/>Telemundo / ESPN Deportes</div>
 </div>
 <div class="item college">
 <div class="date">Sep (weekly)</div>
@@ -720,9 +725,9 @@
 <div class="network">CBS Sports<br/>DAZN (CA)</div>
 </div>
 <div class="item racing">
-<div class="date">Oct (weekly)</div>
-<div class="title">NASCAR Playoffs — Round of 8<span class="sub">Las Vegas · Charlotte · Talladega · Final 4 set</span></div>
-<div class="network">USA<br/>NBC / FS1</div>
+<div class="date">Oct 18 – Nov 1</div>
+<div class="title">NASCAR Playoffs — Round of 8<span class="sub">Phoenix (Oct 18, USA — not on Fubo) · Talladega (Oct 25, NBC) · Martinsville (Nov 1, NBC) · Final 4 set</span></div>
+<div class="network">NBC</div>
 </div>
 <div class="item mlb">
 <div class="date">Sep 30–Oct 2</div>
@@ -741,8 +746,8 @@
 </div>
 <div class="item nfl">
 <div class="date">Oct (weekly)</div>
-<div class="title">NFL Regular Season — Week 5+<div class="latino-pill">Fubo Latino</div><span class="sub">MNF · SNF · TNF · Spanish: SNF on Telemundo, MNF on ESPN Deportes, Sun FOX on FOX Deportes</span></div>
-<div class="network">FOX / CBS<br/>ESPN / ABC<br/>Telemundo / ESPN Deportes</div>
+<div class="title">NFL Regular Season — Week 5+<div class="latino-pill">Fubo Latino</div><span class="sub">SNF on NBC · MNF on ESPN/ABC · Sun FOX/CBS · TNF on Prime (not on Fubo) · Spanish: SNF on Telemundo, MNF on ESPN Deportes, Sun FOX on FOX Deportes</span></div>
+<div class="network">NBC / FOX / CBS<br/>ESPN / ABC<br/>Telemundo / ESPN Deportes</div>
 </div>
 <div class="item college">
 <div class="date">Oct (weekly)</div>
@@ -832,8 +837,8 @@
 </div>
 <div class="item nfl">
 <div class="date">Nov (weekly)</div>
-<div class="title">NFL Regular Season — Weeks 9–13<div class="latino-pill">Fubo Latino</div><span class="sub">FOX/CBS Sunday doubleheaders · MNF on ESPN/ABC · Spanish: SNF on Telemundo, MNF on ESPN Deportes, Sun FOX on FOX Deportes</span></div>
-<div class="network">FOX / CBS<br/>ESPN / ABC<br/>Telemundo / ESPN Deportes</div>
+<div class="title">NFL Regular Season — Weeks 9–13<div class="latino-pill">Fubo Latino</div><span class="sub">FOX/CBS Sunday doubleheaders · SNF on NBC · MNF on ESPN/ABC · Spanish: SNF on Telemundo, MNF on ESPN Deportes, Sun FOX on FOX Deportes</span></div>
+<div class="network">NBC / FOX / CBS<br/>ESPN / ABC<br/>Telemundo / ESPN Deportes</div>
 </div>
 <div class="item college">
 <div class="date">Nov (weekly)</div>
@@ -847,8 +852,8 @@
 </div>
 <div class="item nfl">
 <div class="date">Nov 26</div>
-<div class="title">NFL Thanksgiving Day Games<div class="latino-pill">Fubo Latino</div><span class="sub">FOX early window (Lions host) · CBS afternoon window · Spanish on FOX Deportes (FOX game)</span></div>
-<div class="network">FOX / CBS<br/>FOX Deportes</div>
+<div class="title">NFL Thanksgiving Day Games<div class="latino-pill">Fubo Latino</div><span class="sub">FOX early window (Lions host) · CBS afternoon · NBC primetime (Chiefs at Bills) · Spanish on FOX Deportes (FOX game) &amp; Telemundo (primetime)</span></div>
+<div class="network">FOX / CBS / NBC<br/>FOX Deportes / Telemundo</div>
 </div>
 <div class="item college">
 <div class="date">Nov 28</div>
@@ -908,7 +913,7 @@
 </div>
 <div class="item nfl">
 <div class="date">Dec (weekly)</div>
-<div class="title">NFL Regular Season — Weeks 14–17<div class="latino-pill">Fubo Latino</div><span class="sub">Playoff seeding race heats up · FOX/CBS/ESPN/ABC · Spanish: SNF on Telemundo, MNF on ESPN Deportes</span></div>
+<div class="title">NFL Regular Season — Weeks 14–17<div class="latino-pill">Fubo Latino</div><span class="sub">Playoff seeding race heats up · NBC/FOX/CBS/ESPN/ABC · Spanish: SNF on Telemundo, MNF on ESPN Deportes</span></div>
 <div class="network">FOX / CBS<br/>ESPN / ABC</div>
 </div>
 <div class="item college big">
@@ -945,11 +950,6 @@
 <div class="month-block">
 <div class="month-label">June <span>2026</span></div>
 <div class="list">
-<div class="item starz-e">
-<div class="date">Jun 12</div>
-<div class="title">Power Book III: Raising Kanan S5<div class="new-pill">Final Season</div><span class="sub">Starz flagship drama · Series finale season</span></div>
-<div class="network">Starz<br/><em style="font-style:italic;font-size:9px;color:#888">add-on</em></div>
-</div>
 <div class="item freeform-e" data-time="8:30 PM ET">
 <div class="date">Jun 17</div>
 <div class="title">Million Dollar Nannies<div class="new-pill">New Series</div><span class="sub">New reality series · Freeform premiere</span></div>
@@ -973,14 +973,6 @@
 <div class="date">Jun 30</div>
 <div class="title">Lot Patrol<div class="new-pill">New Series</div><span class="sub">Lot Patrol follows a mismatched squad of eccentric security guards as they patrol the chaotic backlo</span></div>
 <div class="network">BET</div>
-</div><div class="item paramount-e">
-<div class="date">Jun 18</div>
-<div class="title">Higher Ground Debut Malcolm Gladwell<div class="new-pill">New Series</div><span class="sub">The History Channel’s Reconstruction: The Unfinished Promise, a collaborat</span></div>
-<div class="network">History</div>
-</div><div class="item abc-e">
-<div class="date">Jun 12</div>
-<div class="title">20/20 S2026<span class="sub">20/20 continues to combine hard-hitting investigative reports, newsmaker interviews and compelling h</span></div>
-<div class="network">ABC</div>
 </div><div class="item bet-e big" data-time="Every Tuesday 9:30 PM ET">
 <div class="date">Jun 30</div>
 <div class="title">ComicView: Rooftop Series<div class="new-pill">New Series</div><span class="sub">Each episode spotlights three of the funniest comics delivering sharp, unfiltered takes on culture,</span></div>
@@ -1066,6 +1058,26 @@
 <div class="month-block">
 <div class="month-label">September <span>2026</span></div>
 <div class="list">
+<div class="item nbc-e">
+<div class="date">Sep 17</div>
+<div class="title">The Traitors: New Blood<div class="new-pill">New Series</div><span class="sub">Thursday 8 PM ET · Civilian-edition spinoff launching NBC fall lineup</span></div>
+<div class="network">NBC</div>
+</div>
+<div class="item nbc-e big" data-time="8:00 PM ET (Monday)">
+<div class="date">Sep 21</div>
+<div class="title">The Voice S30<div class="new-pill">New Season</div><span class="sub">Monday 8/7c · Coaches: Adam Levine, Kelly Clarkson, Riley Green (new), Queen Latifah (new)</span></div>
+<div class="network">NBC</div>
+</div>
+<div class="item nbc-e" data-time="10:00 PM ET (Monday)">
+<div class="date">Sep 21</div>
+<div class="title">Line of Fire<div class="new-pill">New Series</div><span class="sub">Drama starring Peter Krause &amp; Hope Davis · Monday 10 PM ET on NBC</span></div>
+<div class="network">NBC</div>
+</div>
+<div class="item nbc-e" data-time="11:30 PM ET (Saturday)">
+<div class="date">~Sep 26</div>
+<div class="title">SNL Season 52<div class="new-pill">New Season</div><span class="sub">Saturday Night Live returns · Bad Bunny reported as season premiere host with Doja Cat musical guest · 11:30 PM ET</span></div>
+<div class="network">NBC</div>
+</div>
 <div class="item fx-e big">
 <div class="date">Sep (TBD)</div>
 <div class="title">American Horror Story S13<span class="sub">September confirmed by Ryan Murphy · Exact date TBD</span></div>
@@ -1156,7 +1168,19 @@
 <div class="title">MTV VMAs 2026<span class="sub">Annual Video Music Awards · Los Angeles</span></div>
 <div class="network">CBS<br/>MTV</div>
 </div>
-</div>
+<div class="item fx-e big">
+<div class="date">Sep 8</div>
+<div class="title">The Drop: A Snowfall Saga<div class="new-pill">New Series</div><span class="sub">The Drop follows Wanda and Leon (from the original Snowfall series), who are now fighting to reinven</span></div>
+<div class="network">FX</div>
+</div><div class="item cbs-e">
+<div class="date">Sep 27</div>
+<div class="title">60 Minutes S59<span class="sub">60 Minutes has been on the air since 1968, beginning on a Tuesday, but spending most of its time on</span></div>
+<div class="network">CBS</div>
+</div><div class="item fx-e">
+<div class="date">Sep 8</div>
+<div class="title">Snowfall<div class="new-pill">New Series</div><span class="sub">‘Snowfall’s new series, ‘The Drop: A Snowfall Saga,’ will premiere on Tuesday, S</span></div>
+<div class="network">FX</div>
+</div></div>
 </div>
 <!-- OCTOBER -->
 <div class="month-block">
@@ -1166,6 +1190,21 @@
 <div class="date">Oct 1–31</div>
 <div class="title">Freeform 31 Nights of Halloween 🎃<span class="sub">Month-long Halloween movie marathon · Disney classics &amp; horror favorites</span></div>
 <div class="network">Freeform</div>
+</div>
+<div class="item nbc-e big" data-time="Wed 8/9/10 PM ET">
+<div class="date">Oct 7</div>
+<div class="title">One Chicago — Med S12 + Fire S15 + P.D. S14<div class="new-pill">New Season</div><span class="sub">All three return Wednesday Oct 7 · Chicago Med 8 PM · Chicago Fire 9 PM · Chicago P.D. 10 PM</span></div>
+<div class="network">NBC</div>
+</div>
+<div class="item nbc-e big" data-time="Thu 9/10 PM ET">
+<div class="date">Oct 8</div>
+<div class="title">Law &amp; Order: SVU + Law &amp; Order S26<div class="new-pill">New Season</div><span class="sub">Thursday block · SVU 9 PM · Law &amp; Order S26 moves to 10 PM · L&amp;O: Organized Crime canceled</span></div>
+<div class="network">NBC</div>
+</div>
+<div class="item nbc-e" data-time="8:30 PM ET (Friday)">
+<div class="date">Oct 23</div>
+<div class="title">Newlyweds<div class="new-pill">New Series</div><span class="sub">Comedy with Téa Leoni &amp; Tim Daly · Friday 8:30 PM ET on NBC</span></div>
+<div class="network">NBC</div>
 </div>
 <div class="item cbs-e">
 <div class="date">Oct (TBD)</div>
@@ -1183,6 +1222,11 @@
 <div class="month-block">
 <div class="month-label">November <span>2026</span></div>
 <div class="list">
+<div class="item nbc-e big" data-time="8:30 AM – 12:00 PM ET">
+<div class="date">Nov 26</div>
+<div class="title">🎈 Macy's Thanksgiving Day Parade — 100th Anniversary<span class="sub">Live · NBC · 8:30 AM – noon ET · America's most-watched entertainment telecast of the year (centennial edition)</span></div>
+<div class="network">NBC</div>
+</div>
 <div class="item abc-e big">
 <div class="date">Nov 18</div>
 <div class="title">CMA Awards — 60th Annual<span class="sub">Live · Bridgestone Arena, Nashville · Country music's biggest night</span></div>

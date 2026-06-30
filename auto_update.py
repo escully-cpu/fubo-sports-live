@@ -53,6 +53,8 @@ ENT_NETWORKS = {
     "CMT":               ("cmt-e",       "ent", "standard"),
     "Telemundo":         ("telemundo-e", "ent", "major"),
     "Universo":          ("telemundo-e", "ent", "standard"),
+    "NBC":               ("nbc-e",       "ent", "major"),
+    "Bravo":             ("paramount-e", "ent", "standard"),
 }
 
 MONTH_LABELS = {
@@ -1226,6 +1228,8 @@ _NETWORK_HINTS = [
     # ── Entertainment (broadcast + cable) ─────────────────────────────────────
     (r"\bCBS\b(?!\s+Sports)",         "cbs-e",       "ent",    "CBS"),
     (r"\bABC\b(?!\s+News)",           "abc-e",       "ent",    "ABC"),
+    (r"\bNBC\b(?!\s+(?:News|Deportes|Sports))", "nbc-e", "ent", "NBC"),
+    (r"\bBravo\b",                    "paramount-e", "ent",    "Bravo"),
     (r"\bFOX\b(?!\s+(?:Sports|News|Deportes|Soccer))", "fox-e", "ent", "FOX"),
     (r"\bFreeform\b",                 "freeform-e",  "ent",    "Freeform"),
     (r"\bFXX\b",                      "fxx-e",       "ent",    "FXX"),
@@ -1444,9 +1448,11 @@ INCLUDE: Season/series premieres of well-known shows, series finales, award show
 major sports championships, drafts, All-Star games, playoff rounds.
 EXCLUDE: Regular mid-season episodes, minor reality shows, niche sports, low-rated shows.
 
-FuboTV carries: FOX, CBS, ABC, FX, Freeform, Hallmark, BET, MTV, Starz (add-on),
-Paramount Network, CMT, ESPN/ESPN+, FS1/FS2, NFL Network, NBA TV, NHL Network, MLB Network.
-NOT on FuboTV: NBC/Peacock, Amazon Prime, Netflix, Apple TV+.
+FuboTV carries: FOX, CBS, ABC, NBC, Telemundo, Universo, Bravo, FX, FXX, Freeform,
+Hallmark, BET, MTV, Starz (add-on), Paramount Network, CMT, ESPN/ESPN+, FS1/FS2, BTN,
+ACC Net, SEC Net, NFL Network, NHL Network, MLB Network, Tennis Channel.
+NOT on FuboTV (Versant spinoff): USA Network, Syfy, E!, Oxygen, CNBC, MS NOW (formerly
+MSNBC), Golf Channel. Also unavailable: Peacock, Amazon Prime, Netflix, Apple TV+.
 
 CANDIDATES:
 {candidates}
