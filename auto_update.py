@@ -619,6 +619,60 @@ def verify_existing_times(soup, today):
     print(f"    → {len(updates)} time update(s)", flush=True)
     return updates
 
+_TBD_MONTH_RE = re.compile(
+    r"^~?\s*([A-Za-z]+)(?:\s+\d+)?\s*\(?\s*TBD\s*\)?\s*$", re.IGNORECASE)
+
+def resolve_tbd_dates(soup, today):
+    """
+    For events with 'Month (TBD)' style dates, try SportsDB / TVMaze to
+    pull a real date. If found and still in the future, replace the date
+    string in-place. Returns list of (title, old_date, new_date) tuples.
+    """
+    resolved = []
+    print("  Resolving TBD-dated events...", flush=True)
+    sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
+                      "wnba", "college", "tennis", "golf", "racing"}
+    ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
+                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
+                      "cmt-e", "telemundo-e", "nbc-e"}
+
+    for item in soup.find_all("div", class_="item"):
+        date_el  = item.find("div", class_="date")
+        title_el = item.find("div", class_="title")
+        if not (date_el and title_el):
+            continue
+        raw_date = date_el.get_text().strip()
+        if "tbd" not in raw_date.lower() and "fall" not in raw_date.lower():
+            continue
+        classes = set(item.get("class", []))
+        title = _clean_title(title_el)
+        if len(title) < 4:
+            continue
+
+        details = None
+        if classes & sports_classes:
+            details = sportsdb_event_full(title)
+            time.sleep(0.3)
+        elif classes & ent_classes:
+            # TVMaze premiere_date returns just the date
+            new_d = tvmaze_premiere_date(title)
+            time.sleep(0.2)
+            if new_d:
+                details = {"date": new_d}
+
+        if not details or not details.get("date"):
+            continue
+        new_d = details["date"]
+        if new_d < today:
+            continue
+        new_str = fmt_date(new_d)
+        date_el.string = new_str
+        resolved.append((title, raw_date, new_str))
+        print(f"    📅 {title}: {raw_date} → {new_str}", flush=True)
+
+    print(f"    → {len(resolved)} TBD date(s) resolved", flush=True)
+    return resolved
+
 def enrich_event_details(soup, today):
     """
     For each upcoming item that doesn't yet have a stored time/venue,
@@ -1583,6 +1637,7 @@ def run():
     print(f"  Existing events: {len(existing)}", flush=True)
 
     pruned       = prune_past_events(soup, today, cutoff_days=5)
+    tbd_resolved = resolve_tbd_dates(soup, today)
     corrections  = verify_existing_dates(soup)
     time_updates = verify_existing_times(soup, today)
     enrichments  = enrich_event_details(soup, today)
@@ -1599,7 +1654,7 @@ def run():
           flush=True)
 
     if (not all_cands and not corrections and not enrichments
-            and not time_updates and not pruned):
+            and not time_updates and not pruned and not tbd_resolved):
         msg = "auto_update: no new candidates found, all dates verified"
         with open(log_path, "w") as f:
             f.write(f"{msg}\nRun: {today}\nMode: {mode}\n")
@@ -1607,15 +1662,18 @@ def run():
         return
 
     # Audit-only path (no new events to add) still warrants a save
-    if not all_cands and (corrections or enrichments or time_updates or pruned):
+    if not all_cands and (corrections or enrichments or time_updates or pruned or tbd_resolved):
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
         with open(log_path, "w") as f:
             f.write(f"auto_update — {today}\nMode: {mode}\n"
-                    f"Date fixes : {len(corrections)}\n"
-                    f"Time shifts: {len(time_updates)}\n"
-                    f"Enriched   : {enrichments}\n"
-                    f"Pruned     : {len(pruned)}\n")
+                    f"Date fixes  : {len(corrections)}\n"
+                    f"TBD resolved: {len(tbd_resolved)}\n"
+                    f"Time shifts : {len(time_updates)}\n"
+                    f"Enriched    : {enrichments}\n"
+                    f"Pruned      : {len(pruned)}\n")
+            for title, old, new in tbd_resolved:
+                f.write(f"  📅 {title}: {old} → {new}\n")
             for title, old, new in time_updates:
                 f.write(f"  ⏰ {title}: {old} → {new}\n")
             for title, end_d in pruned:
@@ -1652,25 +1710,31 @@ def run():
 
     added = insert_events(soup, items_to_add)
 
-    if added > 0 or corrections or enrichments or time_updates or pruned:
+    if added > 0 or corrections or enrichments or time_updates or pruned or tbd_resolved:
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
     with open(log_path, "w", encoding="utf-8") as f:
         f.write(f"auto_update Report — {today}\n")
-        f.write(f"Mode       : {mode}\n")
-        f.write(f"Candidates : {len(all_cands)}\n")
-        f.write(f"Added      : {added}\n")
-        f.write(f"Pruned     : {len(pruned)}\n")
-        f.write(f"Date fixes : {len(corrections)}\n")
-        f.write(f"Time shifts: {len(time_updates)}\n")
-        f.write(f"Enriched   : {enrichments}\n")
-        f.write(f"Recurring  : {len(recurring_cands)} missing\n")
+        f.write(f"Mode        : {mode}\n")
+        f.write(f"Candidates  : {len(all_cands)}\n")
+        f.write(f"Added       : {added}\n")
+        f.write(f"Pruned      : {len(pruned)}\n")
+        f.write(f"TBD resolved: {len(tbd_resolved)}\n")
+        f.write(f"Date fixes  : {len(corrections)}\n")
+        f.write(f"Time shifts : {len(time_updates)}\n")
+        f.write(f"Enriched    : {enrichments}\n")
+        f.write(f"Recurring   : {len(recurring_cands)} missing\n")
         f.write("=" * 50 + "\n\n")
         if pruned:
             f.write("PRUNED (ended >5 days ago):\n")
             for title, end_d in pruned:
                 f.write(f"  🗑  {title} (ended {end_d})\n")
+            f.write("\n")
+        if tbd_resolved:
+            f.write("TBD DATES RESOLVED:\n")
+            for title, old, new in tbd_resolved:
+                f.write(f"  📅 {title}: {old} → {new}\n")
             f.write("\n")
         if corrections:
             f.write("DATE CORRECTIONS:\n")
@@ -1691,6 +1755,8 @@ def run():
         parts.append(f"{added} new event(s) added")
     if pruned:
         parts.append(f"{len(pruned)} past event(s) pruned")
+    if tbd_resolved:
+        parts.append(f"{len(tbd_resolved)} TBD date(s) resolved")
     if corrections:
         parts.append(f"{len(corrections)} date(s) corrected")
     if time_updates:
