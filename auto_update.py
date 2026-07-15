@@ -249,9 +249,13 @@ def _series_end_date(item, fallback_end, year=2026):
         return None
     if re.search(r"\bs\d+\b", title):       # "S5", "S22"
         return None
+    if re.search(r"\breturn(s|ed|ing)?\b|\bback\b|\bcontinues?\b",
+                 full.lower()):
+        return None                          # "returns", "back on", "continues"
     if any(kw in full.lower() for kw in
            ("season", "weekly", "premiere", "final season",
-            "series finale", "episode")):
+            "series finale", "episode", " series", "competition",
+            "reality series", "ongoing")):
         # Try to find an explicit end date in the sub
         m = _RUNS_THROUGH_RE.search(sub_text)
         if m:
