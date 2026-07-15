@@ -225,18 +225,12 @@
     background: rgba(171,71,188,0.14); color: #ce93d8;
     border: 1px solid rgba(171,71,188,0.28); margin-top: 3px; margin-left: 7px;
   }
-  .latino-pill {
-    display: block; width: fit-content; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
-    padding: 1px 6px; border-radius: 3px;
-    background: rgba(255,255,255,0.05); color: #777;
-    border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;
-  }
-  .canada-pill {
-    display: block; width: fit-content; font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
-    padding: 1px 6px; border-radius: 3px;
-    background: rgba(255,255,255,0.05); color: #777;
-    border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;
-  }
+  /* Latino & Canada plan indicators hidden in collapsed rows — they're
+     still on the element (for filter matching + expand panel Plan row),
+     but not shown inline since they misled users into thinking multi-plan
+     events were plan-exclusive. Use the top "Fubo Latino"/"Fubo Canada"
+     filter chips instead. */
+  .latino-pill, .canada-pill { display: none; }
 
   .item.past { opacity: 0.3; }
   .item.this-week { background: #1a1928; }
@@ -479,7 +473,7 @@
 <div class="legend-item" data-network-filter="cbs">CBS</div>
 <div class="legend-item" data-network-filter="nbc">NBC</div>
 <div class="legend-item" data-network-filter="dazn">DAZN</div>
-<div class="legend-item" data-network-filter="espn unlimited">ESPN+</div>
+<div class="legend-item" data-network-filter="pill:espn-pill">ESPN Unlimited</div>
 <div class="legend-item" data-network-filter="tudn bein sports">beIN / TUDN</div>
 <div class="legend-item" data-network-filter="pill:latino-pill">Fubo Latino</div>
 <div class="legend-item" data-network-filter="pill:canada-pill">Fubo Canada</div>
