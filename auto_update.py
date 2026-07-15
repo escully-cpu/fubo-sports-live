@@ -747,6 +747,16 @@ def enrich_event_details(soup, today):
         if item.get("data-time"):
             continue
 
+        # Multi-day tournaments (date field is a range) have too many sessions
+        # to force a single time. Expand panel already renders a
+        # "Multi-day event — see broadcaster schedule" placeholder for these.
+        raw_date = date_el.get_text().strip()
+        if re.search(r"[–\-]", raw_date) and not raw_date.startswith("~"):
+            # Except for entries that already look like they name a specific
+            # date (e.g. "Sep 30–Oct 2"), skip — the JS placeholder handles it.
+            if not re.search(r"\bevery\b", raw_date, re.I):
+                continue
+
         details = None
         if classes & sports_classes:
             details = sportsdb_event_full(title)
