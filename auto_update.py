@@ -55,6 +55,9 @@ ENT_NETWORKS = {
     "Universo":          ("telemundo-e", "ent", "standard"),
     "NBC":               ("nbc-e",       "ent", "major"),
     "Bravo":             ("paramount-e", "ent", "standard"),
+    "Disney Channel":    ("disney-e",    "ent", "major"),
+    "Disney Junior":     ("disney-e",    "ent", "standard"),
+    "Disney XD":         ("disney-e",    "ent", "standard"),
 }
 
 MONTH_LABELS = {
@@ -1297,6 +1300,7 @@ _NETWORK_HINTS = [
     (r"\bCBS\b(?!\s+Sports)",         "cbs-e",       "ent",    "CBS"),
     (r"\bABC\b(?!\s+News)",           "abc-e",       "ent",    "ABC"),
     (r"\bNBC\b(?!\s+(?:News|Deportes|Sports))", "nbc-e", "ent", "NBC"),
+    (r"\bDisney\s+(?:Channel|Junior|Jr|XD)\b", "disney-e", "ent", "Disney Channel"),
     (r"\bBravo\b",                    "paramount-e", "ent",    "Bravo"),
     (r"\bFOX\b(?!\s+(?:Sports|News|Deportes|Soccer))", "fox-e", "ent", "FOX"),
     (r"\bFreeform\b",                 "freeform-e",  "ent",    "Freeform"),
