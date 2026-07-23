@@ -549,12 +549,13 @@ FUBO_LINEAR_NETWORKS = [
 
 def check_fubo_availability(item):
     """
-    If the item's description mentions a non-Fubo streaming service (Hulu,
-    Netflix, etc.) but the network is a Fubo linear channel, return a default
-    note prompting manual confirmation. Otherwise return None.
+    Only flag TRULY unavailable items — the network field must have NO Fubo
+    linear channel at all. When a Fubo network IS present, viewers can watch
+    via that (any additional streaming mention is a nice-to-have, not a gap
+    worth noting).
     """
     if item.get("data-fubo-note"):
-        return None  # already annotated
+        return None
     sub_el = item.find("span", class_="sub")
     net_el = item.find("div", class_="network")
     if not sub_el:
@@ -562,12 +563,13 @@ def check_fubo_availability(item):
     sub_text = sub_el.get_text().lower()
     net_text = (net_el.get_text() if net_el else "").lower()
 
+    # If a Fubo linear network is in the network field, there's no gap.
+    if any(n in net_text for n in FUBO_LINEAR_NETWORKS):
+        return None
+
     streaming_hit = next((s for s in NOT_ON_FUBO_STREAMING if s in sub_text), None)
     if not streaming_hit:
         return None
-    linear_hit = next((n for n in FUBO_LINEAR_NETWORKS if n in net_text), None)
-    if linear_hit:
-        return f"{linear_hit.upper()} linear schedule — confirm episode cadence on {linear_hit.upper()}"
     return f"Streaming-only on {streaming_hit.strip().title()} — not available on Fubo"
 
 def verify_existing_times(soup, today):
