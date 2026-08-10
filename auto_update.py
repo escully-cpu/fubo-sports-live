@@ -273,6 +273,24 @@ def _series_end_date(item, fallback_end, year=2026):
         return None  # series-ish, no parseable end → never prune by date alone
     return fallback_end
 
+def _item_year(item, default=2026):
+    """Return the year from the item's enclosing .month-block month-label,
+    e.g. 'January 2027' -> 2027. Falls back to `default` if not found."""
+    mb = item.find_parent("div", class_="month-block")
+    if not mb:
+        return default
+    label = mb.find("div", class_="month-label")
+    if not label:
+        return default
+    yr_span = label.find("span")
+    if yr_span:
+        try:
+            return int(yr_span.get_text().strip())
+        except ValueError:
+            pass
+    m = re.search(r"(20\d{2})", label.get_text())
+    return int(m.group(1)) if m else default
+
 def prune_past_events(soup, today, cutoff_days=5):
     """Remove events whose end date was more than `cutoff_days` ago.
     For TV series with weekly cadence (data-time 'Every ...' or title 'S5'
@@ -292,11 +310,12 @@ def prune_past_events(soup, today, cutoff_days=5):
         title_el = item.find("div", class_="title")
         if not (date_el and title_el):
             continue
-        end_d = parse_end_date(date_el.get_text().strip())
+        year = _item_year(item)
+        end_d = parse_end_date(date_el.get_text().strip(), year=year)
         if not end_d:
             continue
         # Series-aware end check (may upgrade to "Runs through Jul 3" or skip)
-        end_d = _series_end_date(item, end_d)
+        end_d = _series_end_date(item, end_d, year=year)
         if not end_d or end_d >= cutoff:
             continue
         title = _clean_title(title_el)
