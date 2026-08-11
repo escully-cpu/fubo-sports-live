@@ -56,6 +56,25 @@ def parse_start_date(text, year=2026):
     return None
 
 
+def item_year(item, default=2026):
+    """Read the year from the item's enclosing .month-block month-label
+    (e.g. 'January 2027' -> 2027). Falls back to `default` if not found."""
+    mb = item.find_parent("div", class_="month-block")
+    if not mb:
+        return default
+    label = mb.find("div", class_="month-label")
+    if not label:
+        return default
+    yr_span = label.find("span")
+    if yr_span:
+        try:
+            return int(yr_span.get_text().strip())
+        except ValueError:
+            pass
+    m = re.search(r"(20\d{2})", label.get_text())
+    return int(m.group(1)) if m else default
+
+
 def main():
     today = date.today()
     cutoff = today - timedelta(days=CUTOFF_DAYS)
@@ -70,7 +89,7 @@ def main():
         date_div = item.find("div", class_="date")
         if not date_div:
             continue
-        start = parse_start_date(date_div.get_text())
+        start = parse_start_date(date_div.get_text(), year=item_year(item))
         if start and start < cutoff:
             item.decompose()
             removed += 1
