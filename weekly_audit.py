@@ -164,6 +164,37 @@ def match_event_in_headline(event_title, headline):
 # Main audit
 # ---------------------------------------------------------------------------
 
+def check_espn_deportes_coverage(events):
+    """Flag major sports events that are missing ESPN Deportes coverage.
+    Keyword fragments are specific enough to avoid false positives like
+    'Little League World Series' matching 'World Series', or the tennis
+    'Rolex Masters' events matching golf's 'Masters'."""
+    major_sports = [
+        "us open tennis", "the open championship", "masters tournament",
+        "pga tour", "wimbledon", "french open", "australian open",
+        "mlb world series", "super bowl", "stanley cup final", "nba finals",
+        "champions league", "copa américa", "copa america",
+    ]
+    missing_coverage = []
+
+    for event in events:
+        title = event["title"].lower()
+        network = event["network"].lower()
+
+        for sport in major_sports:
+            if sport in title:
+                if "deportes" not in network:
+                    missing_coverage.append({
+                        "title": event["title"],
+                        "date": event["date"],
+                        "network": event["network"],
+                        "sport": sport,
+                    })
+                break
+
+    return missing_coverage
+
+
 def run_audit():
     today    = date.today()
     log_path = f"{LOGS_DIR}/weekly_audit_{today}.log"
@@ -172,6 +203,11 @@ def run_audit():
     print(f"Loaded {len(events)} events from calendar.", flush=True)
 
     flagged = {}  # event_title -> {"event": ..., "hits": [...]}
+
+    # ── Check for missing ESPN Deportes coverage on major sports ────────────
+    print(f"\nChecking for ESPN Deportes coverage gaps...", flush=True)
+    missing_deportes = check_espn_deportes_coverage(events)
+    deportes_missing_count = len(missing_deportes)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -227,30 +263,45 @@ def run_audit():
         f.write(f"Headlines   : {len(all_items)}\n")
         f.write("=" * 60 + "\n\n")
 
-        if not flagged:
+        issues = len(flagged) + deportes_missing_count
+
+        if not issues:
             f.write("✅  All clear — no issues found. Calendar looks good.\n")
         else:
-            f.write(f"⚠️  {len(flagged)} event(s) flagged for review:\n\n")
-            for title, data in sorted(flagged.items(),
-                                      key=lambda x: x[1]["event"]["date"]):
-                ev = data["event"]
-                f.write(f"▸ {title}\n")
-                f.write(f"  Date: {ev['date']}  |  Network: {ev['network']}\n")
-                for hit in data["hits"][:5]:
-                    f.write(f"  [{hit['source']}] {hit['title']}\n")
-                    f.write(f"  → {hit['link']}\n")
+            f.write(f"⚠️  {issues} issue(s) flagged for review:\n\n")
+
+            if missing_deportes:
+                f.write("📺 MISSING ESPN DEPORTES COVERAGE:\n")
+                for item in missing_deportes:
+                    f.write(f"  ▸ {item['title']} ({item['sport']})\n")
+                    f.write(f"    Date: {item['date']}  |  Current: {item['network'] or 'None'}\n")
                 f.write("\n")
+
+            if flagged:
+                f.write("📰 POTENTIALLY CANCELLED/RESCHEDULED EVENTS:\n")
+                for title, data in sorted(flagged.items(),
+                                          key=lambda x: x[1]["event"]["date"]):
+                    ev = data["event"]
+                    f.write(f"▸ {title}\n")
+                    f.write(f"  Date: {ev['date']}  |  Network: {ev['network']}\n")
+                    for hit in data["hits"][:5]:
+                        f.write(f"  [{hit['source']}] {hit['title']}\n")
+                        f.write(f"  → {hit['link']}\n")
+                    f.write("\n")
 
         f.write(f"\nCompleted: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-    return log_path, len(flagged)
+    return log_path, len(flagged), deportes_missing_count
 
 
 if __name__ == "__main__":
-    log_path, n = run_audit()
+    log_path, flagged_count, deportes_count = run_audit()
+    total_issues = flagged_count + deportes_count
 
-    if n:
-        msg = f"{n} event(s) may need attention — open audit log to review"
+    if deportes_count:
+        msg = f"{deportes_count} ESPN Deportes coverage gap(s) found — open audit log"
+    elif flagged_count:
+        msg = f"{flagged_count} event(s) may need attention — open audit log to review"
     else:
         msg = "Weekly audit complete — calendar is all clear ✅"
 
