@@ -1014,6 +1014,45 @@ RECURRING_MANIFEST = [
     ("Big Ten Championship",    "Big Ten Football Championship",       [12],         "college big","CBS<br/>BTN"),
     # FOX Deportes — Spanish-language Liga MX broadcasts (Fubo Latino)
     ("Liga MX Apertura — Kickoff","Liga MX Apertura",                  [7],          "soccer",     "TUDN<br/>FOX Deportes"),
+    # UEFA Nations League 2026-27 group stage (Sep–Nov)
+    ("UEFA Nations League — MD 1-2",  "UEFA Nations League Matchday",  [9],          "soccer",     "FS1 / FS2<br/>TUDN"),
+    ("UEFA Nations League — MD 3-4",  "UEFA Nations League Matchday",  [10],         "soccer",     "FS1 / FS2<br/>TUDN"),
+    ("UEFA Nations League — MD 5-6",  "UEFA Nations League Matchday",  [11],         "soccer big", "FS1 / FS2<br/>TUDN"),
+    # CONCACAF Nations League 2026-27 group stage (Sep–Nov)
+    ("CONCACAF Nations League — MD 1-2", "CONCACAF Nations League",    [9],          "soccer",     "CBS Sports<br/>TUDN"),
+    ("CONCACAF Nations League — MD 3-4", "CONCACAF Nations League",    [10],         "soccer",     "CBS Sports<br/>TUDN"),
+    ("CONCACAF Nations League — MD 5-6", "CONCACAF Nations League",    [11],         "soccer big", "CBS Sports<br/>TUDN"),
+    # Other South American club finals
+    ("Copa Sudamericana Final", "Copa Sudamericana Final",              [11],         "soccer big", "FS1<br/>FOX Deportes"),
+    # Army-Navy Game — annual CBS classic
+    ("Army-Navy Game",          "Army Navy Football",                   [12],         "college big", "CBS"),
+    # AFC Asian Cup 2027 (Jan-Feb, Saudi Arabia)
+    ("AFC Asian Cup",           "AFC Asian Cup",                        [1, 2],       "soccer big", "CBS Sports<br/>TUDN"),
+    # Golf — PGA Tour + team events
+    ("BMW Championship",        "BMW Championship PGA",                 [8],          "golf",       "NBC"),
+    ("TOUR Championship",       "PGA TOUR Championship East Lake",      [8],          "golf big",   "NBC"),
+    ("Solheim Cup",             "Solheim Cup",                          [9],          "golf big",   "NBC"),
+    ("Presidents Cup",          "Presidents Cup golf",                  [9],          "golf big",   "NBC"),
+    ("Hero World Challenge",    "Hero World Challenge",                 [12],         "golf",       "NBC"),
+    ("The Sentry",              "The Sentry PGA Kapalua",               [1],          "golf",       "NBC"),
+    ("Sony Open in Hawaii",     "Sony Open Hawaii",                     [1],          "golf",       "NBC"),
+    ("The American Express",    "The American Express PGA",             [1],          "golf",       "CBS"),
+    ("Farmers Insurance Open",  "Farmers Insurance Open Torrey Pines",  [1],          "golf",       "CBS"),
+    # Tennis — team + Grand Slam
+    ("Laver Cup",               "Laver Cup",                            [9],          "tennis",     "Tennis Ch."),
+    ("Davis Cup Finals",        "Davis Cup Finals",                     [11],         "tennis big", "Tennis Ch."),
+    ("Australian Open",         "Australian Open Tennis",               [1, 2],       "tennis big", "ESPN<br/>ESPN2"),
+    # NHL specials
+    ("NHL Winter Classic",      "NHL Winter Classic",                   [1],          "nhl big",    "TNT"),
+    # Racing
+    ("Winter X Games",          "Winter X Games Aspen",                 [1],          "racing",     "ESPN"),
+    # NCAA Basketball — non-conference tentpoles
+    ("Champions Classic",       "Champions Classic basketball",         [11],         "college-bb big", "ESPN"),
+    ("Feast Week",              "Feast Week college basketball",        [11],         "college-bb", "ESPN"),
+    ("ACC/SEC Challenge",       "ACC SEC Challenge basketball",         [12],         "college-bb big", "ESPN"),
+    ("CBS Sports Classic",      "CBS Sports Classic basketball",        [12],         "college-bb", "CBS"),
+    # CFP January cap-stone
+    ("CFP National Championship","CFP National Championship",           [1],          "college big","ESPN<br/>ABC"),
 ]
 
 def audit_recurring(existing, today):
