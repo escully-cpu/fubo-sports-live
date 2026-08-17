@@ -1028,16 +1028,23 @@ RECURRING_MANIFEST = [
     ("Army-Navy Game",          "Army Navy Football",                   [12],         "college big", "CBS"),
     # AFC Asian Cup 2027 (Jan-Feb, Saudi Arabia)
     ("AFC Asian Cup",           "AFC Asian Cup",                        [1, 2],       "soccer big", "CBS Sports<br/>TUDN"),
-    # Golf — PGA Tour + team events
-    ("BMW Championship",        "BMW Championship PGA",                 [8],          "golf",       "NBC"),
-    ("TOUR Championship",       "PGA TOUR Championship East Lake",      [8],          "golf big",   "NBC"),
+    # Golf — PGA Tour + team events.
+    # NOTE (2026-08-17): FedEx Cup Playoffs (St. Jude/BMW/TOUR Championship)
+    # rotate NBC/CBS every other year through 2030 — verify the current
+    # year's network via web search before trusting NBC/CBS here, don't
+    # assume last year's assignment still holds. 2026 = CBS's year.
+    ("BMW Championship",        "BMW Championship PGA",                 [8],          "golf",       "CBS"),
+    ("TOUR Championship",       "PGA TOUR Championship East Lake",      [8],          "golf big",   "CBS"),
     ("Solheim Cup",             "Solheim Cup",                          [9],          "golf big",   "NBC"),
     ("Presidents Cup",          "Presidents Cup golf",                  [9],          "golf big",   "NBC"),
-    ("Hero World Challenge",    "Hero World Challenge",                 [12],         "golf",       "NBC"),
-    ("The Sentry",              "The Sentry PGA Kapalua",               [1],          "golf",       "NBC"),
-    ("Sony Open in Hawaii",     "Sony Open Hawaii",                     [1],          "golf",       "NBC"),
+    ("Hero World Challenge",    "Hero World Challenge",                 [11, 12],     "golf",       "NBC"),
     ("The American Express",    "The American Express PGA",             [1],          "golf",       "CBS"),
-    ("Farmers Insurance Open",  "Farmers Insurance Open Torrey Pines",  [1],          "golf",       "CBS"),
+    # Sentry + Sony Open in Hawaii were DROPPED from the 2027 PGA Tour
+    # schedule (confirmed via web search 2026-08-17) — do not re-add.
+    # Farmers Insurance Open's title sponsorship expired after 2026;
+    # 2027 event still happens at Torrey Pines but under a new/TBD name —
+    # intentionally left out of this manifest until a sponsor is confirmed,
+    # so the audit doesn't resurrect the old "Farmers Insurance Open" name.
     # Tennis — team + Grand Slam
     ("Laver Cup",               "Laver Cup",                            [9],          "tennis",     "Tennis Ch."),
     ("Davis Cup Finals",        "Davis Cup Finals",                     [11],         "tennis big", "Tennis Ch."),

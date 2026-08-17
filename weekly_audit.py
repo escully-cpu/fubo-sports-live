@@ -195,6 +195,70 @@ def check_espn_deportes_coverage(events):
     return missing_coverage
 
 
+
+# Properties with a history of rotating, recently-renegotiated, or otherwise
+# volatile US TV rights — worth a standing watch since getting these wrong
+# from memory has actually happened (TOUR Championship/BMW Championship
+# were mis-typed as NBC when 2026 is CBS's year in the FedEx Cup Playoffs
+# rotation; see CLAUDE.md). Keep this list in sync with RECURRING_MANIFEST
+# in auto_update.py — same properties, same reason to be suspicious.
+RIGHTS_SENSITIVE_KEYWORDS = [
+    "BMW Championship", "TOUR Championship", "FedEx St. Jude",
+    "St. Jude Championship", "Presidents Cup", "Solheim Cup", "Ryder Cup",
+    "The Sentry", "Sony Open", "American Express", "Farmers Insurance",
+    "Torrey Pines", "Hero World Challenge", "Genesis Invitational",
+    "WM Phoenix Open", "Pebble Beach", "Manchester Derby",
+]
+
+RIGHTS_CHANGE_WORDS = [
+    "moves to", "new deal", "media rights", "network change",
+    "switches network", "changes network", "new tv deal", "leaves nbc",
+    "leaves cbs", "leaves espn", "leaves fox", "joins cbs", "joins nbc",
+    "joins espn", "joins fox", "signs deal", "rights deal", "tv deal",
+    "broadcast deal", "loses rights", "acquires rights", "wins rights",
+]
+
+
+def check_network_rights_changes(events, today):
+    """For a curated list of historically volatile TV-rights properties,
+    run a targeted Google News search and flag any headline that suggests
+    a network/rights change. This is the automated half of the fix for
+    the 2026-08-17 incident where TOUR Championship/BMW Championship were
+    mis-typed as NBC from memory when 2026 is actually CBS's year in the
+    FedEx Cup Playoffs' NBC/CBS rotation. RSS/Google News is free — no
+    API key, same mechanism already used for cancellation scanning."""
+    watched = [
+        e for e in events
+        if any(k.lower() in e["title"].lower() for k in RIGHTS_SENSITIVE_KEYWORDS)
+    ]
+    print(f"  Watching {len(watched)} rights-sensitive event(s)...", flush=True)
+
+    flags = []
+    year = today.year
+    for event in watched:
+        q = (
+            f'"{event["title"]}" {year} '
+            f'(network OR broadcast OR TV) '
+            f'("moves to" OR "new deal" OR "media rights" OR "network change" '
+            f'OR "switches" OR "signs deal" OR "rights deal")'
+        )
+        hits = google_news_search(q)
+        for h in hits:
+            headline = h["title"].lower()
+            if any(w in headline for w in RIGHTS_CHANGE_WORDS):
+                flags.append({
+                    "title": event["title"],
+                    "date": event["date"],
+                    "network": event["network"],
+                    "headline": h["title"],
+                    "link": h["link"],
+                })
+        time.sleep(0.6)
+
+    print(f"    → {len(flags)} possible rights-change signal(s)", flush=True)
+    return flags
+
+
 def run_audit():
     today    = date.today()
     log_path = f"{LOGS_DIR}/weekly_audit_{today}.log"
@@ -208,6 +272,11 @@ def run_audit():
     print(f"\nChecking for ESPN Deportes coverage gaps...", flush=True)
     missing_deportes = check_espn_deportes_coverage(events)
     deportes_missing_count = len(missing_deportes)
+
+    # ── Check for possible network/rights changes on volatile properties ───
+    print(f"\nChecking for network/rights-change signals...", flush=True)
+    rights_flags = check_network_rights_changes(events, today)
+    rights_flags_count = len(rights_flags)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -263,12 +332,21 @@ def run_audit():
         f.write(f"Headlines   : {len(all_items)}\n")
         f.write("=" * 60 + "\n\n")
 
-        issues = len(flagged) + deportes_missing_count
+        issues = len(flagged) + deportes_missing_count + rights_flags_count
 
         if not issues:
             f.write("✅  All clear — no issues found. Calendar looks good.\n")
         else:
             f.write(f"⚠️  {issues} issue(s) flagged for review:\n\n")
+
+            if rights_flags:
+                f.write("📡 POSSIBLE NETWORK / RIGHTS CHANGES:\n")
+                for item in rights_flags:
+                    f.write(f"  ▸ {item['title']}\n")
+                    f.write(f"    Date: {item['date']}  |  Calendar has: {item['network']}\n")
+                    f.write(f"    Headline: {item['headline']}\n")
+                    f.write(f"    → {item['link']}\n")
+                f.write("\n")
 
             if missing_deportes:
                 f.write("📺 MISSING ESPN DEPORTES COVERAGE:\n")
@@ -291,14 +369,16 @@ def run_audit():
 
         f.write(f"\nCompleted: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-    return log_path, len(flagged), deportes_missing_count
+    return log_path, len(flagged), deportes_missing_count, rights_flags_count
 
 
 if __name__ == "__main__":
-    log_path, flagged_count, deportes_count = run_audit()
-    total_issues = flagged_count + deportes_count
+    log_path, flagged_count, deportes_count, rights_count = run_audit()
+    total_issues = flagged_count + deportes_count + rights_count
 
-    if deportes_count:
+    if rights_count:
+        msg = f"{rights_count} possible network/rights change(s) found — open audit log"
+    elif deportes_count:
         msg = f"{deportes_count} ESPN Deportes coverage gap(s) found — open audit log"
     elif flagged_count:
         msg = f"{flagged_count} event(s) may need attention — open audit log to review"
