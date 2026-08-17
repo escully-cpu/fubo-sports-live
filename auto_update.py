@@ -603,10 +603,10 @@ def verify_existing_times(soup, today):
     updates = []
     print("  Verifying stored times against latest sources...", flush=True)
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
-                      "wnba", "college", "tennis", "golf", "racing"}
-    ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
-                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
-                      "cmt-e"}
+                      "wnba", "college", "college-bb", "tennis", "golf", "racing"}
+    ent_classes    = {"cbs-e", "abc-e", "nbc-e", "fox-e", "fx-e", "fxx-e",
+                      "freeform-e", "hallmark-e", "bet-e", "mtv-e", "starz-e",
+                      "paramount-e", "cmt-e", "telemundo-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
         old_time = item.get("data-time")
@@ -659,10 +659,10 @@ def resolve_tbd_dates(soup, today):
     resolved = []
     print("  Resolving TBD-dated events...", flush=True)
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
-                      "wnba", "college", "tennis", "golf", "racing"}
+                      "wnba", "college", "college-bb", "tennis", "golf", "racing"}
     ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
                       "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
-                      "cmt-e", "telemundo-e", "nbc-e"}
+                      "cmt-e", "telemundo-e", "nbc-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
         date_el  = item.find("div", class_="date")
@@ -715,10 +715,10 @@ def enrich_event_details(soup, today):
     enriched = 0
     print("  Enriching event details (time/venue/location)...", flush=True)
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
-                      "wnba", "college", "tennis", "golf", "racing"}
-    ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
-                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
-                      "cmt-e"}
+                      "wnba", "college", "college-bb", "tennis", "golf", "racing"}
+    ent_classes    = {"cbs-e", "abc-e", "nbc-e", "fox-e", "fx-e", "fxx-e",
+                      "freeform-e", "hallmark-e", "bet-e", "mtv-e", "starz-e",
+                      "paramount-e", "cmt-e", "telemundo-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
         date_el  = item.find("div", class_="date")
