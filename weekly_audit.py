@@ -67,6 +67,73 @@ FLAG_WORDS = [
 # think to go looking.
 WWE_WATCH_KEYWORD = "wwe"
 
+# Every check above assumes the calendar already has an entry for a given
+# event and asks "is it still accurate?" That's a different question from
+# "is an entire league/competition missing from the calendar altogether?"
+# — which is what actually went wrong with MLS and IndyCar on 2026-08-18:
+# both were carried by Fubo (IndyCar fully, MLS partially — national FOX/
+# FS1 broadcasts + MLS Cup Final) and had zero representation anywhere in
+# the file. No per-event check can catch an absence; this one specifically
+# looks for it. Keyword variants per league — matched against every
+# existing calendar title, case-insensitive substring. A league with ZERO
+# matches gets flagged for manual research (confirm current Fubo carriage
+# via WebSearch before adding — see CLAUDE.md), same as every other
+# "surface for a human, don't auto-decide" check in this file.
+#
+# This list is deliberately broad — includes leagues that may NOT be on
+# Fubo (so their absence is correct) alongside ones that should be. A
+# flag here means "verify," not "definitely add." Update this list when
+# a league's Fubo status is confirmed one way or the other, and note the
+# reasoning so the next read of this file doesn't have to re-derive it.
+LEAGUE_COVERAGE_CHECKLIST = [
+    ("NFL",                      ["nfl"]),
+    ("NBA",                      ["nba"]),
+    ("MLB",                      ["mlb"]),
+    ("NHL",                      ["nhl", "stanley cup", "winter classic"]),
+    ("NCAA Football",            ["college football", "cfp", "bowl", "heisman", "army-navy", "army navy"]),
+    ("NCAA Basketball",          ["ncaa basketball", "college basketball", "march madness", "final four", "champions classic", "feast week"]),
+    ("WNBA",                     ["wnba"]),
+    ("MLS",                      ["mls"]),
+    ("NWSL",                     ["nwsl"]),
+    ("Leagues Cup",              ["leagues cup"]),
+    ("Liga MX",                  ["liga mx"]),
+    ("EPL",                      ["epl", "premier league", "manchester derby"]),
+    ("La Liga",                  ["la liga"]),
+    ("Serie A",                  ["serie a"]),
+    ("Bundesliga",               ["bundesliga"]),
+    ("UEFA Champions League",    ["champions league", "ucl "]),
+    ("UEFA Nations League",      ["uefa nations league"]),
+    ("CONCACAF Nations League",  ["concacaf nations league"]),
+    ("Copa Libertadores",        ["copa libertadores"]),
+    ("Copa Sudamericana",        ["copa sudamericana"]),
+    ("AFC Asian Cup",            ["asian cup"]),
+    ("NASCAR",                   ["nascar"]),
+    ("IndyCar",                  ["indycar", "indy car"]),
+    ("PGA Tour majors/playoffs", ["pga", "fedex cup", "bmw championship", "tour championship", "the sentry", "farmers insurance", "torrey pines", "american express"]),
+    ("Ryder/Presidents/Solheim Cup", ["ryder cup", "presidents cup", "solheim cup"]),
+    ("Tennis Grand Slams",       ["australian open", "french open", "wimbledon", "us open tennis"]),
+    ("ATP/WTA team & Masters events", ["laver cup", "davis cup", "masters 1000", "wta finals", "atp finals", "rolex masters", "national bank open", "western & southern"]),
+    ("WWE",                      ["wwe"]),
+    ("Little League World Series", ["little league world series"]),
+    ("Winter/Summer X Games",    ["x games"]),
+]
+
+# Leagues deliberately left OUT of the active checklist above — flagging
+# these every week would be a standing false alarm, not a real gap, and
+# the whole point of check_wwe_schedule_watch's design philosophy applies
+# here too: a check nobody trusts because it "always finds something" is
+# worse than no check. Re-add to LEAGUE_COVERAGE_CHECKLIST once each
+# tournament's actual window approaches.
+#   - CONCACAF Champions Cup: 2026 edition already ran and concluded
+#     Feb 3 - May 30, 2026 (Toluca won on penalties) — entirely before
+#     this calendar's coverage window started. Confirmed on Fubo via
+#     FS1/FS2/TUDN. Next edition starts ~Feb 2027 — re-add to the active
+#     checklist around Jan 2027.
+#   - Gold Cup: biennial, odd years only (2025, 2027, ...) — no 2026
+#     edition exists. Re-add ahead of the 2027 tournament.
+#   - Copa América: next edition is 2028 (last was 2024) — no 2026
+#     edition exists. Re-add ahead of the 2028 tournament.
+
 MONTHS = {
     "jan": 1, "feb": 2, "mar": 3, "apr": 4,
     "may": 5, "jun": 6, "jul": 7, "aug": 8,
@@ -312,6 +379,22 @@ def check_wwe_schedule_watch(events, today):
     return digest
 
 
+def check_league_coverage_gaps(events):
+    """Flag any league/competition in LEAGUE_COVERAGE_CHECKLIST with zero
+    matching titles anywhere in the calendar. Pure local string matching —
+    no network calls, can't fail or rate-limit. This is the check that
+    would have caught MLS and IndyCar being completely absent; every other
+    check in this file audits accuracy of EXISTING entries, which
+    structurally cannot detect a league that was never added at all."""
+    all_titles = " ||| ".join(e["title"].lower() for e in events)
+    missing = []
+    for league, keywords in LEAGUE_COVERAGE_CHECKLIST:
+        if not any(kw in all_titles for kw in keywords):
+            missing.append(league)
+    print(f"    → {len(missing)} league(s) with zero calendar presence", flush=True)
+    return missing
+
+
 def run_audit():
     today    = date.today()
     log_path = f"{LOGS_DIR}/weekly_audit_{today}.log"
@@ -335,6 +418,11 @@ def run_audit():
     print(f"\nChecking WWE events for schedule drift...", flush=True)
     wwe_digest = check_wwe_schedule_watch(events, today)
     wwe_digest_count = len(wwe_digest)
+
+    # ── League coverage — is an entire league/competition missing? ─────────
+    print(f"\nChecking for missing league coverage...", flush=True)
+    missing_leagues = check_league_coverage_gaps(events)
+    missing_leagues_count = len(missing_leagues)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -396,12 +484,19 @@ def run_audit():
         f.write(f"Headlines   : {len(all_items)}\n")
         f.write("=" * 60 + "\n\n")
 
-        issues = len(flagged) + deportes_missing_count + rights_flags_count
+        issues = (len(flagged) + deportes_missing_count + rights_flags_count
+                  + missing_leagues_count)
 
         if not issues:
             f.write("✅  All clear — no issues found. Calendar looks good.\n")
         else:
             f.write(f"⚠️  {issues} issue(s) flagged for review:\n\n")
+
+            if missing_leagues:
+                f.write("🚨 LEAGUES WITH ZERO CALENDAR PRESENCE (verify Fubo carriage, then add):\n")
+                for league in missing_leagues:
+                    f.write(f"  ▸ {league}\n")
+                f.write("\n")
 
             if rights_flags:
                 f.write("📡 POSSIBLE NETWORK / RIGHTS CHANGES:\n")
@@ -445,14 +540,18 @@ def run_audit():
 
         f.write(f"\nCompleted: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-    return log_path, len(flagged), deportes_missing_count, rights_flags_count, wwe_digest_count
+    return (log_path, len(flagged), deportes_missing_count, rights_flags_count,
+            wwe_digest_count, missing_leagues_count)
 
 
 if __name__ == "__main__":
-    log_path, flagged_count, deportes_count, rights_count, wwe_count = run_audit()
-    total_issues = flagged_count + deportes_count + rights_count
+    (log_path, flagged_count, deportes_count, rights_count, wwe_count,
+     leagues_missing_count) = run_audit()
+    total_issues = flagged_count + deportes_count + rights_count + leagues_missing_count
 
-    if rights_count:
+    if leagues_missing_count:
+        msg = f"{leagues_missing_count} league(s) with ZERO calendar presence — open audit log"
+    elif rights_count:
         msg = f"{rights_count} possible network/rights change(s) found — open audit log"
     elif deportes_count:
         msg = f"{deportes_count} ESPN Deportes coverage gap(s) found — open audit log"

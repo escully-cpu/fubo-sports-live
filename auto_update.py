@@ -564,6 +564,12 @@ FUBO_LINEAR_NETWORKS = [
     "fx", "fxx", "abc", "cbs", "fox", "freeform", "bet", "mtv",
     "vh1", "hallmark", "cmt", "paramount network", "espn", "fs1",
     "fs2", "btn", "tudn", "univision", "starz",
+    # Added 2026-08-18 after this list's incompleteness caused a false
+    # "not available on Fubo" note on an item whose network field clearly
+    # listed NBC — cross-checked against every distinct token actually
+    # used in index.html's .network divs (see CLAUDE.md).
+    "nbc", "telemundo", "universo", "disney channel", "tnt", "secn",
+    "nfl net", "fsn", "dazn", "bein sport", "tennis ch",
 ]
 
 def check_fubo_availability(item):
