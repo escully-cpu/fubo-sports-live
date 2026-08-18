@@ -39,14 +39,33 @@ RSS_FEEDS = [
     ("Google News — Awards", "https://news.google.com/rss/search?q=awards+show+cancelled+OR+postponed+OR+%22date+change%22+2026&hl=en-US&gl=US&ceid=US:en"),
 ]
 
-# Headlines containing any of these words near a show name trigger a flag
+# Headlines containing any of these words near a show name trigger a flag.
+# Kept intentionally broad — a missed real change (false negative) is worse
+# than an extra line in the log (false positive). Expanded 2026-08-18 after
+# "WWE Money in the Bank" reschedule coverage used "pushed ... to October"
+# phrasing that the original narrower list didn't catch.
 FLAG_WORDS = [
     "cancel", "cancell", "postpone", "delay", "reschedule", "push back",
-    "pulled", "axed", "hiatus", "not returning", "no longer",
-    "date change", "new date", "moved to", "premiere date changed",
-    "ending", "final season", "last season", "series finale",
-    "production halt", "shut down", "won't return", "will not return",
+    "pushed back", "pushed to", "pushed up", "bumped to", "bumped up",
+    "shifted to", "moved from", "pulled", "axed", "hiatus", "not returning",
+    "no longer", "date change", "new date", "moved to",
+    "premiere date changed", "ending", "final season", "last season",
+    "series finale", "production halt", "shut down", "won't return",
+    "will not return", "backs off", "backing off", "not scheduled",
+    "not on the schedule", "off the schedule", "no plans for", "skipping",
+    "scrapped", "shelved", "won't happen", "instead of the", "dropped from",
 ]
+
+# WWE Premium Live Events — a demonstrated failure category: WrestlePalooza
+# was assumed to recur annually (it was a 2025-only launch special, never
+# scheduled for 2026) and Money in the Bank's reschedule sat undetected for
+# weeks because narrow OR-clause queries didn't surface the coverage that
+# existed. Keyword matching alone can't be made fully reliable against
+# unpredictable headline phrasing, so for this category we don't rely on
+# FLAG_WORDS at all — we surface the freshest headlines unconditionally
+# every week so a human can skim them in seconds instead of needing to
+# think to go looking.
+WWE_WATCH_KEYWORD = "wwe"
 
 MONTHS = {
     "jan": 1, "feb": 2, "mar": 3, "apr": 4,
@@ -259,6 +278,40 @@ def check_network_rights_changes(events, today):
     return flags
 
 
+def check_wwe_schedule_watch(events, today):
+    """For every WWE event in the calendar, run a loose (non-restrictive)
+    Google News search and surface the freshest headlines unconditionally
+    — no FLAG_WORDS filtering. See the WWE_WATCH_KEYWORD comment above for
+    why: this category has already produced two real misses (WrestlePalooza
+    assumed-recurring, Money in the Bank reschedule) that a keyword-gated
+    search failed to catch, because the actual news coverage didn't use
+    any of the words we were watching for. A human skimming 2-3 fresh
+    headlines per event is more reliable than trying to enumerate every
+    possible phrasing of 'this got cancelled/moved/dropped' in advance."""
+    watched = [e for e in events if WWE_WATCH_KEYWORD in e["title"].lower()]
+    print(f"  Watching {len(watched)} WWE event(s) for schedule drift...", flush=True)
+
+    digest = []
+    year = today.year
+    for event in watched:
+        q = f'"{event["title"]}" {year}'
+        hits = google_news_search(q)
+        # Freshest first — RSS feeds are typically already newest-first,
+        # but don't rely on it silently.
+        hits = hits[:3]
+        if hits:
+            digest.append({
+                "title": event["title"],
+                "date": event["date"],
+                "network": event["network"],
+                "headlines": hits,
+            })
+        time.sleep(0.6)
+
+    print(f"    → {len(digest)} event(s) with fresh coverage to skim", flush=True)
+    return digest
+
+
 def run_audit():
     today    = date.today()
     log_path = f"{LOGS_DIR}/weekly_audit_{today}.log"
@@ -277,6 +330,11 @@ def run_audit():
     print(f"\nChecking for network/rights-change signals...", flush=True)
     rights_flags = check_network_rights_changes(events, today)
     rights_flags_count = len(rights_flags)
+
+    # ── WWE schedule watch — unconditional headline digest, see docstring ──
+    print(f"\nChecking WWE events for schedule drift...", flush=True)
+    wwe_digest = check_wwe_schedule_watch(events, today)
+    wwe_digest_count = len(wwe_digest)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -315,7 +373,13 @@ def run_audit():
         )
         hits = google_news_search(q)
         for h in hits:
-            if is_flagged(h["title"]):
+            # Google News sometimes returns tangentially-related results for
+            # quoted-phrase + OR-clause queries when few exact matches exist
+            # (e.g. an unrelated "Greenbrier Classic cancelled" golf headline
+            # surfacing for a "TOUR Championship" query) — require the
+            # headline to actually reference the event, same check Step 1
+            # uses for its broad sweep.
+            if is_flagged(h["title"]) and match_event_in_headline(event["title"], h["title"]):
                 key = event["title"]
                 flagged.setdefault(key, {"event": event, "hits": []})
                 existing = {x["link"] for x in flagged[key]["hits"]}
@@ -367,13 +431,25 @@ def run_audit():
                         f.write(f"  → {hit['link']}\n")
                     f.write("\n")
 
+        # Always written, regardless of issues — unfiltered digest, not an
+        # alarm. See check_wwe_schedule_watch() docstring for why this
+        # category gets unconditional visibility instead of keyword gating.
+        if wwe_digest:
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("🤼 WWE EVENTS — RECENT COVERAGE (skim for schedule drift):\n\n")
+            for item in wwe_digest:
+                f.write(f"  ▸ {item['title']} — calendar has {item['date']} on {item['network']}\n")
+                for h in item["headlines"]:
+                    f.write(f"      [{h['source']}] {h['title']}\n")
+                f.write("\n")
+
         f.write(f"\nCompleted: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-    return log_path, len(flagged), deportes_missing_count, rights_flags_count
+    return log_path, len(flagged), deportes_missing_count, rights_flags_count, wwe_digest_count
 
 
 if __name__ == "__main__":
-    log_path, flagged_count, deportes_count, rights_count = run_audit()
+    log_path, flagged_count, deportes_count, rights_count, wwe_count = run_audit()
     total_issues = flagged_count + deportes_count + rights_count
 
     if rights_count:
@@ -384,6 +460,10 @@ if __name__ == "__main__":
         msg = f"{flagged_count} event(s) may need attention — open audit log to review"
     else:
         msg = "Weekly audit complete — calendar is all clear ✅"
+    # wwe_count intentionally excluded from the notification message — it's
+    # a passive digest (near-constant WWE news volume would make every
+    # week say "found something" and train the notification to be ignored).
+    # The headlines are always in the log for anyone who wants to skim them.
 
     subprocess.run(["osascript", "-e",
         f'display notification "{msg}" with title "fubo Calendar Audit" sound name "Glass"'])

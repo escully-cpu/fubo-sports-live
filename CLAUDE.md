@@ -34,3 +34,18 @@ This list is what the daily audit uses to detect a major recurring event has gon
 ## Class-coverage gotcha
 
 `sports_classes` / `ent_classes` are redefined separately in three functions in `auto_update.py` (`verify_existing_times`, `resolve_tbd_dates`, `enrich_event_details`). When you add a new CSS class to `index.html` (a new network color, e.g. `disney-e`, `nbc-e`, `college-bb`), you must add it to **all three** sets or that class's items silently stop getting date/time verification. This has bitten us before — grep for `sports_classes\s*=` and `ent_classes\s*=` and check all matches whenever a new class is introduced.
+
+## Don't assume a one-off event recurs annually
+
+WrestlePalooza was added as a recurring September fixture after its 2025 debut. It was actually a **one-time launch special** for WWE's ESPN partnership — WWE never scheduled a 2026 edition, and September had no PLE at all in 2026. If something reads as a "first-ever" / debut / launch event, don't project it forward a year without checking the current official schedule first — a debut is exactly as likely to be one-off as to become a tradition, and there's no way to tell from the event itself which it'll be.
+
+## Self-sufficient news watching (`weekly_audit.py`)
+
+The Sunday audit does NOT just rely on keyword-matched cancellation headlines — that approach has a structural blind spot: it can only catch a change if some article happens to phrase it using one of a finite list of words (`FLAG_WORDS`), and real headlines are far more creatively worded than any list can anticipate ("WWE Backs Off Wrestlepalooza Promise", "Why WWE Pushed Money In The Bank 2026 to October", "When Is WWE's Next 2026 PLE?" — none of these matched the original word list, and the last one doesn't even mention the event by name).
+
+Three layers now exist, in increasing order of how much they trust keyword matching:
+1. **Broad RSS sweep + targeted per-event cancellation search** (`FLAG_WORDS`, `match_event_in_headline`) — good for explicit, clearly-worded cancellation/reschedule news. Keep `FLAG_WORDS` broad; a missed real change is worse than an extra log line.
+2. **`check_network_rights_changes`** — targeted search for a curated list of historically volatile TV-rights properties (`RIGHTS_SENSITIVE_KEYWORDS`), flagged only on rights-specific language.
+3. **`check_wwe_schedule_watch`** — for WWE events specifically (the demonstrated failure category, twice now), skips keyword filtering entirely and just surfaces the freshest 2-3 headlines per event, unconditionally, every week, in a dedicated log section. This is deliberate: no word list will ever be complete, so instead of trying to auto-classify "is this bad news," the system does the legwork of finding candidate coverage and a human does a 10-second skim. This is what makes schedule-drift detection actually self-sufficient instead of requiring someone to think to go check.
+
+If another category shows the same failure pattern (assumed-recurring event never confirmed, or a reschedule that slips past `FLAG_WORDS`), the fix is the same: add it to an unconditional-digest watch list like `check_wwe_schedule_watch`, don't just try to expand `FLAG_WORDS` again — that list has already proven it can't be made exhaustive.
