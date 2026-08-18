@@ -956,18 +956,35 @@ SIG_SPORT_KW = [
     "matchday", "round of", "group stage", "league phase", "liguilla",
 ]
 
+# IMPORTANT (found 2026-08-20): TheSportsDB's searchevents.php `e=`
+# parameter does near-exact matching against a SPECIFIC EVENT'S NAME
+# STRING — it is NOT a "give me this league's events" filter. A bare
+# league name only returns anything if that literal string happens to
+# appear inside real event titles (works for "NASCAR All-Star Race",
+# "NBA All-Star Game" style names; fails for basically all soccer, where
+# matches are named "Team A vs Team B" and never contain the league
+# name). Empirically verified by hand: of the 12 original entries, only
+# NBA and WNBA returned any results at all (1 each); NFL, NHL, MLB, PGA
+# Tour, Tennis, UEFA Champions League, Copa Libertadores/Sudamericana,
+# NWSL, and Liga MX all returned zero. Adding more league names (MLS,
+# EPL, La Liga, Serie A, Bundesliga, Leagues Cup, CONCACAF/UEFA Nations
+# League) doesn't help — verified those also return zero. This list is
+# now pruned to only entries that demonstrably return something.
+#
+# The mechanism that actually works for "make sure a SPECIFIC known
+# major event gets discovered" is RECURRING_MANIFEST below, which
+# searches for compound event names ("NFL Wild Card", "MLS Cup Final")
+# — much closer to how real TheSportsDB event titles are formed. Add
+# new events there, not here. This list's only remaining job is
+# opportunistic discovery of genuinely novel/unanticipated events; it is
+# not a reliable coverage mechanism — LEAGUE_COVERAGE_CHECKLIST in
+# weekly_audit.py (pure calendar string-matching, no API dependency) is
+# the actually-reliable backstop for "is a whole league missing."
 LEAGUES = [
-    ("NFL",                   "nfl"),
     ("NBA",                   "nba"),
-    ("NHL",                   "nhl"),
-    ("MLB",                   "mlb"),
     ("WNBA",                  "wnba"),
-    ("PGA Tour",              "golf"),
-    ("Tennis",                "tennis"),
-    ("UEFA Champions League", "soccer"),
-    ("Copa Libertadores",     "soccer"),
-    ("NWSL",                  "soccer"),
-    ("Liga MX",               "soccer"),
+    ("NASCAR",                "racing"),
+    ("IndyCar",               "racing"),
 ]
 
 # ── Recurring events manifest ─────────────────────────────────────────────────
@@ -1066,6 +1083,15 @@ RECURRING_MANIFEST = [
     ("CBS Sports Classic",      "CBS Sports Classic basketball",        [12],         "college-bb", "CBS"),
     # CFP January cap-stone
     ("CFP National Championship","CFP National Championship",           [1],          "college big","ESPN<br/>ABC"),
+    # MLS / IndyCar / Leagues Cup — added 2026-08-20 after both leagues
+    # were found completely absent from the calendar (see CLAUDE.md).
+    # MLS Cup Final and Leagues Cup Final return zero results from
+    # TheSportsDB's free tier (verified) — kept anyway as a presence-only
+    # tripwire (falls back to today's date if ever missing, same as
+    # other under-covered manifest entries), not a real auto-recovery.
+    ("IndyCar Grand Prix of Monterey", "IndyCar Grand Prix of Monterey", [9],          "racing big", "FOX"),
+    ("MLS Cup",                 "MLS Cup Final",                        [12],         "soccer big", "FOX<br/>FOX Deportes"),
+    ("Leagues Cup",             "Leagues Cup Final",                    [8, 9],       "soccer big", "FOX / FS1<br/>TUDN"),
 ]
 
 def audit_recurring(existing, today):

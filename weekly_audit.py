@@ -395,6 +395,51 @@ def check_league_coverage_gaps(events):
     return missing
 
 
+# Major broadcast/cable networks worth a standing schedule-announcement
+# watch. Mirrors LEAGUE_COVERAGE_CHECKLIST's role for sports, but for
+# entertainment the equivalent of "is a whole league missing" doesn't
+# really apply (every major network already has SOME presence) — the
+# actual failure mode found 2026-08-20 was narrower and structural:
+# auto_update.py's TVMaze scan can only find a show once TVMaze has
+# ingested its schedule, and that ingestion visibly lags real network
+# announcements by weeks (confirmed empirically: FOX's Fall 2026 fall
+# schedule was fully public via press coverage in July, but TVMaze's
+# schedule endpoint returned ZERO Fox episodes for the actual September
+# premiere dates as late as August 20). The press-release RSS scanner
+# (PRESS_FEEDS, discover_press_releases) DOES surface the right
+# headlines ("Fox Fall 2026 Premiere Dates: Full Schedule...") but
+# _parse_press_date() can't extract a date from them — these are
+# roundup articles that list per-show dates in the body, not a single
+# date near the headline, and no regex fix closes that gap without
+# fetching and parsing full article bodies.
+ENTERTAINMENT_NETWORKS_WATCH = [
+    "CBS", "ABC", "FOX", "NBC", "FX", "Freeform", "Hallmark Channel",
+    "BET", "MTV", "Paramount Network", "Telemundo",
+]
+
+
+def check_network_schedule_announcements(today):
+    """Unconditional digest of 'fall/midseason schedule' announcement
+    headlines per major network — same philosophy as
+    check_wwe_schedule_watch(): don't try to auto-classify or extract
+    structured data from something that's proven unparseable, just
+    guarantee the relevant headlines are visible every week so a human
+    can skim and manually cross-check the calendar in minutes instead of
+    needing to think to go looking. Most valuable during premiere-
+    announcement season (roughly May-August for fall, Dec-Jan for
+    midseason) but runs every week regardless — low cost, always current."""
+    year = today.year
+    digest = []
+    for network in ENTERTAINMENT_NETWORKS_WATCH:
+        q = f'"{network}" ({year} OR {year+1}) (premiere dates OR "fall schedule" OR "midseason schedule" OR "schedule announced")'
+        hits = google_news_search(q)[:2]
+        if hits:
+            digest.append({"network": network, "headlines": hits})
+        time.sleep(0.5)
+    print(f"    → {len(digest)} network(s) with fresh schedule coverage to skim", flush=True)
+    return digest
+
+
 def run_audit():
     today    = date.today()
     log_path = f"{LOGS_DIR}/weekly_audit_{today}.log"
@@ -423,6 +468,11 @@ def run_audit():
     print(f"\nChecking for missing league coverage...", flush=True)
     missing_leagues = check_league_coverage_gaps(events)
     missing_leagues_count = len(missing_leagues)
+
+    # ── Entertainment schedule watch — unconditional digest, see docstring ─
+    print(f"\nChecking for network schedule announcements...", flush=True)
+    network_digest = check_network_schedule_announcements(today)
+    network_digest_count = len(network_digest)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -538,15 +588,24 @@ def run_audit():
                     f.write(f"      [{h['source']}] {h['title']}\n")
                 f.write("\n")
 
+        if network_digest:
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("📺 NETWORK SCHEDULE ANNOUNCEMENTS (skim for new/moved shows):\n\n")
+            for item in network_digest:
+                f.write(f"  ▸ {item['network']}\n")
+                for h in item["headlines"]:
+                    f.write(f"      [{h['source']}] {h['title']}\n")
+                f.write("\n")
+
         f.write(f"\nCompleted: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     return (log_path, len(flagged), deportes_missing_count, rights_flags_count,
-            wwe_digest_count, missing_leagues_count)
+            wwe_digest_count, missing_leagues_count, network_digest_count)
 
 
 if __name__ == "__main__":
     (log_path, flagged_count, deportes_count, rights_count, wwe_count,
-     leagues_missing_count) = run_audit()
+     leagues_missing_count, network_count) = run_audit()
     total_issues = flagged_count + deportes_count + rights_count + leagues_missing_count
 
     if leagues_missing_count:
@@ -559,10 +618,11 @@ if __name__ == "__main__":
         msg = f"{flagged_count} event(s) may need attention — open audit log to review"
     else:
         msg = "Weekly audit complete — calendar is all clear ✅"
-    # wwe_count intentionally excluded from the notification message — it's
-    # a passive digest (near-constant WWE news volume would make every
-    # week say "found something" and train the notification to be ignored).
-    # The headlines are always in the log for anyone who wants to skim them.
+    # wwe_count / network_count intentionally excluded from the
+    # notification message — both are passive digests (near-constant news
+    # volume would make every week say "found something" and train the
+    # notification to be ignored). Headlines are always in the log for
+    # anyone who wants to skim them.
 
     subprocess.run(["osascript", "-e",
         f'display notification "{msg}" with title "fubo Calendar Audit" sound name "Glass"'])
