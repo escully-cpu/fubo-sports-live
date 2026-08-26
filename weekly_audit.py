@@ -96,7 +96,6 @@ LEAGUE_COVERAGE_CHECKLIST = [
     ("MLS",                      ["mls"]),
     ("NWSL",                     ["nwsl"]),
     ("Leagues Cup",              ["leagues cup"]),
-    ("Liga MX",                  ["liga mx"]),
     ("EPL",                      ["epl", "premier league", "manchester derby"]),
     ("La Liga",                  ["la liga"]),
     ("Serie A",                  ["serie a"]),
@@ -127,12 +126,22 @@ LEAGUE_COVERAGE_CHECKLIST = [
 #   - CONCACAF Champions Cup: 2026 edition already ran and concluded
 #     Feb 3 - May 30, 2026 (Toluca won on penalties) — entirely before
 #     this calendar's coverage window started. Confirmed on Fubo via
-#     FS1/FS2/TUDN. Next edition starts ~Feb 2027 — re-add to the active
-#     checklist around Jan 2027.
+#     FS1/FS2 (TUDN was also reported as carrying it, but TUDN itself
+#     has been off Fubo since Dec 2024 — don't credit TUDN as a
+#     Fubo-available network when re-adding). Next edition starts
+#     ~Feb 2027 — re-add to the active checklist around Jan 2027.
 #   - Gold Cup: biennial, odd years only (2025, 2027, ...) — no 2026
 #     edition exists. Re-add ahead of the 2027 tournament.
 #   - Copa América: next edition is 2028 (last was 2024) — no 2026
 #     edition exists. Re-add ahead of the 2028 tournament.
+#   - Liga MX: removed 2026-08-26 — its only Fubo-available broadcaster
+#     was TUDN, which has been off Fubo since a Dec 2024 carriage
+#     dispute with TelevisaUnivision (not yet restored, see CLAUDE.md).
+#     No other Fubo-carried network currently has Liga MX rights (FOX
+#     Deportes carries some Apertura/Clausura regular-season coverage —
+#     that's tracked via RECURRING_MANIFEST's "Liga MX Apertura —
+#     Kickoff" entry, not this checklist). Re-add once TUDN is restored
+#     or another Fubo network picks up Liga MX Final rights.
 
 MONTHS = {
     "jan": 1, "feb": 2, "mar": 3, "apr": 4,

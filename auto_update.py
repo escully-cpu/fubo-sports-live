@@ -563,7 +563,13 @@ NOT_ON_FUBO_STREAMING = [
 FUBO_LINEAR_NETWORKS = [
     "fx", "fxx", "abc", "cbs", "fox", "freeform", "bet", "mtv",
     "vh1", "hallmark", "cmt", "paramount network", "espn", "fs1",
-    "fs2", "btn", "tudn", "univision", "starz",
+    "fs2", "btn", "starz",
+    # "tudn" and "univision" removed 2026-08-26 — both were WRONGLY in
+    # this list (pre-dating this session). All TelevisaUnivision
+    # channels (TUDN, Univision, UniMás, Galavisión) have been off Fubo
+    # since a December 2024 carriage dispute and remain off as of
+    # 2026-08. Do not add them back without confirming restoration via
+    # WebSearch first — see CLAUDE.md.
     # Added 2026-08-18 after this list's incompleteness caused a false
     # "not available on Fubo" note on an item whose network field clearly
     # listed NBC — cross-checked against every distinct token actually
@@ -1018,8 +1024,12 @@ RECURRING_MANIFEST = [
     ("Super Bowl",              "Super Bowl",                          [2],          "nfl big",    "FOX"),
     # Soccer cups
     ("Copa Libertadores Final", "Copa Libertadores Final",             [11],         "soccer big", "beIN Sports"),
-    ("Liga MX Clausura Final",  "Liga MX Clausura Final",             [5],          "soccer big", "TUDN"),
-    ("Liga MX Apertura Final",  "Liga MX Apertura Final",             [12],         "soccer big", "TUDN"),
+    # Liga MX Clausura/Apertura Finals removed 2026-08-26 — TUDN was
+    # their only Fubo network and TUDN has been off Fubo since a
+    # December 2024 carriage dispute (not yet restored). No other
+    # Fubo-available broadcaster covers the Liga MX finals. Don't
+    # re-add unless TUDN (or another Fubo-carried broadcaster) confirms
+    # Liga MX Final rights.
     # Tennis Grand Slams
     ("French Open",             "French Open Roland Garros",           [5, 6],       "tennis",     "Tennis Ch.<br/>NBC"),
     ("Wimbledon",               "Wimbledon",                           [6, 7],       "tennis",     "ESPN"),
@@ -1036,21 +1046,22 @@ RECURRING_MANIFEST = [
     # Big Ten Network — football championship
     ("Big Ten Championship",    "Big Ten Football Championship",       [12],         "college big","CBS<br/>BTN"),
     # FOX Deportes — Spanish-language Liga MX broadcasts (Fubo Latino)
-    ("Liga MX Apertura — Kickoff","Liga MX Apertura",                  [7],          "soccer",     "TUDN<br/>FOX Deportes"),
+    ("Liga MX Apertura — Kickoff","Liga MX Apertura",                  [7],          "soccer",     "FOX Deportes"),
     # UEFA Nations League 2026-27 group stage (Sep–Nov)
-    ("UEFA Nations League — MD 1-2",  "UEFA Nations League Matchday",  [9],          "soccer",     "FS1 / FS2<br/>TUDN"),
-    ("UEFA Nations League — MD 3-4",  "UEFA Nations League Matchday",  [10],         "soccer",     "FS1 / FS2<br/>TUDN"),
-    ("UEFA Nations League — MD 5-6",  "UEFA Nations League Matchday",  [11],         "soccer big", "FS1 / FS2<br/>TUDN"),
+    # No Spanish/TUDN — TUDN off Fubo since Dec 2024, not restored.
+    ("UEFA Nations League — MD 1-2",  "UEFA Nations League Matchday",  [9],          "soccer",     "FS1 / FS2"),
+    ("UEFA Nations League — MD 3-4",  "UEFA Nations League Matchday",  [10],         "soccer",     "FS1 / FS2"),
+    ("UEFA Nations League — MD 5-6",  "UEFA Nations League Matchday",  [11],         "soccer big", "FS1 / FS2"),
     # CONCACAF Nations League 2026-27 group stage (Sep–Nov)
-    ("CONCACAF Nations League — MD 1-2", "CONCACAF Nations League",    [9],          "soccer",     "CBS Sports<br/>TUDN"),
-    ("CONCACAF Nations League — MD 3-4", "CONCACAF Nations League",    [10],         "soccer",     "CBS Sports<br/>TUDN"),
-    ("CONCACAF Nations League — MD 5-6", "CONCACAF Nations League",    [11],         "soccer big", "CBS Sports<br/>TUDN"),
+    ("CONCACAF Nations League — MD 1-2", "CONCACAF Nations League",    [9],          "soccer",     "CBS Sports"),
+    ("CONCACAF Nations League — MD 3-4", "CONCACAF Nations League",    [10],         "soccer",     "CBS Sports"),
+    ("CONCACAF Nations League — MD 5-6", "CONCACAF Nations League",    [11],         "soccer big", "CBS Sports"),
     # Other South American club finals
     ("Copa Sudamericana Final", "Copa Sudamericana Final",              [11],         "soccer big", "FS1<br/>FOX Deportes"),
     # Army-Navy Game — annual CBS classic
     ("Army-Navy Game",          "Army Navy Football",                   [12],         "college big", "CBS"),
     # AFC Asian Cup 2027 (Jan-Feb, Saudi Arabia)
-    ("AFC Asian Cup",           "AFC Asian Cup",                        [1, 2],       "soccer big", "CBS Sports<br/>TUDN"),
+    ("AFC Asian Cup",           "AFC Asian Cup",                        [1, 2],       "soccer big", "CBS Sports"),
     # Golf — PGA Tour + team events.
     # NOTE (2026-08-17): FedEx Cup Playoffs (St. Jude/BMW/TOUR Championship)
     # rotate NBC/CBS every other year through 2030 — verify the current
@@ -1091,7 +1102,7 @@ RECURRING_MANIFEST = [
     # other under-covered manifest entries), not a real auto-recovery.
     ("IndyCar Grand Prix of Monterey", "IndyCar Grand Prix of Monterey", [9],          "racing big", "FOX"),
     ("MLS Cup",                 "MLS Cup Final",                        [12],         "soccer big", "FOX<br/>FOX Deportes"),
-    ("Leagues Cup",             "Leagues Cup Final",                    [8, 9],       "soccer big", "FOX / FS1<br/>TUDN"),
+    ("Leagues Cup",             "Leagues Cup Final",                    [8, 9],       "soccer big", "FS1"),
 ]
 
 def audit_recurring(existing, today):
@@ -1342,13 +1353,15 @@ PRESS_FEEDS = [
         "css":     None, "col": "sports", "network": "ACC/SEC Net",
     },
     # ── Fubo Latino — Spanish-language networks ───────────────────────────────
-    {
-        "name":    "Google News — TUDN / Univision",
-        "url":     ("https://news.google.com/rss/search"
-                    "?q=%28TUDN+OR+Univision+OR+UniMas+OR+Galavision%29+%28schedule+OR+broadcast%29+2026"
-                    "&hl=en-US&gl=US&ceid=US:en"),
-        "css":     None, "col": "sports", "network": "TUDN",
-    },
+    # NOTE: a "Google News — TUDN / Univision" feed used to live here,
+    # crediting discovered candidates with "network": "TUDN". Removed
+    # 2026-08-26 — TUDN/Univision/UniMás/Galavisión have been off Fubo
+    # since a Dec 2024 carriage dispute (not yet restored), so this feed
+    # could only ever surface false candidates implying Fubo carriage
+    # that doesn't exist. If TUDN/Univision restoration ever needs
+    # watching, use the unconditional-digest pattern in weekly_audit.py
+    # (see check_wwe_schedule_watch) — surface headlines for a human to
+    # read, don't let a feed auto-credit a network as Fubo-available.
     {
         "name":    "Google News — Telemundo / Universo",
         "url":     ("https://news.google.com/rss/search"
@@ -1439,10 +1452,10 @@ _NETWORK_HINTS = [
     (r"\bTennis Channel\b",           "sports",      "sports", "Tennis Ch."),
     (r"\bGolf Channel\b",             "sports",      "sports", "Golf Ch."),
     # ── Fubo Latino (Spanish-language) ────────────────────────────────────────
-    (r"\bTUDN\b",                     "sports",      "sports", "TUDN"),
-    (r"\bUnivision\b",                "sports",      "sports", "Univision"),
-    (r"\bUniM[áa]s\b",                "sports",      "sports", "UniMás"),
-    (r"\bGalavisi[óo]n\b",            "sports",      "sports", "Galavisión"),
+    # TUDN/Univision/UniMás/Galavisión mappings removed 2026-08-26 — all
+    # four are TelevisaUnivision channels, off Fubo since a Dec 2024
+    # carriage dispute (not yet restored). Do not re-add without
+    # confirming restoration via WebSearch first.
     (r"\bTelemundo\b",                "sports",      "sports", "Telemundo"),
     (r"\bUniverso\b",                 "sports",      "sports", "Universo"),
     (r"\bNBC\s+Deportes\b",           "sports",      "sports", "NBC Deportes"),

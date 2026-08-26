@@ -14,6 +14,12 @@ Concrete incidents that motivated this rule (2026-08-17):
 
 None of these were guessable from internal consistency — they required an actual web search to catch. If a property has ever had its rights change hands (majors, FedEx Cup Playoffs, Ryder/Presidents/Solheim Cup, any "new TV deal" property), search for the **current year's** specific assignment before writing it down, even if you're confident from a prior season.
 
+## TUDN / Univision / UniMás / Galavisión are NOT on Fubo (found 2026-08-26)
+
+**None of the TelevisaUnivision channels are available on Fubo.** They've been off since a **December 2024 carriage dispute** (Fubo balked at a proposed 25% price increase) and were still not restored as of 2026-08. Do not credit any of these as a Fubo-available network — they were wrongly present in `FUBO_LINEAR_NETWORKS`, `_infer_network()`'s regex mapping, and a `PRESS_FEEDS` entry in `auto_update.py` (removed 2026-08-26; that `FUBO_LINEAR_NETWORKS` entry predated this session, so this bug had been live for a while). Ten `index.html` entries had a `latino-pill` and/or "Spanish on TUDN" claim purely because of this — fixed: UEFA Nations League (×3), CONCACAF Nations League (×3), Leagues Cup (×3), AFC Asian Cup. The Liga MX Apertura/Clausura Finals had **no other Fubo network at all** — removed entirely from both `index.html` and `RECURRING_MANIFEST` (there's no Fubo-available way to watch them right now), and Liga MX moved to `LEAGUE_COVERAGE_CHECKLIST`'s excluded-with-reason list so the completeness checker doesn't treat this as a standing false alarm.
+
+Fubo Latino still has ESPN Deportes, FOX Deportes, Telemundo, Universo, and beIN Sports — those remain valid Spanish-language options and don't need this treatment. Before crediting any Spanish-language network as Fubo-available, confirm it's actually one of these, not a TelevisaUnivision property. If this carriage dispute ever resolves, reverse all of the above (search "TUDN Fubo restored" or similar before trusting any single source, since carriage disputes can drag on and get reported as "close to resolution" repeatedly before actually resolving).
+
 ## The automated pipeline
 
 Four LaunchAgents run daily/weekly (`~/Library/LaunchAgents/tv.fubo.sports-*.plist`):
