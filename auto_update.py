@@ -713,6 +713,101 @@ def resolve_tbd_dates(soup, today):
     print(f"    → {len(resolved)} TBD date(s) resolved", flush=True)
     return resolved
 
+_APPROX_DATE_RE = re.compile(r'^~\s*([A-Za-z]{3,})\s+(\d{1,2})$')
+
+def resolve_approximate_dates(soup, today):
+    """
+    For events with a '~Mon DD' guessed date (as opposed to a fully TBD
+    'Month (TBD)' date, which resolve_tbd_dates handles above), try to
+    confirm the real date + time via TVMaze/SportsDB and replace the guess,
+    stripping the '~'.
+
+    This closes a real, confirmed gap: parse_single_date() rejects any
+    text containing '~', so verify_existing_dates() and
+    verify_existing_times() silently `continue` past every approximate
+    date and NEVER attempt verification on them — found 2026-09-11 after
+    Dancing with the Stars, Survivor, and The Amazing Race all sat on
+    WRONG guessed dates for weeks (off by anywhere from 1 to 15 days)
+    despite TVMaze having the correct, confirmed date AND time the entire
+    time (verified by hand with a raw API call — this was never a data
+    availability problem, purely a code path that never ran).
+
+    If no confirmed date turns up and the guess is within 7 days of today,
+    logs a loud ⚠️ warning: an event that close should have official
+    details by now (per the user's own framing), and if it doesn't, a
+    human should look rather than let a guess silently ride into its own
+    air date. Returns (resolved, still_unconfirmed_urgent) — both lists
+    of (title, ...) tuples for the daily log.
+    """
+    resolved = []
+    still_unconfirmed_urgent = []
+    print("  Resolving approximate ('~') dates...", flush=True)
+    sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
+                      "wnba", "college", "college-bb", "tennis", "golf", "racing"}
+    ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
+                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "paramount-e",
+                      "cmt-e", "telemundo-e", "nbc-e", "disney-e"}
+
+    for item in soup.find_all("div", class_="item"):
+        date_el  = item.find("div", class_="date")
+        title_el = item.find("div", class_="title")
+        if not (date_el and title_el):
+            continue
+        raw_date = date_el.get_text().strip()
+        m = _APPROX_DATE_RE.match(raw_date)
+        if not m:
+            continue
+        mo = MONTHS.get(m.group(1).lower()[:3])
+        if not mo:
+            continue
+        year = _item_year(item)
+        try:
+            guessed = date(year, mo, int(m.group(2)))
+        except ValueError:
+            continue
+
+        classes = set(item.get("class", []))
+        title = _clean_title(title_el)
+        if len(title) < 4:
+            continue
+
+        confirmed_date = None
+        confirmed_time = None
+        if classes & sports_classes:
+            full = sportsdb_event_full(title)
+            time.sleep(0.3)
+            if full:
+                confirmed_date = full.get("date")
+                confirmed_time = full.get("time_et")
+        elif classes & ent_classes:
+            confirmed_date = tvmaze_premiere_date(title)
+            time.sleep(0.2)
+            if confirmed_date:
+                full = tvmaze_show_full(title)
+                if full:
+                    confirmed_time = full.get("time_et")
+
+        if confirmed_date:
+            new_str = fmt_date(confirmed_date)
+            date_el.string = new_str
+            if confirmed_time and not item.get("data-time"):
+                item["data-time"] = confirmed_time
+            resolved.append((title, raw_date, new_str))
+            print(f"    ✅ {title}: {raw_date} → {new_str}"
+                  + (f" ({confirmed_time})" if confirmed_time else ""), flush=True)
+        else:
+            days_out = (guessed - today).days
+            if 0 <= days_out <= 7:
+                still_unconfirmed_urgent.append((title, raw_date))
+                print(f"    ⚠️  URGENT — {title} is {raw_date} "
+                      f"(within 7 days) but no confirmed date/time found. "
+                      f"Needs a manual check.", flush=True)
+
+    print(f"    → {len(resolved)} approximate date(s) confirmed, "
+          f"{len(still_unconfirmed_urgent)} still unconfirmed within 7 days",
+          flush=True)
+    return resolved, still_unconfirmed_urgent
+
 def enrich_event_details(soup, today):
     """
     For each upcoming item that doesn't yet have a stored time/venue,
@@ -1768,6 +1863,7 @@ def run():
 
     pruned       = prune_past_events(soup, today, cutoff_days=5)
     tbd_resolved = resolve_tbd_dates(soup, today)
+    approx_resolved, urgent_unconfirmed = resolve_approximate_dates(soup, today)
     corrections  = verify_existing_dates(soup)
     time_updates = verify_existing_times(soup, today)
     enrichments  = enrich_event_details(soup, today)
@@ -1784,7 +1880,8 @@ def run():
           flush=True)
 
     if (not all_cands and not corrections and not enrichments
-            and not time_updates and not pruned and not tbd_resolved):
+            and not time_updates and not pruned and not tbd_resolved
+            and not approx_resolved and not urgent_unconfirmed):
         msg = "auto_update: no new candidates found, all dates verified"
         with open(log_path, "w") as f:
             f.write(f"{msg}\nRun: {today}\nMode: {mode}\n")
@@ -1792,30 +1889,42 @@ def run():
         return
 
     # Audit-only path (no new events to add) still warrants a save
-    if not all_cands and (corrections or enrichments or time_updates or pruned or tbd_resolved):
+    if not all_cands and (corrections or enrichments or time_updates or pruned
+                           or tbd_resolved or approx_resolved or urgent_unconfirmed):
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
         with open(log_path, "w") as f:
             f.write(f"auto_update — {today}\nMode: {mode}\n"
                     f"Date fixes  : {len(corrections)}\n"
                     f"TBD resolved: {len(tbd_resolved)}\n"
+                    f"Approx resolved: {len(approx_resolved)}\n"
                     f"Time shifts : {len(time_updates)}\n"
                     f"Enriched    : {enrichments}\n"
                     f"Pruned      : {len(pruned)}\n")
+            if urgent_unconfirmed:
+                f.write(f"\n⚠️  UNCONFIRMED WITHIN 7 DAYS ({len(urgent_unconfirmed)}) — needs a manual check:\n")
+                for title, guess in urgent_unconfirmed:
+                    f.write(f"  ⚠️  {title} ({guess}) — no confirmed date/time from TVMaze/SportsDB\n")
+                f.write("\n")
             for title, old, new in tbd_resolved:
                 f.write(f"  📅 {title}: {old} → {new}\n")
+            for title, old, new in approx_resolved:
+                f.write(f"  ✅ {title}: {old} → {new}\n")
             for title, old, new in time_updates:
                 f.write(f"  ⏰ {title}: {old} → {new}\n")
             for title, end_d in pruned:
                 f.write(f"  🗑  {title} (ended {end_d})\n")
         msg_bits = []
+        if urgent_unconfirmed: msg_bits.append(f"⚠️ {len(urgent_unconfirmed)} unconfirmed within 7 days")
         if pruned:       msg_bits.append(f"{len(pruned)} past event(s) pruned")
         if corrections:  msg_bits.append(f"{len(corrections)} date(s) corrected")
+        if approx_resolved: msg_bits.append(f"{len(approx_resolved)} approx date(s) confirmed")
         if time_updates: msg_bits.append(f"{len(time_updates)} time shift(s)")
         if enrichments:  msg_bits.append(f"{enrichments} item(s) enriched")
         msg = "Calendar refreshed: " + " · ".join(msg_bits)
+        sound = "Basso" if urgent_unconfirmed else "Glass"
         subprocess.run(["osascript", "-e",
-            f'display notification "{msg}" with title "fubo Calendar" sound name "Glass"'])
+            f'display notification "{msg}" with title "fubo Calendar" sound name "{sound}"'])
         print(f"[{today}] {msg}", flush=True)
         return
 
@@ -1840,7 +1949,8 @@ def run():
 
     added = insert_events(soup, items_to_add)
 
-    if added > 0 or corrections or enrichments or time_updates or pruned or tbd_resolved:
+    if (added > 0 or corrections or enrichments or time_updates or pruned
+            or tbd_resolved or approx_resolved or urgent_unconfirmed):
         with open(INDEX, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
@@ -1851,11 +1961,17 @@ def run():
         f.write(f"Added       : {added}\n")
         f.write(f"Pruned      : {len(pruned)}\n")
         f.write(f"TBD resolved: {len(tbd_resolved)}\n")
+        f.write(f"Approx resolved: {len(approx_resolved)}\n")
         f.write(f"Date fixes  : {len(corrections)}\n")
         f.write(f"Time shifts : {len(time_updates)}\n")
         f.write(f"Enriched    : {enrichments}\n")
         f.write(f"Recurring   : {len(recurring_cands)} missing\n")
         f.write("=" * 50 + "\n\n")
+        if urgent_unconfirmed:
+            f.write(f"⚠️  UNCONFIRMED WITHIN 7 DAYS ({len(urgent_unconfirmed)}) — needs a manual check:\n")
+            for title, guess in urgent_unconfirmed:
+                f.write(f"  ⚠️  {title} ({guess}) — no confirmed date/time from TVMaze/SportsDB\n")
+            f.write("\n")
         if pruned:
             f.write("PRUNED (ended >5 days ago):\n")
             for title, end_d in pruned:
@@ -1865,6 +1981,11 @@ def run():
             f.write("TBD DATES RESOLVED:\n")
             for title, old, new in tbd_resolved:
                 f.write(f"  📅 {title}: {old} → {new}\n")
+            f.write("\n")
+        if approx_resolved:
+            f.write("APPROXIMATE DATES CONFIRMED:\n")
+            for title, old, new in approx_resolved:
+                f.write(f"  ✅ {title}: {old} → {new}\n")
             f.write("\n")
         if corrections:
             f.write("DATE CORRECTIONS:\n")
@@ -1881,12 +2002,16 @@ def run():
             f.write(f"+ [{it.get('month')}] {snippet}\n")
 
     parts = []
+    if urgent_unconfirmed:
+        parts.append(f"⚠️ {len(urgent_unconfirmed)} unconfirmed within 7 days")
     if added:
         parts.append(f"{added} new event(s) added")
     if pruned:
         parts.append(f"{len(pruned)} past event(s) pruned")
     if tbd_resolved:
         parts.append(f"{len(tbd_resolved)} TBD date(s) resolved")
+    if approx_resolved:
+        parts.append(f"{len(approx_resolved)} approx date(s) confirmed")
     if corrections:
         parts.append(f"{len(corrections)} date(s) corrected")
     if time_updates:
@@ -1895,9 +2020,10 @@ def run():
         parts.append(f"{enrichments} item(s) enriched")
     msg = ("Calendar updated: " + " · ".join(parts)
            if parts else "Calendar check complete — all clear")
+    sound = "Basso" if urgent_unconfirmed else "Glass"
 
     subprocess.run(["osascript", "-e",
-        f'display notification "{msg}" with title "fubo Calendar" sound name "Glass"'])
+        f'display notification "{msg}" with title "fubo Calendar" sound name "{sound}"'])
     print(f"[{today}] {msg}", flush=True)
     print(f"Log: {log_path}", flush=True)
 
