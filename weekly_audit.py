@@ -449,6 +449,35 @@ def check_network_schedule_announcements(today):
     return digest
 
 
+def check_unresolved_tbd(events, today):
+    """Flag every calendar item still carrying a TBD/Fall/~ date whose month
+    is this month, next month, or already past. The daily auto_update
+    resolvers can't fix these (TheSportsDB free tier barely covers sports;
+    TVMaze lags networks by weeks) and they never verify NETWORKS at all —
+    found 2026-10-13 when five October 'TBD' cards each had a real, public
+    date and two (WNBA Finals, ALCS) also had the wrong network. For each
+    one, surface the freshest headlines so a human/AI can confirm date AND
+    network in minutes. Items in a month that already ended are listed
+    separately as 'stale' (daily prune drops undated ones)."""
+    out = []
+    for e in events:
+        d = e["date"]
+        if not re.search(r"tbd|fall|~", d, re.I) or "midseason" in d.lower():
+            continue
+        start = parse_start_date(d)
+        if not start:
+            continue
+        days_out = (start - today).days
+        if days_out > 45:
+            continue
+        hits = google_news_search(f'"{e["title"]}" 2026 date network how to watch')[:3]
+        out.append({"title": e["title"], "date": d, "network": e["network"],
+                    "days_out": days_out, "headlines": hits})
+        time.sleep(0.5)
+    print(f"    → {len(out)} unresolved TBD/approximate item(s) due within 45 days", flush=True)
+    return out
+
+
 def run_audit():
     today    = date.today()
     log_path = f"{LOGS_DIR}/weekly_audit_{today}.log"
@@ -482,6 +511,9 @@ def run_audit():
     print(f"\nChecking for network schedule announcements...", flush=True)
     network_digest = check_network_schedule_announcements(today)
     network_digest_count = len(network_digest)
+
+    print(f"\nChecking unresolved TBD/approximate items...", flush=True)
+    tbd_items = check_unresolved_tbd(events, today)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -544,7 +576,7 @@ def run_audit():
         f.write("=" * 60 + "\n\n")
 
         issues = (len(flagged) + deportes_missing_count + rights_flags_count
-                  + missing_leagues_count)
+                  + missing_leagues_count + len(tbd_items))
 
         if not issues:
             f.write("✅  All clear — no issues found. Calendar looks good.\n")
@@ -555,6 +587,14 @@ def run_audit():
                 f.write("🚨 LEAGUES WITH ZERO CALENDAR PRESENCE (verify Fubo carriage, then add):\n")
                 for league in missing_leagues:
                     f.write(f"  ▸ {league}\n")
+                f.write("\n")
+
+            if tbd_items:
+                f.write("❓ UNRESOLVED TBD / APPROXIMATE DATES (research date AND network, then update):\n")
+                for it in tbd_items:
+                    f.write(f"  ▸ {it['title']} — {it['date']} on {it['network']} ({it['days_out']}d)\n")
+                    for h in it["headlines"]:
+                        f.write(f"      [{h['source']}] {h['title']}\n")
                 f.write("\n")
 
             if rights_flags:
