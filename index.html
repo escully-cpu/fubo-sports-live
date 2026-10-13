@@ -236,7 +236,8 @@
      filter chips instead. */
   .latino-pill, .canada-pill { display: none; }
 
-  .item.past { opacity: 0.3; }
+  .item.past { display: none; }
+  .month-block.all-past { display: none; }
   .item.this-week { background: #1a1928; }
   .item.this-week .title { color: #fff; }
   .item.this-week .date { position: relative; padding-left: 10px; }
@@ -428,7 +429,7 @@
 <div class="hero-text">
 <div class="fubo-logo"><img alt="fubo" class="fubo-wm" src="fubo-logo.png"/><span class="fubo-sub">All Plans</span></div>
 <h1>Upcoming Sports &amp; Entertainment Events</h1>
-<p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May 2026 – January 2027</p>
+<p style="font-size:11px;color:#444;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;margin-top:4px;">May 2026 – March 2027</p>
 <a class="movies-cta" href="https://escully-cpu.github.io/fubo-movies/" rel="noopener" target="_blank">📺 Fubo Movies + Shows →</a>
 </div>
 <div class="hero-search">
@@ -904,6 +905,48 @@
 </div>
 </div>
 </div>
+<!-- FEBRUARY 2027 -->
+<div class="month-block">
+<div class="month-label">February <span>2027</span></div>
+<div class="list">
+<div class="item nfl big">
+<div class="date">Feb 14</div>
+<div class="title">🏈 Super Bowl LXI<span class="sub">SoFi Stadium, Inglewood CA · First Super Bowl on ESPN/ABC simulcast · Spanish-language feed is on Univision (not on Fubo)</span></div>
+<div class="network">ESPN / ABC</div>
+</div>
+<div class="item racing big">
+<div class="date">Feb 21</div>
+<div class="title">🏁 Daytona 500 (69th running)<span class="sub">Moved a week later to avoid the Super Bowl · 2027 broadcaster not yet confirmed — verify (FOX historically)</span></div>
+<div class="network">FOX</div>
+</div>
+<div class="item college-bb">
+<div class="date">Feb (weekly)</div>
+<div class="title">🏀 NCAA Basketball — Rivalry &amp; Bubble Season<span class="sub">Conference play heads toward Selection Sunday · ESPN / FOX / FS1 / BTN / CBS</span></div>
+<div class="network">ESPN / FOX / FS1<br/>BTN / CBS</div>
+</div>
+</div>
+</div>
+<!-- MARCH 2027 -->
+<div class="month-block">
+<div class="month-label">March <span>2027</span></div>
+<div class="list">
+<div class="item college-bb big">
+<div class="date">Mar 14</div>
+<div class="title">🏀 Selection Sunday — NCAA Tournament<span class="sub">Field expands to 76 teams in 2027 · Network assignment to be confirmed (CBS/TBS/TNT/truTV expected)</span></div>
+<div class="network">CBS</div>
+</div>
+<div class="item college-bb big">
+<div class="date">Mar 16–19</div>
+<div class="title">🏀 March Madness — Opening Round &amp; First Round<span class="sub">Opening Round Mar 16–17, First Round Mar 18–19 · CBS / TBS / TNT / truTV (confirm)</span></div>
+<div class="network">CBS / TNT</div>
+</div>
+<div class="item college">
+<div class="date">Mar (TBD)</div>
+<div class="title">🏈 College Football Spring Games<span class="sub">Spring practice showcases · ESPN family / FOX / BTN</span></div>
+<div class="network">ESPN / FS1<br/>BTN</div>
+</div>
+</div>
+</div>
 </div><!-- end col-sports -->
 <!-- ===== ENTERTAINMENT ===== -->
 <div class="col col-ent">
@@ -971,10 +1014,6 @@
 <div class="date">Sep 30</div>
 <div class="title">Shark Tank S18<span class="sub">Shark Tank is an American reality television series where entrepreneurs pitch their business ideas t</span></div>
 <div class="network">ABC</div>
-</div><div class="item paramount-e big" data-time="Every Monday 9:00 PM ET">
-<div class="date">Sep 28</div>
-<div class="title">Still Flipping Out<div class="new-pill">New Series</div><span class="sub">The new series follows former "Flipping Out" star Jeff Lewis as he navigates the demands of his hit</span></div>
-<div class="network">Bravo</div>
 </div></div>
 </div>
 <!-- OCTOBER -->
@@ -1209,6 +1248,28 @@
 <div class="network">ABC</div>
 </div></div>
 </div>
+<!-- FEBRUARY 2027 -->
+<div class="month-block">
+<div class="month-label">February <span>2027</span></div>
+<div class="list">
+<div class="item abc-e big">
+<div class="date">Feb 7</div>
+<div class="title">🏆 Grammy Awards 2027<span class="sub">Crypto.com Arena, Los Angeles · Moves to ABC (CBS aired the 2026 show) · Streams on Disney+ / Hulu Live</span></div>
+<div class="network">ABC</div>
+</div>
+</div>
+</div>
+<!-- MARCH 2027 -->
+<div class="month-block">
+<div class="month-label">March <span>2027</span></div>
+<div class="list">
+<div class="item abc-e big">
+<div class="date">Mar 14</div>
+<div class="title">🏆 99th Oscars<span class="sub">Dolby Theatre · 7 PM ET on ABC · Conan O'Brien hosting for a third year</span></div>
+<div class="network">ABC</div>
+</div>
+</div>
+</div>
 </div><!-- end col-ent -->
 </div><!-- end columns-wrapper -->
 <div class="note">
@@ -1278,6 +1339,16 @@ function parseEventDate(dateText, year) {
     } else if (d <= weekAhead) {
       item.classList.add('this-week');
     }
+  });
+
+  document.querySelectorAll('.month-block').forEach(function(mb) {
+    const lbl = mb.querySelector('.month-label');
+    const mName = lbl ? lbl.childNodes[0].textContent.trim().slice(0,3) : '';
+    const ySpan = lbl ? lbl.querySelector('span') : null;
+    const mIdx = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(mName);
+    const monthEnded = mIdx >= 0 && ySpan && new Date(parseInt(ySpan.textContent,10), mIdx + 1, 0) < today;
+    if (monthEnded) mb.querySelectorAll('.item').forEach(function(i){ i.classList.add('past'); });
+    if (monthEnded || !mb.querySelector('.item:not(.past)')) mb.classList.add('all-past');
   });
 
   const lu = document.getElementById('last-updated');
