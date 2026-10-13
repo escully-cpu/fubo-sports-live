@@ -323,6 +323,32 @@ def prune_past_events(soup, today, cutoff_days=5):
         item.decompose()
         pruned.append((title, end_d))
 
+    # Undated (TBD / Fall / Midseason-style) items sitting in a month block
+    # that has already ended can never resolve — drop them instead of letting
+    # "Fall (TBD)" cards linger in September forever.
+    for item in list(soup.find_all("div", class_="item")):
+        date_el = item.find("div", class_="date")
+        if not date_el:
+            continue
+        txt = date_el.get_text().strip()
+        if not re.search(r"tbd|fall|weekly|ongoing", txt, re.I) or "midseason" in txt.lower():
+            continue
+        mb = item.find_parent("div", class_="month-block")
+        lbl = mb.find("div", class_="month-label") if mb else None
+        if not lbl:
+            continue
+        mname = lbl.get_text().strip()[:3].lower()
+        mo = MONTHS.get(mname)
+        if not mo:
+            continue
+        yr = _item_year(item)
+        month_end = (date(yr + (mo == 12), mo % 12 + 1, 1) - timedelta(days=1))
+        if month_end < cutoff:
+            title = _clean_title(item.find("div", class_="title"))
+            print(f"    🗑  {title} (undated, month ended {month_end})", flush=True)
+            item.decompose()
+            pruned.append((title, month_end))
+
     # Clean up empty month blocks
     for mb in list(soup.find_all("div", class_="month-block")):
         lst = mb.find("div", class_="list")
