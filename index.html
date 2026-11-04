@@ -1230,6 +1230,12 @@ function parseEventDate(dateText, year) {
       items.forEach(function(el) {
         el.style.display = (itemMatchesSport(el) && itemMatchesNet(el)) ? '' : 'none';
       });
+      col.querySelectorAll('.month-block').forEach(function(mb) {
+        var any = Array.prototype.some.call(mb.querySelectorAll('.item'), function(i) {
+          return i.style.display !== 'none' && !i.classList.contains('past');
+        });
+        mb.style.display = any ? '' : 'none';
+      });
 
       // sport chips
       if (activeSport.size === 0) {
