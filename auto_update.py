@@ -1711,6 +1711,8 @@ def discover_press_releases(existing, start, end):
             # Reject malformed names (unbalanced quotes, truncated, leading clutter)
             if show_name.count("'") % 2 or show_name.count('"') % 2:
                 continue
+            if show_name.endswith((",", ":", "-", "–", "—", "&")):
+                continue
             if show_name.lower().startswith(("emmy-", "the ", "a ", "an ")) and len(show_name) < 12:
                 continue
 
@@ -1741,7 +1743,7 @@ def discover_press_releases(existing, start, end):
                 "network":    net or css,
                 "css":        css,
                 "rating":     0.0,
-                "summary":    blurb[:80] if blurb else "",
+                "summary":    _trim_summary(blurb, 80) if blurb else "",
             })
 
         time.sleep(0.5)
@@ -1820,7 +1822,8 @@ def format_rule_based(candidates):
     for c in candidates:
         title = c["title"]
         season = c.get("season")
-        if season and season > 1:
+        # Annual specials report the year as the "season" (e.g. 2026): not a season number.
+        if season and 1 < season < 100:
             title += f" S{season:02d}"
 
         pill = ""
