@@ -1062,14 +1062,21 @@ def discover_tv(existing, start, end):
                 "network":    network,
                 "css":        css,
                 "rating":     (show.get("rating") or {}).get("average") or 0.0,
-                "summary":    re.sub(r"<[^>]+>", "",
-                              (show.get("summary") or ""))[:100].strip(),
+                "summary":    _trim_summary(re.sub(r"<[^>]+>", "",
+                              (show.get("summary") or ""))),
             })
         time.sleep(0.12)
         day += timedelta(days=1)
 
     print(f"    → {len(candidates)} TV candidates", flush=True)
     return candidates
+
+def _trim_summary(text, limit=100):
+    """Cut at a word boundary with an ellipsis, never mid-word."""
+    text = text.strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip(",;:–-") + "…"
 
 # ── TheSportsDB data source ───────────────────────────────────────────────────
 
