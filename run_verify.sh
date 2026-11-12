@@ -1,7 +1,8 @@
 #!/bin/bash
 # Autonomous fact-check of index.html. Usage: run_verify.sh [daily|weekly]
-#   daily  — re-verify the next 14 days (skipping cards verified in the last 3 days)
-#   weekly — re-verify the next 14 days fully, light-check 15-60 days out
+#   daily  — re-verify the next 45 days (0-14 days: skip cards verified in the last
+#            3 days; 15-45 days: skip cards verified in the last 7 days)
+#   weekly — re-verify the next 45 days fully, light-check 46-60 days out
 #            (~ / TBD / single-source cards), and add newly announced events.
 # Edits index.html in place via headless Claude, then lints. Lint failure or an
 # oversized diff reverts the run. The daily 9:05 push (push_to_github.sh)
@@ -30,9 +31,9 @@ cd "$DIR" || exit 1
 cp index.html "$DIR/logs/index.pre_verify.html"
 
 if [ "$MODE" = "daily" ]; then
-  SCOPE="Verify every card dated within the next 14 days (today through $(date -v+14d +%Y-%m-%d)), EXCEPT cards whose data-verified is within the last 3 days. Cards airing in the next 3 days come first. Do not look further out than 14 days and do not add new events."
+  SCOPE="Verify every card dated within the next 45 days (today through $(date -v+45d +%Y-%m-%d)). Skip a card if its data-verified is within the last 3 days (cards dated 0-14 days out) or within the last 7 days (cards dated 15-45 days out), unless it has a '~' date, no airtime or a 'confirm' note. Work nearest-dated first: cards airing in the next 3 days, then the rest of the first 14 days, then 15-45 days out. Do not look further out than 45 days and do not add new events."
 else
-  SCOPE="Verify EVERY card dated within the next 14 days (today through $(date -v+14d +%Y-%m-%d)). For cards 15-60 days out (through $(date -v+60d +%Y-%m-%d)), verify only those with a '~' date, a TBD/approximate date, no airtime, a 'confirm' note, or no data-verified stamp."
+  SCOPE="Verify EVERY card dated within the next 45 days (today through $(date -v+45d +%Y-%m-%d)), regardless of when it was last verified. For cards 46-60 days out (through $(date -v+60d +%Y-%m-%d)), verify only those with a '~' date, a TBD/approximate date, no airtime, a 'confirm' note, or no data-verified stamp."
 fi
 PROMPT="$(sed -e "s|{TODAY}|$TODAY|g" -e "s|{MODE}|$MODE|g" -e "s|{SCOPE}|$SCOPE|g" "$DIR/verify_prompt.md")"
 
@@ -40,7 +41,7 @@ echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] verify ($MODE) start" >> "$LOG"
 "$CLAUDE_BIN" -p "$PROMPT" \
   --allowedTools "WebSearch,Read,Edit" \
   --permission-mode acceptEdits \
-  --max-turns 200 \
+  --max-turns 400 \
   >> "$LOG" 2>&1
 
 # ── Safety checks: revert the whole run if anything looks wrong ────────────
