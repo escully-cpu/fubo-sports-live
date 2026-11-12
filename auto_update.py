@@ -120,7 +120,31 @@ def _stem(w):
     """First 4 chars — rough stem for overlap detection (catches plural/suffix variants)."""
     return w[:4]
 
+# Different outlets name the same show differently ("CMA Awards" vs "Country
+# Music Association Awards"); fold known aliases to one canonical form so the
+# discovery step doesn't re-add a card that is already on the calendar.
+_TITLE_ALIASES = [
+    (r"country music association awards?", "cma awards"),
+    (r"academy awards?|\boscars?\b", "oscars"),
+    (r"golden globe awards?", "golden globes"),
+    (r"grammy awards?", "grammys"),
+    (r"american music awards?", "amas"),
+    (r"macy'?s thanksgiving day parade", "macys parade"),
+    (r"dick clark'?s new year'?s rockin'? eve.*", "rockin eve"),
+    (r"saturday night live", "snl"),
+    (r"dancing with the stars", "dwts"),
+    (r"the masked singer", "masked singer"),
+]
+
+def _canon_title(t):
+    t = t.lower().strip()
+    for pat, canon in _TITLE_ALIASES:
+        t = re.sub(pat, canon, t)
+    return t
+
 def already_in_calendar(title, existing):
+    existing = {_canon_title(e) for e in existing}
+    title = _canon_title(title)
     t = title.lower().strip()
     # Exact prefix match
     if t[:60] in existing:
