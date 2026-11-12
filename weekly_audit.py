@@ -514,6 +514,8 @@ def run_audit():
 
     print(f"\nChecking unresolved TBD/approximate items...", flush=True)
     tbd_items = check_unresolved_tbd(events, today)
+    from lint_calendar import lint as _lint
+    lint_findings = _lint(open(INDEX, encoding='utf-8').read(), today)
 
     # ── Step 1: scan all curated RSS feeds once ──────────────────────────
     print(f"\nScanning {len(RSS_FEEDS)} RSS feeds...", flush=True)
@@ -576,7 +578,7 @@ def run_audit():
         f.write("=" * 60 + "\n\n")
 
         issues = (len(flagged) + deportes_missing_count + rights_flags_count
-                  + missing_leagues_count + len(tbd_items))
+                  + missing_leagues_count + len(tbd_items) + len(lint_findings))
 
         if not issues:
             f.write("✅  All clear — no issues found. Calendar looks good.\n")
@@ -587,6 +589,12 @@ def run_audit():
                 f.write("🚨 LEAGUES WITH ZERO CALENDAR PRESENCE (verify Fubo carriage, then add):\n")
                 for league in missing_leagues:
                     f.write(f"  ▸ {league}\n")
+                f.write("\n")
+
+            if lint_findings:
+                f.write("🧹 CONTENT LINT (duplicates, cut-off text, wrong weekday/month, missing airtimes):\n")
+                for lvl, msg in lint_findings:
+                    f.write(f"  ▸ [{lvl}] {msg}\n")
                 f.write("\n")
 
             if tbd_items:

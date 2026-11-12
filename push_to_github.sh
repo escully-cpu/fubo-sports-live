@@ -30,6 +30,17 @@ if [ "$BYTES" -lt 20000 ] || ! grep -q "</html>" index.html || [ "$ITEM_COUNT" -
   exit 1
 fi
 
+
+# ── Content gate: refuse to push known-wrong content (duplicates, cut-off
+# text, wrong weekday times, wrong month block ...). See lint_calendar.py.
+LINT_OUT=$(/usr/bin/python3 "$DIR/lint_calendar.py" index.html 2>&1)
+if [ $? -ne 0 ]; then
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] ABORT — lint errors, not pushing:" >> "$DIR/logs/push_error.log"
+  echo "$LINT_OUT" | grep '^ERROR' >> "$DIR/logs/push_error.log"
+  osascript -e 'display notification "Calendar failed content lint — daily push skipped. See logs/push_error.log" with title "fubo Calendar — ABORTED" sound name "Basso"' 2>/dev/null
+  exit 1
+fi
+
 git add index.html
 git diff --cached --quiet && exit 0   # nothing changed, skip push
 

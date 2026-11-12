@@ -96,3 +96,9 @@ The daily resolvers can't fix most TBD cards (TheSportsDB free tier ≈ no sport
 
 ## Add-on networks use their own class + legend "add-on" tag (added 2026-11-12)
 Fubo Channel Store add-ons (Starz, Paramount+ with Showtime, MGM+, Fox Nation) get a dedicated `*-e` class (`starz-e`, `showtime-e`, `mgm-e`, `foxnation-e`) so they can be filtered and are tagged "add-on" in the Entertainment legend. When adding a class, update the CSS (dark + light), the legend, and the four `ent_classes` sets + `ENT_NETWORKS` + `_infer_network` + the Gemini prompt class list in `auto_update.py`.
+
+## Content lint gate + verification rules (added 2026-11-12, after a page-wide gut check found ~40 wrong cards)
+- `lint_calendar.py` runs inside `push_to_github.sh`: **ERROR findings block the daily push** (duplicate cards, description cut off at 100 chars, year-as-season "S2026", titles ending in a comma, "Every <weekday>" time on a one-off date that isn't that weekday, card in the wrong month block). WARN findings (near-term `~` dates, TV cards within 2 weeks with no airtime) appear in the weekly audit's "CONTENT LINT" section.
+- Run `python3 lint_calendar.py` after ANY hand edit to index.html. If you add a new alias for a show that outlets name differently, add it to `ALIASES` in lint_calendar.py and `_TITLE_ALIASES` in auto_update.py.
+- Network/midseason schedule announcements name many shows in one headline; the discovery step can't extract those. When a network announces a midseason/fall schedule, add the cards by hand from the primary source (TVLine/Deadline/network press site) and check every existing `~` card for that network against it. This is how Masked Singer was missed.
+- Never write an airtime or network from memory. Single-source claims go on the card text as "confirm".
