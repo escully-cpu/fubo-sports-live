@@ -51,6 +51,8 @@ ENT_NETWORKS = {
     "Starz":             ("starz-e",     "ent", "major"),
     "Paramount+ w/ Showtime": ("showtime-e", "ent", "major"),
     "Showtime":          ("showtime-e", "ent", "major"),
+    "MGM+":              ("mgm-e",       "ent", "major"),
+    "Fox Nation":        ("foxnation-e", "ent", "major"),
     "Paramount Network": ("paramount-e", "ent", "standard"),
     "CMT":               ("cmt-e",       "ent", "standard"),
     "Telemundo":         ("telemundo-e", "ent", "major"),
@@ -645,7 +647,7 @@ def verify_existing_times(soup, today):
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
                       "wnba", "college", "college-bb", "tennis", "golf", "racing"}
     ent_classes    = {"cbs-e", "abc-e", "nbc-e", "fox-e", "fx-e", "fxx-e",
-                      "freeform-e", "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e",
+                      "freeform-e", "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e", "mgm-e", "foxnation-e",
                       "paramount-e", "cmt-e", "telemundo-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
@@ -701,7 +703,7 @@ def resolve_tbd_dates(soup, today):
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
                       "wnba", "college", "college-bb", "tennis", "golf", "racing"}
     ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
-                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e", "paramount-e",
+                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e", "mgm-e", "foxnation-e", "paramount-e",
                       "cmt-e", "telemundo-e", "nbc-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
@@ -773,7 +775,7 @@ def resolve_approximate_dates(soup, today):
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
                       "wnba", "college", "college-bb", "tennis", "golf", "racing"}
     ent_classes    = {"cbs-e", "abc-e", "fox-e", "fx-e", "fxx-e", "freeform-e",
-                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e", "paramount-e",
+                      "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e", "mgm-e", "foxnation-e", "paramount-e",
                       "cmt-e", "telemundo-e", "nbc-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
@@ -852,7 +854,7 @@ def enrich_event_details(soup, today):
     sports_classes = {"soccer", "wwe", "nfl", "nba", "nhl", "mlb",
                       "wnba", "college", "college-bb", "tennis", "golf", "racing"}
     ent_classes    = {"cbs-e", "abc-e", "nbc-e", "fox-e", "fx-e", "fxx-e",
-                      "freeform-e", "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e",
+                      "freeform-e", "hallmark-e", "bet-e", "mtv-e", "starz-e", "showtime-e", "mgm-e", "foxnation-e",
                       "paramount-e", "cmt-e", "telemundo-e", "disney-e"}
 
     for item in soup.find_all("div", class_="item"):
@@ -1555,6 +1557,8 @@ _NETWORK_HINTS = [
     (r"\bComedy Central\b",           "paramount-e", "ent",    "Comedy Central"),
     (r"\bStarz\b",                    "starz-e",     "ent",    "Starz"),
     (r"\bShowtime\b|Paramount\+\s+(?:with|w/)\s+Showtime", "showtime-e", "ent", "Paramount+ w/ Showtime"),
+    (r"\bMGM\+",                      "mgm-e",       "ent",    "MGM+"),
+    (r"\bFox\s+Nation\b",            "foxnation-e", "ent",    "Fox Nation"),
     (r"\bParamount Network\b",        "paramount-e", "ent",    "Paramount Network"),
     (r"\bCMT\b",                      "cmt-e",       "ent",    "CMT"),
     (r"\bLifetime\b",                 "hallmark-e",  "ent",    "Lifetime"),
@@ -1781,7 +1785,7 @@ Return a JSON array of events worth adding. For each:
   "html": "<div class=\\"item CSSCLASS\\">\\n<div class=\\"date\\">May 15</div>\\n<div class=\\"title\\">Title<span class=\\"sub\\">Brief description</span></div>\\n<div class=\\"network\\">Network</div>\\n</div>"
 }}
 CSS classes: cbs-e, abc-e, fox-e, fx-e, freeform-e, hallmark-e, bet-e, mtv-e,
-starz-e, showtime-e, paramount-e, nfl, nba, nhl, mlb, soccer, tennis, golf, wwe, college, wnba.
+starz-e, showtime-e, mgm-e, foxnation-e, paramount-e, nfl, nba, nhl, mlb, soccer, tennis, golf, wwe, college, wnba.
 Add class "big" for major events. Use <div class=\\"new-pill\\">New Series</div> or
 <div class=\\"new-pill\\">Series Finale</div> where appropriate.
 Output ONLY the JSON array. If nothing qualifies, output []."""
