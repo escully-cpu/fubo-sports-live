@@ -1,6 +1,6 @@
 #!/bin/bash
 # Autonomous fact-check of index.html. Usage: run_verify.sh [daily|weekly]
-#   daily  — re-verify cards airing in the next 3 days (catches last-minute moves)
+#   daily  — re-verify the next 14 days (skipping cards verified in the last 3 days)
 #   weekly — re-verify the next 14 days fully, light-check 15-60 days out
 #            (~ / TBD / single-source cards), and add newly announced events.
 # Edits index.html in place via headless Claude, then lints. Lint failure or an
@@ -30,7 +30,7 @@ cd "$DIR" || exit 1
 cp index.html "$DIR/logs/index.pre_verify.html"
 
 if [ "$MODE" = "daily" ]; then
-  SCOPE="Verify ONLY cards dated within the next 3 days (today through $(date -v+3d +%Y-%m-%d)). Skip everything else."
+  SCOPE="Verify every card dated within the next 14 days (today through $(date -v+14d +%Y-%m-%d)), EXCEPT cards whose data-verified is within the last 3 days. Cards airing in the next 3 days come first. Do not look further out than 14 days and do not add new events."
 else
   SCOPE="Verify EVERY card dated within the next 14 days (today through $(date -v+14d +%Y-%m-%d)). For cards 15-60 days out (through $(date -v+60d +%Y-%m-%d)), verify only those with a '~' date, a TBD/approximate date, no airtime, a 'confirm' note, or no data-verified stamp."
 fi
