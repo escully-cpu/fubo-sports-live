@@ -37,7 +37,6 @@ LINT_OUT=$(/usr/bin/python3 "$DIR/lint_calendar.py" index.html 2>&1)
 if [ $? -ne 0 ]; then
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] ABORT — lint errors, not pushing:" >> "$DIR/logs/push_error.log"
   echo "$LINT_OUT" | grep '^ERROR' >> "$DIR/logs/push_error.log"
-  osascript -e 'display notification "Calendar failed content lint — daily push skipped. See logs/push_error.log" with title "fubo Calendar — ABORTED" sound name "Basso"' 2>/dev/null
   exit 1
 fi
 
