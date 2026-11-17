@@ -69,6 +69,9 @@ def lint(html, today=None):
             out.append(("ERROR", f"year used as season number: {tag}"))
         if title.endswith((",", ":", "-", "–", "—", "&")) or title.count('"') % 2:
             out.append(("ERROR", f"malformed title: {tag}"))
+        # --- card whose only network is not on Fubo (Apple TV / Netflix / Prime / "not on Fubo")
+        if re.search(r"not on fubo|^(apple tv|netflix|prime video|amazon)\b", net.strip(), re.I):
+            out.append(("ERROR", f"network is not on Fubo: {tag}"))
         # --- truncated description (hard 100-char cut, no ending punctuation)
         if len(sub) == 100 and not sub.endswith((".", "!", "?", ")", "…")):
             out.append(("ERROR", f"description cut off mid-word: {tag}"))

@@ -10,7 +10,7 @@ For every card in scope, use WebSearch to confirm DATE, NETWORK (and that Fubo c
 ## How to edit (edit index.html directly with the Edit tool)
 - Change a value only when a primary source states it, or two independent outlets agree. Otherwise leave the value and end the card's description with " · confirm" (once).
 - On every card you verified, set `data-verified="{TODAY}"` on the `<div class="item ...">` and `data-src="<short source name>"` (e.g. `data-src="ABC press"`). Keep existing attributes. Set `data-time="H:MM PM ET"` when an airtime is confirmed (never "Every <weekday>" for a one-off date).
-- Cards that turn out to be wrong or cancelled (show cancelled, event moved out of the window, not on Fubo): remove the whole card. If an event moved to another month, move the card into that month's block.
+- Cards that turn out to be wrong or cancelled (show cancelled, event moved out of the window, not on Fubo): remove the whole card. If only part of an event is on Fubo (e.g. one round on Apple TV, the rest on FS1), keep the card only for the Fubo-carried part: use that part's date and network, and never put a non-Fubo network or the words "not on Fubo" in the network line. A card whose only network is not on Fubo must not exist. If an event moved to another month, move the card into that month's block.
 - Respect structure: month blocks, `.item` markup, class names (cbs-e, nfl, showtime-e, ...). Descriptions must be complete sentences or phrases, never cut mid-word, and under ~160 characters.
 - Do NOT touch the CSS/JS, legend, header or note sections.
 
