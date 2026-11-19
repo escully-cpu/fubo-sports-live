@@ -681,6 +681,8 @@ def verify_existing_times(soup, today):
         # Skip manually-curated times (parenthetical context, multi-slot, etc.)
         if any(c in old_time for c in ("(", "·", "—", "&")):
             continue
+        if _verifier_owned(item, today):
+            continue
         date_el  = item.find("div", class_="date")
         title_el = item.find("div", class_="title")
         if not (date_el and title_el):
@@ -705,6 +707,9 @@ def verify_existing_times(soup, today):
             continue
 
         new_time = details.get("time_et")
+        # A weekly pattern ("Every Sunday ...") must never replace the airtime of a one-off date
+        if new_time and new_time.startswith("Every") and not old_time.startswith("Every"):
+            continue
         if new_time and new_time != old_time:
             item["data-time"] = new_time
             updates.append((title, old_time, new_time))
@@ -715,6 +720,20 @@ def verify_existing_times(soup, today):
 
 _TBD_MONTH_RE = re.compile(
     r"^~?\s*([A-Za-z]+)(?:\s+\d+)?\s*\(?\s*TBD\s*\)?\s*$", re.IGNORECASE)
+
+def _verifier_owned(item, today, days=30):
+    """True if the headless verifier (run_verify.sh) stamped this card within
+    `days` days. Its values come from primary sources, so the TVMaze/SportsDB
+    resolvers must not overwrite them (they re-introduced "Every Sunday" times
+    on one-off dates and a TVMaze guess for Einstein after each fix)."""
+    v = item.get("data-verified")
+    if not v:
+        return False
+    try:
+        return (today - date.fromisoformat(v)).days <= days
+    except ValueError:
+        return False
+
 
 def resolve_tbd_dates(soup, today):
     """
@@ -737,6 +756,8 @@ def resolve_tbd_dates(soup, today):
             continue
         raw_date = date_el.get_text().strip()
         if "tbd" not in raw_date.lower() and "fall" not in raw_date.lower():
+            continue
+        if _verifier_owned(item, today):
             continue
         classes = set(item.get("class", []))
         title = _clean_title(title_el)
@@ -810,6 +831,8 @@ def resolve_approximate_dates(soup, today):
         raw_date = date_el.get_text().strip()
         m = _APPROX_DATE_RE.match(raw_date)
         if not m:
+            continue
+        if _verifier_owned(item, today):
             continue
         mo = MONTHS.get(m.group(1).lower()[:3])
         if not mo:
